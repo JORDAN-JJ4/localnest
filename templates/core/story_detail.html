@@ -176,7 +176,17 @@
                                         <p class="text-[10px] text-on-surface-variant">Book the "{{ recipe.experience.title }}" local experience.</p>
                                     </div>
                                 </div>
-                                <a href="{% if recipe.experience.host.properties.exists %}{% url 'properties:detail' recipe.experience.host.properties.first.id %}{% else %}{% url 'properties:search' %}?type=experiences{% endif %}" class="bg-primary hover:bg-secondary text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-sm transition whitespace-nowrap hover:no-underline">View Experience</a>
+                        {% endif %}
+                        {% if not recipe.experience and recipe.family.host_user.properties.exists %}
+                            <div class="border-t border-outline-variant/10 pt-6 mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-primary/5 p-4 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-2xl text-secondary">home</span>
+                                    <div>
+                                        <h5 class="text-xs font-bold text-primary">Stay with the {{ recipe.family.name }} family</h5>
+                                        <p class="text-[10px] text-on-surface-variant">Book a stay at their homestay: {{ recipe.family.host_user.properties.first.name }}.</p>
+                                    </div>
+                                </div>
+                                <a href="{% url 'properties:detail' recipe.family.host_user.properties.first.id %}" class="bg-primary hover:bg-secondary text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-sm transition whitespace-nowrap hover:no-underline">Book Homestay</a>
                             </div>
                         {% endif %}
                     </div>

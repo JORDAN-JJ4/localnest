@@ -1,11 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Sum, Avg, Count
 
 from bookings.models import Booking, PassportBadge
 from properties.models import Property, Wishlist
-from accounts.models import HostProfile, User
+from accounts.models import HostProfile, User, TripMemory
 from payments.models import Payment
 
 class DispatcherDashboardView(LoginRequiredMixin, View):
@@ -20,7 +21,7 @@ class DispatcherDashboardView(LoginRequiredMixin, View):
 
 
 class TouristDashboardView(LoginRequiredMixin, View):
-    """Tourist Dashboard displaying booking history and wishlist"""
+    """Tourist Dashboard displaying booking history, memories, and wishlist"""
     def get(self, request):
         if request.user.is_host():
             return redirect('dashboard:host_dashboard')
@@ -28,11 +29,21 @@ class TouristDashboardView(LoginRequiredMixin, View):
         bookings = Booking.objects.filter(guest=request.user).select_related('property', 'payment')
         wishlist = Wishlist.objects.filter(user=request.user).select_related('property').prefetch_related('property__images')
         passport_badges = PassportBadge.objects.filter(user=request.user)
+        memories = TripMemory.objects.filter(user=request.user).select_related('booking__property').prefetch_related('saved_recipes')
+        
+        # Bookings eligible for logging a new memory
+        completed_bookings = Booking.objects.filter(
+            guest=request.user, 
+            status=Booking.StatusChoices.APPROVED, 
+            memory__isnull=True
+        ).select_related('property')
         
         return render(request, 'dashboard/tourist.html', {
             'bookings': bookings,
             'wishlist': wishlist,
-            'passport_badges': passport_badges
+            'passport_badges': passport_badges,
+            'memories': memories,
+            'completed_bookings': completed_bookings
         })
 
 
@@ -142,3 +153,39 @@ class AdminApprovePropertyView(LoginRequiredMixin, UserPassesTestMixin, View):
             property_obj.save()
             
         return redirect('dashboard:admin_dashboard')
+
+
+class CreateTripMemoryView(LoginRequiredMixin, View):
+    """View to log a memory for a completed booking"""
+    def post(self, request, booking_id):
+        booking = get_object_or_404(Booking, id=booking_id, guest=request.user, status=Booking.StatusChoices.APPROVED)
+        
+        # Ensure a memory doesn't already exist
+        if hasattr(booking, 'memory'):
+            messages.error(request, "A memory already exists for this trip.")
+            return redirect('dashboard:dispatcher')
+
+        title = request.POST.get('title')
+        notes = request.POST.get('notes')
+        photo = request.FILES.get('photo')
+
+        if not title:
+            messages.error(request, "Please provide a title for your memory.")
+            return redirect('dashboard:dispatcher')
+
+        memory = TripMemory.objects.create(
+            booking=booking,
+            user=request.user,
+            title=title,
+            notes=notes,
+            photo=photo
+        )
+
+        # Handle saved recipes checkbox inputs
+        recipe_ids = request.POST.getlist('recipes')
+        if recipe_ids:
+            memory.saved_recipes.set(recipe_ids)
+            memory.save()
+
+        messages.success(request, f"Your memory '{title}' has been saved to your LocalNest Journey!")
+        return redirect('dashboard:dispatcher')

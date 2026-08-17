@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+    <!-- Warm cream background -->
+    <rect width="100%" height="100%" fill="#FCFAF2"/>
+    
+    <!-- Radiating burst lines/polygons from the bottom center -->
+    <g opacity="0.12">
+        <path d="M 720 800 L -100 -100 L 0 -100 Z" fill="#FF9933" />
+        <path d="M 720 800 L 0 -100 L 150 -100 Z" fill="#D10056" />
+        <path d="M 720 800 L 150 -100 L 300 -100 Z" fill="#005F73" />
+        <path d="M 720 800 L 300 -100 L 450 -100 Z" fill="#E5A93C" />
+        <path d="M 720 800 L 450 -100 L 600 -100 Z" fill="#B30006" />
+        <path d="M 720 800 L 600 -100 L 750 -100 Z" fill="#FF9933" />
+        <path d="M 720 800 L 750 -100 L 900 -100 Z" fill="#D10056" />
+        <path d="M 720 800 L 900 -100 L 1050 -100 Z" fill="#005F73" />
+        <path d="M 720 800 L 1050 -100 L 1200 -100 Z" fill="#E5A93C" />
+        <path d="M 720 800 L 1200 -100 L 1350 -100 Z" fill="#B30006" />
+        <path d="M 720 800 L 1350 -100 L 1540 -100 Z" fill="#FF9933" />
+        
+        <path d="M 720 800 L 1540 -100 L 1540 100 Z" fill="#D10056" />
+        <path d="M 720 800 L 1540 100 L 1540 300 Z" fill="#005F73" />
+        <path d="M 720 800 L 1540 300 L 1540 500 Z" fill="#E5A93C" />
+        <path d="M 720 800 L 1540 500 L 1540 700 Z" fill="#B30006" />
+        
+        <path d="M 720 800 L -100 -100 L -100 100 Z" fill="#D10056" />
+        <path d="M 720 800 L -100 100 L -100 300 Z" fill="#005F73" />
+        <path d="M 720 800 L -100 300 L -100 500 Z" fill="#E5A93C" />
+        <path d="M 720 800 L -100 500 L -100 700 Z" fill="#B30006" />
+    </g>
+
+    <!-- Overlay organic smooth gradient circles to blend it together -->
+    <circle cx="720" cy="800" r="700" fill="url(#radialGrad1)" opacity="0.25"/>
+    <circle cx="200" cy="200" r="500" fill="url(#radialGrad2)" opacity="0.2"/>
+    <circle cx="1200" cy="300" r="600" fill="url(#radialGrad3)" opacity="0.18"/>
+
+    <defs>
+        <radialGradient id="radialGrad1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#D10056"/>
+            <stop offset="100%" stop-color="#FCFAF2" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="radialGrad2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#FF9933"/>
+            <stop offset="100%" stop-color="#FCFAF2" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="radialGrad3" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#005F73"/>
+            <stop offset="100%" stop-color="#FCFAF2" stop-opacity="0"/>
+        </radialGradient>
+    </defs>
+</svg>

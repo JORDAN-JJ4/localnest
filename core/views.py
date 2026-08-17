@@ -165,12 +165,12 @@ class StoryDetailView(DetailView):
                 raise PermissionDenied("This story is reserved for the LocalNest community. Please sign in.")
         elif story.visibility == 'GUESTS':
             if not self.request.user.is_authenticated:
-                raise PermissionDenied("This story is reserved for LocalNest guests.")
+                raise PermissionDenied("This story is reserved for the LocalNest community. Please sign in.")
             from bookings.models import Booking
             has_booking = Booking.objects.filter(
                 guest=self.request.user,
                 property=story.property,
-                status='CONFIRMED'
+                status=Booking.StatusChoices.APPROVED
             ).exists()
             if not has_booking:
                 raise PermissionDenied("This story is only accessible to guests who have booked a stay at this homestead.")
@@ -317,7 +317,7 @@ class SecretDetailView(DetailView):
                         has_booking = Booking.objects.filter(
                             guest=user,
                             property__host=fam.host_user,
-                            status='CONFIRMED'
+                            status=Booking.StatusChoices.APPROVED
                         ).exists()
                 if has_booking or user.is_superuser:
                     accessible_recs.append(rec)

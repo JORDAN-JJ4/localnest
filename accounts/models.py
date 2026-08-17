@@ -118,6 +118,20 @@ class Block(models.Model):
         return f"{self.blocker.username} blocked {self.blocked_user.username}"
 
 
+class TripMemory(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    booking = models.OneToOneField('bookings.Booking', on_delete=models.CASCADE, related_name='memory')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='memories')
+    title = models.CharField(max_length=200)
+    notes = models.TextField(blank=True)
+    photo = models.ImageField(upload_to='memories/photos/', blank=True, null=True)
+    saved_recipes = models.ManyToManyField('core.Recipe', blank=True, related_name='saved_memories')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Memory of {self.booking.property.name} by {self.user.username}"
+
+
 # Signals to automatically create profiles when a new user registers
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

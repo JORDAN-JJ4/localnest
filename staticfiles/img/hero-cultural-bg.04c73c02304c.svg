@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+    <!-- Warm cream background -->
+    <rect width="100%" height="100%" fill="#FCFAF2"/>
+    
+    <!-- Concentric mandala rings at the center/bottom center -->
+    <g transform="translate(720, 800)" opacity="0.1">
+        <!-- Outer ring -->
+        <circle r="600" fill="none" stroke="#D10056" stroke-width="4" stroke-dasharray="10 15"/>
+        <circle r="550" fill="none" stroke="#FF9933" stroke-width="6"/>
+        
+        <!-- Repeating flower petals -->
+        <g stroke="#005F73" stroke-width="3" fill="none">
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(0) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(30) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(60) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(90) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(120) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(150) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(180) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(210) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(240) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(270) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(300) scale(2)"/>
+            <path d="M 0 0 C -100 -200, 100 -200, 0 0" transform="rotate(330) scale(2)"/>
+        </g>
+        
+        <!-- Middle rings -->
+        <circle r="300" fill="none" stroke="#E5A93C" stroke-width="4" stroke-dasharray="8 8"/>
+        <circle r="250" fill="none" stroke="#D10056" stroke-width="2"/>
+        
+        <!-- Inner flower -->
+        <g stroke="#FF9933" stroke-width="4" fill="none">
+            <circle r="100" fill="none" stroke="#B30006" stroke-width="3"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(15)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(45)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(75)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(105)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(135)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(165)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(195)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(225)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(255)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(285)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(315)"/>
+            <path d="M 0 0 C -50 -100, 50 -100, 0 0" transform="rotate(345)"/>
+        </g>
+    </g>
+    
+    <!-- Top-left and Top-right Paisley/Mandala medallions -->
+    <g transform="translate(100, 100)" opacity="0.06">
+        <circle r="150" fill="none" stroke="#005F73" stroke-width="2" stroke-dasharray="5 5"/>
+        <path d="M 0 0 C 100 -50, 100 100, 0 100 C -100 100, -100 -50, 0 0 Z" fill="none" stroke="#D10056" stroke-width="3"/>
+    </g>
+    <g transform="translate(1340, 150)" opacity="0.06">
+        <circle r="180" fill="none" stroke="#FF9933" stroke-width="2" stroke-dasharray="5 5"/>
+        <path d="M 0 0 C 120 -60, 120 120, 0 120 C -120 120, -120 -60, 0 0 Z" fill="none" stroke="#B30006" stroke-width="3"/>
+    </g>
+</svg>
