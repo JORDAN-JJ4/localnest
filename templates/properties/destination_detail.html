@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Explore {{ destination.name }} | LocalNest{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet Map CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+    /* Prevent Leaflet controls from overlapping header */
+    .leaflet-control-container {
+        z-index: 5 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Immersive Destination Hero -->
+<div class="relative h-[55vh] md:h-[65vh] w-full flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('{% if destination.image %}{{ destination.image.url }}{% else %}https://images.unsplash.com/photo-1506461883276-594a12b11db3?auto=format&fit=crop&w=1200&q=80{% endif %}')"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/45 to-primary/30"></div>
+    <div class="relative z-10 text-center px-margin-mobile md:px-margin-desktop max-w-4xl">
+        <span class="text-secondary font-label-caps text-label-caps block mb-3 tracking-widest uppercase">Signature Region</span>
+        <h1 class="font-display-lg text-5xl md:text-7xl text-white mb-6 leading-none tracking-tight">{{ destination.name }}</h1>
+        {% if user.is_authenticated %}
+            <form action="{% url 'properties:destination_wishlist_toggle' destination.id %}" method="post" class="flex justify-center">
+                {% csrf_token %}
+                <button type="submit" class="bg-white/95 hover:bg-white text-primary px-6 py-2.5 rounded-sm text-xs font-label-caps uppercase tracking-widest transition-all shadow-md flex items-center gap-1.5 border border-outline-variant/10">
+                    {% if in_wishlist %}
+                        <span class="material-symbols-outlined text-sm text-secondary fill">favorite</span> Saved
+                    {% else %}
+                        <span class="material-symbols-outlined text-sm text-secondary">favorite</span> Save Region
+                    {% endif %}
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Main Section Container -->
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-16 mb-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Left Column: Narratives, Stays, and Experiences -->
+        <div class="lg:col-span-8 flex flex-col gap-16">
+            
+            <!-- Section 1: Regional lore -->
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-primary mb-6 border-b border-outline-variant/10 pb-3">Regional Lore & History</h2>
+                <p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed whitespace-pre-line">
+                    {{ destination.description }}
+                </p>
+            </div>
+
+            <!-- Section 2: Stays catalog -->
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-primary mb-6 border-b border-outline-variant/10 pb-3">Homestead Sanctuaries in {{ destination.name }}</h2>
+                {% if properties %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                        {% for property in properties %}
+                            {% include 'components/property_card.html' with property=property %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-8 bg-surface-container-low border border-outline-variant/10 rounded text-center text-on-surface-variant/60 text-sm italic">
+                        No active sanctuaries registered in this region yet.
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Section 3: Regional Experiences -->
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-primary mb-6 border-b border-outline-variant/10 pb-3">Signature Excursions & Shared Traditions</h2>
+                {% if experiences %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                        {% for experience in experiences %}
+                            {% include 'components/experience_card.html' with experience=experience %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-8 bg-surface-container-low border border-outline-variant/10 rounded text-center text-on-surface-variant/60 text-sm italic">
+                        No signature excursions registered here yet.
+                    </div>
+                {% endif %}
+            </div>
+            
+        </div>
+
+        <!-- Right Column: Sidebar Travel Guide, Map, and Hosts -->
+        <div class="lg:col-span-4 flex flex-col gap-8">
+            
+            <!-- Travel Guide Quickbox -->
+            <div class="bg-surface-container-low border border-outline-variant/10 rounded-lg p-6 flex flex-col gap-6 shadow-sm">
+                <h4 class="font-headline-md text-headline-md text-primary border-b border-outline-variant/10 pb-2">Travel Guide</h4>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <span class="font-label-caps text-[10px] text-secondary block mb-1 uppercase tracking-widest font-bold">Best Season to Explore</span>
+                        <span class="text-sm text-on-surface-variant leading-relaxed">{{ destination.best_season|default:"October to March" }}</span>
+                    </div>
+                    <div>
+                        <span class="font-label-caps text-[10px] text-secondary block mb-1 uppercase tracking-widest font-bold">Climate & Weather</span>
+                        <span class="text-sm text-on-surface-variant leading-relaxed">{{ destination.weather|default:"Pleasant & cool temperatures" }}</span>
+                    </div>
+                    <div>
+                        <span class="font-label-caps text-[10px] text-secondary block mb-1 uppercase tracking-widest font-bold">Local Food Specialties</span>
+                        <span class="text-sm text-on-surface-variant leading-relaxed">{{ destination.local_food|default:"Traditional regional cooking" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coordinate Map Box -->
+            <div class="bg-surface-container-low border border-outline-variant/10 rounded-lg p-4 flex flex-col gap-3 shadow-sm">
+                <h5 class="font-headline-md text-headline-md text-primary flex items-center gap-2 border-b border-outline-variant/10 pb-2">
+                    <span class="material-symbols-outlined text-base">map</span> Regional Coordinates
+                </h5>
+                <div id="destMap" class="h-64 w-full rounded border border-outline-variant/10"></div>
+            </div>
+
+            <!-- Regional Custodians list -->
+            <div class="bg-surface-container-low border border-outline-variant/10 rounded-lg p-6 flex flex-col gap-6 shadow-sm">
+                <h5 class="font-headline-md text-headline-md text-primary border-b border-outline-variant/10 pb-2">Verified Custodians</h5>
+                {% if hosts %}
+                    <div class="flex flex-col gap-4">
+                        {% for host in hosts %}
+                            <div class="flex items-center gap-4 pb-4 border-b border-outline-variant/10 last:border-b-0 last:pb-0">
+                                {% if host.profile_photo %}
+                                    <img src="{{ host.profile_photo.url }}" class="w-12 h-12 rounded-full object-cover shadow-sm" alt="{{ host.user.username }}">
+                                {% else %}
+                                    <div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+                                        <span class="material-symbols-outlined text-lg">person</span>
+                                    </div>
+                                {% endif %}
+                                <div class="flex-grow">
+                                    <h6 class="font-headline-md text-sm text-primary hover:text-secondary transition-colors mb-0.5">
+                                        <a href="{% url 'accounts:host_profile_detail' host.pk %}" class="hover:no-underline">{{ host.user.get_full_name|default:host.user.username }}</a>
+                                    </h6>
+                                    <span class="text-[10px] text-on-surface-variant font-label-caps block uppercase tracking-wider">
+                                        {{ host.years_hosting }} year{{ host.years_hosting|pluralize }} hosting &bull; verified
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-on-surface-variant/60 text-xs italic mb-0">No verified custodians registered yet.</p>
+                {% endif %}
+            </div>
+
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet Map JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const lat = parseFloat("{{ destination.latitude|default:20.5937 }}");
+        const lng = parseFloat("{{ destination.longitude|default:78.9629 }}");
+        const zoom = "{{ destination.latitude }}" ? 12 : 5;
+
+        // Initialize Map
+        const map = L.map('destMap', {
+            center: [lat, lng],
+            zoom: zoom,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        // OpenStreetMap Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add Marker
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup("<b>{{ destination.name }}</b><br>Explore properties & activities.")
+            .openPopup();
+    });
+</script>
+{% endblock %}

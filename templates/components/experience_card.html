@@ -1,0 +1,67 @@
+{% load static %}
+<div class="group relative flex flex-col justify-between bg-surface-container-lowest border border-outline-variant/10 rounded-lg overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full">
+    <!-- Image wrap -->
+    <div class="relative w-full aspect-[4/3] overflow-hidden bg-primary/10">
+        {% if experience.image %}
+            <img src="{{ experience.image.url }}" alt="{{ experience.title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+        {% else %}
+            <div class="w-full h-full flex items-center justify-center bg-surface-container-high text-on-surface-variant">
+                <span class="material-symbols-outlined text-4xl opacity-40">volunteer_activism</span>
+            </div>
+        {% endif %}
+        
+        <!-- Category Badge overlay -->
+        <div class="absolute top-4 left-4 z-10">
+            <span class="bg-primary/90 text-on-primary text-[9px] font-label-caps uppercase tracking-wider px-2.5 py-1 rounded-sm shadow-sm">
+                {{ experience.category|default:"Cultural Immersion" }}
+            </span>
+        </div>
+
+        <!-- Duration Over Image Bottom Left -->
+        <div class="absolute bottom-4 left-4 bg-background/95 backdrop-blur-sm px-3 py-1.5 rounded-sm shadow-md z-10 border border-outline-variant/15">
+            <span class="text-xs font-semibold text-primary flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">schedule</span>
+                {{ experience.duration }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Content body -->
+    <div class="p-6 flex-grow flex flex-col justify-between">
+        <div>
+            <!-- Location and Price row -->
+            <div class="flex justify-between items-center mb-3 text-xs font-label-caps text-on-surface-variant uppercase tracking-wider">
+                <span class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm text-secondary">location_on</span>
+                    {{ experience.host.properties.first.city|default:"India" }}
+                </span>
+                <span class="text-secondary font-bold">
+                    ₹{{ experience.price }} <span class="text-[9px] font-normal text-on-surface-variant font-label-caps uppercase">/ guest</span>
+                </span>
+            </div>
+
+            <!-- Title -->
+            <h4 class="mb-2">
+                <a href="{% url 'properties:detail' experience.host.properties.first.id %}" class="font-headline-md text-headline-md text-primary hover:text-secondary hover:no-underline transition-colors duration-300 block line-clamp-1">
+                    {{ experience.title }}
+                </a>
+            </h4>
+            
+            <!-- Description -->
+            <p class="text-sm text-on-surface-variant leading-relaxed line-clamp-2 mb-4">
+                {{ experience.description }}
+            </p>
+        </div>
+
+        <!-- Footer / CTA row -->
+        <div class="border-t border-outline-variant/10 pt-4 flex justify-between items-center mt-auto">
+            <span class="text-[9px] font-label-caps text-secondary uppercase tracking-widest flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">explore</span>
+                With {{ experience.host.first_name }}
+            </span>
+            <a href="{% url 'properties:detail' experience.host.properties.first.id %}" class="bg-transparent hover:bg-surface-container-high text-primary hover:text-secondary border border-outline-variant/30 px-3.5 py-1.5 rounded-sm text-xs font-label-caps uppercase tracking-wider hover:no-underline transition-all">
+                Experience it
+            </a>
+        </div>
+    </div>
+</div>

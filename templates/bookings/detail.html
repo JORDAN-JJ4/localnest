@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Booking Details | LocalNest{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-12 mb-24">
+    <div class="bg-surface-container-lowest border border-outline-variant/10 rounded-lg p-8 shadow-sm">
+        
+        <!-- Status Header -->
+        <div class="border-b border-outline-variant/15 pb-6 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <span class="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider block mb-1">Booking Reference</span>
+                <h4 class="font-headline-md text-primary font-bold leading-none">#{{ booking.id|stringformat:"s"|slice:":8" }}</h4>
+            </div>
+            <span class="px-3.5 py-1.5 rounded-sm text-xs font-label-caps uppercase tracking-wider shadow-sm
+                {% if booking.status == 'PENDING' %}bg-secondary/10 text-secondary border border-secondary/20
+                {% elif booking.status == 'APPROVED' %}bg-primary/10 text-primary border border-primary/20
+                {% elif booking.status == 'REJECTED' %}bg-red-50 text-red-600 border border-red-200
+                {% else %}bg-surface-container-high text-on-surface-variant{% endif %}">
+                {{ booking.get_status_display }}
+            </span>
+        </div>
+
+        <!-- Details Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+            <div class="md:col-span-7 flex flex-col gap-6">
+                <div>
+                    <h5 class="font-headline-md text-headline-md text-primary font-semibold mb-2 leading-tight">{{ booking.property.name }}</h5>
+                    <p class="text-xs text-on-surface-variant flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm text-secondary">location_on</span>
+                        {{ booking.property.address }}, {{ booking.property.city }}, {{ booking.property.state }}
+                    </p>
+                </div>
+                
+                <!-- Host Information -->
+                <div class="flex items-center gap-4 p-4 bg-surface-container-low border border-outline-variant/10 rounded-lg">
+                    <span class="material-symbols-outlined text-3xl text-secondary flex-shrink-0">volunteer_activism</span>
+                    <div>
+                        <span class="text-[9px] font-label-caps text-on-surface-variant/85 uppercase tracking-wider block mb-0.5">Host Family</span>
+                        <span class="font-body-md text-primary font-semibold">{{ booking.property.host.get_full_name|default:booking.property.host.username }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="md:col-span-5">
+                <div class="p-6 bg-surface-container-low border border-outline-variant/10 rounded-lg flex flex-col gap-3 text-sm text-on-surface-variant">
+                    <h6 class="font-label-caps text-xs text-secondary uppercase tracking-widest border-b border-outline-variant/10 pb-2 mb-1">Stay Details</h6>
+                    <div class="flex justify-between">
+                        <span>Check-in:</span>
+                        <span class="font-semibold text-primary">{{ booking.start_date }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Check-out:</span>
+                        <span class="font-semibold text-primary">{{ booking.end_date }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Guests:</span>
+                        <span class="font-semibold text-primary">{{ booking.guest_count }} guests</span>
+                    </div>
+                    <hr class="my-1 border-outline-variant/10">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Total Price:</span>
+                        <span class="font-headline-md text-secondary font-bold">INR {{ booking.total_price }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Record Box -->
+        <div class="p-6 bg-surface-container-low border border-outline-variant/10 rounded-lg mb-8 text-sm text-on-surface-variant flex flex-col gap-3">
+            <h6 class="font-label-caps text-xs text-secondary uppercase tracking-widest border-b border-outline-variant/10 pb-2 mb-1 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">payments</span> Payment Information
+            </h6>
+            {% if booking.payment %}
+                <div class="flex justify-between">
+                    <span>Payment Mode:</span>
+                    <span class="font-semibold text-primary">{{ booking.payment.get_payment_method_display }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span>Amount Status:</span>
+                    <span class="px-2.5 py-1 rounded-sm text-[10px] font-label-caps uppercase tracking-wider
+                        {% if booking.payment.status == 'COMPLETED' %}bg-primary/10 text-primary border border-primary/20
+                        {% elif booking.payment.status == 'FAILED' %}bg-red-50 text-red-600 border border-red-200
+                        {% else %}bg-secondary/10 text-secondary border border-secondary/20{% endif %}">
+                        {{ booking.payment.get_status_display }}
+                    </span>
+                </div>
+                {% if booking.payment.transaction_id %}
+                    <div class="flex justify-between mt-1">
+                        <span>Transaction Reference:</span>
+                        <span class="font-mono text-xs text-primary bg-background px-2 py-1 rounded border border-outline-variant/10">{{ booking.payment.transaction_id }}</span>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p class="text-xs text-on-surface-variant/80 italic mb-0">No payment records exist for this booking request.</p>
+            {% endif %}
+        </div>
+
+        <!-- Before Arrival Anticipation Guide (Milestone 4) -->
+        {% if booking.status == 'APPROVED' %}
+            <div class="my-8 bg-surface-container-low border border-outline-variant/15 rounded-lg p-6 md:p-8 flex flex-col gap-6">
+                <span class="font-label-caps text-label-caps text-secondary block tracking-widest uppercase mb-1">Before Your Arrival</span>
+                <h4 class="font-headline-lg text-headline-lg text-primary font-bold border-b border-outline-variant/10 pb-3">Preparing for your stay in {{ booking.property.city }}</h4>
+                
+                <!-- Host Message -->
+                <div class="flex items-start gap-4">
+                    <span class="material-symbols-outlined text-secondary text-2xl mt-1">chat</span>
+                    <div>
+                        <strong class="font-headline-md text-sm text-primary block mb-1">A Note from the {{ booking.property.host.last_name }} Family</strong>
+                        <p class="text-sm text-on-surface-variant leading-relaxed italic">
+                            "We are looking forward to welcoming you into our home! We are getting your space ready. Every morning begins with fresh local tea, and our table is ready for shared stories. Let us know if you need help planning your route."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Weather & Packing Tips -->
+                <div class="flex items-start gap-4">
+                    <span class="material-symbols-outlined text-secondary text-2xl mt-1">wb_cloudy</span>
+                    <div>
+                        <strong class="font-headline-md text-sm text-primary block mb-1">Local Climate & Packing Guide</strong>
+                        <p class="text-sm text-on-surface-variant leading-relaxed">
+                            {% if booking.property.city == 'Munnar' %}
+                                Expect misty mornings and cool forest breezes. Bring a light jacket/fleece and sturdy walking shoes for cardamom forest walks.
+                            {% elif booking.property.city == 'Varanasi' %}
+                                Expect pleasant river winds and sunny temple walks. Dress modestly for temple visits and bring comfortable slip-on sandals.
+                            {% elif booking.property.city == 'Manali' %}
+                                Chilly mountain winds. Bring heavy woolens, sweaters, thermals, and warm socks for cozy fireside evenings.
+                            {% elif booking.property.city == 'Jaipur' %}
+                                Warm desert climate. Bring light cotton clothing, sunglasses, and a sun hat, plus a light shawl for cool evenings.
+                            {% else %}
+                                Expect beautiful local weather. Bring comfortable clothing, a camera for capturing moments, and comfortable walking shoes.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Etiquette Guide -->
+                <div class="flex items-start gap-4">
+                    <span class="material-symbols-outlined text-secondary text-2xl mt-1">menu_book</span>
+                    <div>
+                        <strong class="font-headline-md text-sm text-primary block mb-1">Cultural Etiquette Tips</strong>
+                        <ul class="list-disc pl-5 text-sm text-on-surface-variant leading-relaxed flex flex-col gap-1.5 mt-1">
+                            <li>Please dress modestly when walking through local villages or temple compounds.</li>
+                            <li>Remember to remove your footwear before entering the home's inner family rooms.</li>
+                            <li>When dining, traditional customs prefer using the right hand for eating and sharing food.</li>
+                            <li>Please ask for permission before taking photographs of family members or village residents.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Experiences recommendation -->
+                {% if booking.property.host.experiences.exists %}
+                    <div class="border-t border-outline-variant/10 pt-6">
+                        <strong class="font-headline-md text-sm text-primary block mb-3 uppercase tracking-wider">Host-Led Cultural Excursions</strong>
+                        <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+                            You can participate in these signature activities hosted by the {{ booking.property.host.last_name }} Family during your stay:
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% for experience in booking.property.host.experiences.all %}
+                                <div class="bg-background border border-outline-variant/10 rounded p-4 flex flex-col justify-between">
+                                    <div>
+                                        <span class="font-label-caps text-[9px] text-secondary block mb-1 uppercase tracking-widest">{{ experience.category }}</span>
+                                        <h5 class="font-headline-md text-sm text-primary font-semibold mb-1 leading-snug">{{ experience.title }}</h5>
+                                        <span class="text-xs text-on-surface-variant/80 block">{{ experience.duration }} &bull; INR {{ experience.price }} / guest</span>
+                                    </div>
+                                    <div class="mt-3 pt-3 border-t border-outline-variant/10 flex justify-between items-center">
+                                        <a href="{% url 'properties:search' %}?type=experiences&q={{ experience.title }}" class="text-[10px] font-label-caps text-secondary uppercase tracking-widest hover:text-primary transition-all">Details</a>
+                                        <span class="text-[9px] text-on-surface-variant font-label-caps uppercase">Contact host to book</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Actions Panel -->
+        <div class="border-t border-outline-variant/15 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <a href="{% url 'dashboard:dispatcher' %}" class="w-full sm:w-auto text-center border border-outline-variant/30 text-primary hover:text-secondary px-6 py-3 rounded-sm text-xs font-label-caps uppercase tracking-wider transition-all">Back to Dashboard</a>
+            
+            <!-- Guest Cancellation -->
+            {% if user == booking.guest and booking.status == 'PENDING' or booking.status == 'APPROVED' %}
+                <form action="{% url 'bookings:cancel_booking' booking.id %}" method="post" class="w-full sm:w-auto">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full sm:w-auto border border-red-200 text-red-600 hover:bg-red-50 px-6 py-3 rounded-sm text-xs font-label-caps uppercase tracking-wider transition-all" onclick="return confirm('Are you sure you want to cancel this booking?')">Cancel Booking</button>
+                </form>
+            {% endif %}
+
+            <!-- Host Actions (Approve/Reject) -->
+            {% if user == booking.property.host and booking.status == 'PENDING' %}
+                <div class="flex gap-3 w-full sm:w-auto justify-end">
+                    <form action="{% url 'bookings:update_booking_status' booking.id 'reject' %}" method="post" class="w-full sm:w-auto">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full sm:w-auto border border-red-200 text-red-600 hover:bg-red-50 px-6 py-3 rounded-sm text-xs font-label-caps uppercase tracking-wider transition-all">Decline</button>
+                    </form>
+                    <form action="{% url 'bookings:update_booking_status' booking.id 'approve' %}" method="post" class="w-full sm:w-auto">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full sm:w-auto bg-secondary text-on-secondary hover:bg-secondary/95 px-6 py-3.5 rounded-sm text-xs font-label-caps uppercase tracking-wider transition-all shadow-sm">Approve Booking</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

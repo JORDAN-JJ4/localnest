@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Explore Homestays | LocalNest{% endblock %}
+
+{% block extra_css %}
+<!-- Optional page-specific style hooks can go here, but styling is fully managed via Tailwind -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+    :root {
+        --color-ivory: #FDFBF7;
+        --color-terracotta: #C05C3E;
+        --color-earth-brown: #3C2A21;
+        --color-saffron: #DCA134;
+        --color-charcoal: #222222;
+        --color-olive: #5B6B46;
+    }
+
+    body {
+        background-color: var(--color-ivory) !important;
+        color: var(--color-charcoal) !important;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+    }
+
+    .font-serif-headline {
+        font-family: 'Lora', Georgia, serif;
+    }
+
+    .text-editorial-title {
+        color: var(--color-earth-brown);
+    }
+
+    .text-terracotta {
+        color: var(--color-terracotta);
+    }
+
+    .bg-terracotta {
+        background-color: var(--color-terracotta);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Immersive Explore Header -->
+{% if not request.GET.type %}
+<div class="relative overflow-hidden border-b border-outline-variant/10 py-24 mb-12 bg-cover bg-center" style="background-image: url('{% static 'img/localnest_discover_stays.png' %}');">
+    <div class="absolute inset-0 bg-primary/45 z-0"></div>
+    <div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-white">
+        <span class="text-secondary font-label-caps text-label-caps block mb-2 tracking-widest uppercase font-bold">Sanctuary Explorer</span>
+        <h1 class="font-serif-headline text-4xl md:text-5xl text-white mb-4 font-bold leading-tight">Find Your Local Nest</h1>
+        <p class="text-white/85 max-w-2xl text-base md:text-lg leading-relaxed">
+            Unplug from conventional hotel corridors. Discover verified homesteads, shared table meals, and ancient local rhythms.
+        </p>
+    </div>
+</div>
+{% elif request.GET.type == 'homes' %}
+<div class="relative overflow-hidden border-b border-outline-variant/10 py-24 mb-12 bg-cover bg-center" style="background-image: url('{% static 'img/localnest_homes.png' %}');">
+    <div class="absolute inset-0 bg-primary/45 z-0"></div>
+    <div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-white">
+        <span class="text-secondary font-label-caps text-label-caps block mb-2 tracking-widest uppercase font-bold">Verified Homestays</span>
+        <h1 class="font-serif-headline text-4xl md:text-5xl text-white mb-4 font-bold leading-tight">Living Heritage Spaces</h1>
+        <p class="text-white/85 max-w-2xl text-base md:text-lg leading-relaxed">
+            Stay in real homes, heritage villas, and eco-cottages managed by traditional Indian host families.
+        </p>
+    </div>
+</div>
+{% elif request.GET.type == 'hosts' %}
+<div class="relative overflow-hidden border-b border-outline-variant/10 py-24 mb-12 bg-cover bg-center bg-editorial-title">
+    <div class="absolute inset-0 bg-black/60 z-0"></div>
+    <div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-white py-4">
+        <span class="text-secondary font-label-caps text-label-caps block mb-2 tracking-widest uppercase font-bold">CULTURAL CUSTODIANS</span>
+        <h1 class="font-serif-headline text-4xl md:text-5xl text-white mb-4 font-bold leading-tight max-w-3xl">Meet the people who make India feel like home.</h1>
+        <p class="text-white/85 max-w-2xl text-base md:text-lg leading-relaxed font-sans">
+            Behind every door is a family, a story, a recipe and a way of life waiting to be shared.
+        </p>
+    </div>
+</div>
+{% elif request.GET.type == 'experiences' %}
+<div class="relative overflow-hidden border-b border-outline-variant/10 py-24 mb-12 bg-cover bg-center" style="background-image: url('{% static 'img/localnest_experiences.png' %}');">
+    <div class="absolute inset-0 bg-primary/45 z-0"></div>
+    <div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop text-white">
+        <span class="text-secondary font-label-caps text-label-caps block mb-2 tracking-widest uppercase font-bold">Cultural Immersive Activities</span>
+        <h1 class="font-serif-headline text-4xl md:text-5xl text-white mb-4 font-bold leading-tight">Hands-on Local Experiences</h1>
+        <p class="text-white/85 max-w-2xl text-base md:text-lg leading-relaxed">
+            Participate in traditional pottery, heritage walks, agricultural harvesting, and family rituals led by your hosts.
+        </p>
+    </div>
+</div>
+{% endif %}
+
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop mb-24">
+    
+    <!-- Discover by Feeling / Intent Pills -->
+    {% if search_type == 'homes' %}
+    <div class="mb-10 border-b border-outline-variant/10 pb-6">
+        <span class="font-label-caps text-label-caps text-secondary block mb-3 tracking-widest uppercase">Discover by Feeling</span>
+        <div class="flex flex-wrap gap-2">
+            <a href="?type={{ search_type }}" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if not active_intent %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                All Stays
+            </a>
+            <a href="?type={{ search_type }}&intent=slow_down" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if active_intent == 'slow_down' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🧘 I want to slow down
+            </a>
+            <a href="?type={{ search_type }}&intent=meet_people" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if active_intent == 'meet_people' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🤝 I want to meet people
+            </a>
+            <a href="?type={{ search_type }}&intent=homemade_food" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if active_intent == 'homemade_food' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🍲 I want to eat homemade food
+            </a>
+            <a href="?type={{ search_type }}&intent=experience_tradition" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if active_intent == 'experience_tradition' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🎨 I want to experience traditions
+            </a>
+            <a href="?type={{ search_type }}&intent=learn_something" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if active_intent == 'learn_something' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🎓 I want to learn something
+            </a>
+            <a href="?type={{ search_type }}&intent=disappear_into_nature" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if active_intent == 'disappear_into_nature' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🌲 I want to disappear into nature
+            </a>
+        </div>
+    </div>
+    {% elif search_type == 'hosts' %}
+    <div class="mb-10 border-b border-outline-variant/10 pb-6">
+        <span class="font-label-caps text-label-caps text-secondary block mb-3 tracking-widest uppercase">Explore Families by Rhythm</span>
+        <div class="flex flex-wrap gap-2">
+            <a href="?type=hosts" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if not request.GET.q and not request.GET.state %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                All Families
+            </a>
+            <a href="?type=hosts&state=Rajasthan" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if request.GET.state == 'Rajasthan' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🕌 Rajasthan
+            </a>
+            <a href="?type=hosts&state=Kerala" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if request.GET.state == 'Kerala' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🌴 Kerala
+            </a>
+            <a href="?type=hosts&q=cooking" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if request.GET.q == 'cooking' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🍲 Family Cooking
+            </a>
+            <a href="?type=hosts&q=weaving" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if request.GET.q == 'weaving' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                🧶 Crafts & Weaving
+            </a>
+            <a href="?type=hosts&q=historian" class="px-4 py-2 rounded-full text-xs font-label-caps tracking-wider transition-all hover:no-underline {% if request.GET.q == 'historian' %}bg-secondary text-white shadow-sm{% else %}bg-surface-container-low text-primary border border-outline-variant/20 hover:bg-surface-container-high{% endif %}">
+                📚 Local History & Lore
+            </a>
+        </div>
+    </div>
+
+    <!-- Map of Stories Section -->
+    <div class="mb-16">
+        <span class="text-terracotta font-label-caps text-xs uppercase tracking-widest block mb-2 font-bold">THE MAP OF STORIES</span>
+        <h2 class="font-serif-headline text-3xl text-primary font-bold mb-6">There are stories everywhere</h2>
+        <div id="storyMap" class="w-full h-[400px] rounded-lg border border-outline-variant/15 shadow-sm overflow-hidden z-10"></div>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+        <!-- Sidebar Filters -->
+        <div class="lg:col-span-1 border-b lg:border-b-0 lg:border-r border-outline-variant/10 pb-8 lg:pb-0 pr-0 lg:pr-8">
+            <div class="flex justify-between items-end mb-6 pb-2 border-b border-outline-variant/20">
+                <span class="font-label-caps text-label-caps text-primary tracking-wider">Filter Index</span>
+                <a href="{% url 'properties:search' %}" class="font-headline-md text-sm text-secondary hover:text-primary transition-colors italic">Reset All</a>
+            </div>
+            
+            <form method="get" action="{% url 'properties:search' %}" class="flex flex-col gap-6">
+                <!-- Keep search type in form -->
+                <input type="hidden" name="type" value="{{ search_type }}">
+                
+                <!-- Keyword Search -->
+                <div>
+                    <label class="font-label-caps text-label-caps text-primary tracking-wider block mb-2 font-bold" for="q">Keyword</label>
+                    <input type="text" name="q" id="q" class="w-full bg-transparent border-b border-outline-variant focus:border-terracotta py-2 px-1 text-sm text-on-surface placeholder-on-surface-variant/40 outline-none transition-colors rounded-none border-t-0 border-l-0 border-r-0 focus:ring-0" placeholder="e.g. tea, stories, cook..." value="{{ filters.q|default:'' }}">
+                </div>
+
+                <!-- Region -->
+                <div>
+                    <label class="font-label-caps text-label-caps text-primary tracking-wider block mb-2 font-bold" for="state">State</label>
+                    <input type="text" name="state" id="state" class="w-full bg-transparent border-b border-outline-variant focus:border-terracotta py-2 px-1 text-sm text-on-surface placeholder-on-surface-variant/40 outline-none transition-colors rounded-none border-t-0 border-l-0 border-r-0 focus:ring-0" placeholder="e.g. Kerala, Himachal" value="{{ filters.state|default:'' }}">
+                </div>
+                <div>
+                    <label class="font-label-caps text-label-caps text-primary tracking-wider block mb-2 font-bold" for="city">City / Village</label>
+                    <input type="text" name="city" id="city" class="w-full bg-transparent border-b border-outline-variant focus:border-terracotta py-2 px-1 text-sm text-on-surface placeholder-on-surface-variant/40 outline-none transition-colors rounded-none border-t-0 border-l-0 border-r-0 focus:ring-0" placeholder="e.g. Udaipur, Munnar" value="{{ filters.city|default:'' }}">
+                </div>
+
+                <!-- Max Price -->
+                {% if search_type == 'homes' %}
+                <div>
+                    <label class="font-label-caps text-label-caps text-primary tracking-wider block mb-2 font-bold" for="price_max">Max Price / Night</label>
+                    <div class="flex items-center">
+                        <span class="text-on-surface-variant mr-1">₹</span>
+                        <input type="number" name="price_max" id="price_max" class="w-full bg-transparent border-b border-outline-variant focus:border-terracotta py-2 px-1 text-sm text-on-surface placeholder-on-surface-variant/40 outline-none transition-colors rounded-none border-t-0 border-l-0 border-r-0 focus:ring-0" placeholder="Any" value="{{ filters.price_max|default:'' }}">
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Guest Rating -->
+                <div>
+                    <label class="font-label-caps text-label-caps text-primary tracking-wider block mb-2 font-bold" for="rating_min">Guest Rating</label>
+                    <select name="rating_min" id="rating_min" class="w-full bg-transparent border-b border-outline-variant focus:border-terracotta py-2 px-1 text-sm text-on-surface outline-none transition-colors rounded-none border-t-0 border-l-0 border-r-0 focus:ring-0">
+                        <option value="">Any Rating</option>
+                        <option value="4.5" {% if filters.rating_min == '4.5' %}selected{% endif %}>4.5★ & up (Exceptional)</option>
+                        <option value="4.0" {% if filters.rating_min == '4.0' %}selected{% endif %}>4.0★ & up (Very Good)</option>
+                        <option value="3.0" {% if filters.rating_min == '3.0' %}selected{% endif %}>3.0★ & up (Good)</option>
+                    </select>
+                </div>
+
+                <!-- Meals Served -->
+                <div>
+                    <span class="font-label-caps text-label-caps text-primary tracking-wider block mb-3 font-bold">Meals Served</span>
+                    <div class="flex flex-wrap gap-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="vegetarian" value="1" class="sr-only peer" id="filter_veg" {% if filters.vegetarian %}checked{% endif %}>
+                            <span class="px-3.5 py-1.5 bg-surface-container-lowest peer-checked:bg-terracotta peer-checked:text-white text-on-surface-variant border border-outline-variant/30 rounded-sm text-[10px] font-label-caps uppercase tracking-wider transition-all">Vegetarian</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="non_vegetarian" value="1" class="sr-only peer" id="filter_nonveg" {% if filters.non_vegetarian %}checked{% endif %}>
+                            <span class="px-3.5 py-1.5 bg-surface-container-lowest peer-checked:bg-terracotta peer-checked:text-white text-on-surface-variant border border-outline-variant/30 rounded-sm text-[10px] font-label-caps uppercase tracking-wider transition-all">Non-Veg</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="vegan" value="1" class="sr-only peer" id="filter_vegan" {% if filters.vegan %}checked{% endif %}>
+                            <span class="px-3.5 py-1.5 bg-surface-container-lowest peer-checked:bg-terracotta peer-checked:text-white text-on-surface-variant border border-outline-variant/30 rounded-sm text-[10px] font-label-caps uppercase tracking-wider transition-all">Vegan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="bg-terracotta text-white font-label-caps text-label-caps py-4 rounded hover:bg-terracotta/95 transition-colors shadow w-full text-center tracking-wider mt-4 font-bold uppercase">Apply Filters</button>
+            </form>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="lg:col-span-3">
+            {% if results %}
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 pb-12">
+                    {% for item in results %}
+                        <div class="animate-fade-in-up hover-premium">
+                            {% if search_type == 'hosts' %}
+                                {% include 'components/family_card.html' with host_profile=item %}
+                            {% elif search_type == 'experiences' %}
+                                {% include 'components/experience_card.html' with experience=item %}
+                            {% else %}
+                                {% include 'components/property_card.html' with property=item %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav class="flex justify-center border-t border-outline-variant/10 pt-8" aria-label="Search results navigation">
+                        <ul class="flex items-center space-x-2 font-label-caps text-label-caps">
+                            {% if page_obj.has_previous %}
+                                <li>
+                                    <a class="p-2 text-primary hover:text-secondary hover:no-underline transition-colors" href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                        <span class="material-symbols-outlined text-base">arrow_back</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li>
+                                        <span class="px-3 py-1.5 text-secondary border-b border-secondary font-bold">{{ num }}</span>
+                                    </li>
+                                  {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <li>
+                                        <a class="px-3 py-1.5 text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="?{{ request.GET.urlencode }}&page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                                <li>
+                                    <a class="p-2 text-primary hover:text-secondary hover:no-underline transition-colors" href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}" aria-label="Next">
+                                        <span class="material-symbols-outlined text-base">arrow_forward</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
+            {% else %}
+                <div class="text-center py-20 bg-surface-container-lowest border border-outline-variant/10 rounded-lg p-12">
+                    <span class="material-symbols-outlined text-5xl text-on-surface-variant/40 mb-4">search_off</span>
+                    <h4 class="font-serif-headline text-2xl text-primary mb-3 font-bold">
+                        {% if search_type == 'hosts' %}
+                            No Host Families Found
+                        {% elif search_type == 'experiences' %}
+                            No Experiences Found
+                        {% else %}
+                            No Homestays Found
+                        {% endif %}
+                    </h4>
+                    <p class="text-on-surface-variant max-w-md mx-auto text-sm leading-relaxed mb-6 font-sans">
+                        {% if search_type == 'hosts' %}
+                            We couldn't find any host family details matching your query. Try clearing your filters.
+                        {% elif search_type == 'experiences' %}
+                            We couldn't find any cultural activities matching your query. Try clearing your filters.
+                        {% else %}
+                            We couldn't find any nests matching your search criteria. Try removing some filters or updating your search terms.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'properties:search' %}{% if search_type != 'homes' %}?type={{ search_type }}{% endif %}" class="inline-block border border-outline-variant/30 text-primary hover:text-secondary px-6 py-3 rounded-sm text-xs font-label-caps uppercase tracking-wider hover:no-underline transition-all">Clear Search</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const mapContainer = document.getElementById('storyMap');
+        if (!mapContainer) return;
+        
+        // Initialize Map centered on India
+        const map = L.map('storyMap', {
+            center: [21.7679, 78.8718],
+            zoom: 5,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const pins = [
+            { name: "Varanasi", count: 27, coords: [25.3176, 82.9739], query: "Varanasi" },
+            { name: "Jaipur", count: 32, coords: [26.9124, 75.7873], query: "Jaipur" },
+            { name: "Kerala (Munnar)", count: 46, coords: [10.0889, 77.0595], query: "Munnar" },
+            { name: "Mumbai", count: 18, coords: [19.0760, 72.8777], query: "Mumbai" },
+            { name: "Himachal (Manali)", count: 15, coords: [32.2396, 77.1887], query: "Manali" }
+        ];
+
+        pins.forEach(pin => {
+            L.marker(pin.coords).addTo(map)
+                .bindPopup(`<b>${pin.name}</b><br>${pin.count} stories shared<br><a href="?type=hosts&q=${pin.query}" style="color: #C05C3E; font-weight: bold; text-decoration: underline;">Discover families here</a>`);
+        });
+    });
+</script>
+{% endblock %}

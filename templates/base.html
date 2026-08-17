@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}LocalNest - Experience India through the people who call it home{% endblock %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="LocalNest is a community-based homestay platform where travelers stay with verified local families for authentic cultural and culinary travel experiences in India.">
+    <meta name="keywords" content="homestay, India travel, cultural travel, local family, sustainable tourism, home food, local traditions, Udaipur, Kerala, Delhi">
+    <meta property="og:title" content="LocalNest - Experience India through local people">
+    <meta property="og:description" content="Stay with verified local families. Authentic travel experiences and homemade food.">
+    <meta property="og:type" content="website">
+
+    <!-- Fonts: Inter & Playfair Display -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#8292b0",
+                        "outline": "#75777e",
+                        "secondary-fixed": "#ffdbd1",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#732108",
+                        "secondary": "#9f4026",
+                        "surface-variant": "#ffdbd0",
+                        "outline-variant": "#c5c6ce",
+                        "primary-fixed": "#d5e3ff",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#fff8f6",
+                        "on-secondary-fixed": "#3b0900",
+                        "on-secondary-fixed-variant": "#802a11",
+                        "on-primary-fixed": "#091c34",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#44474d",
+                        "primary-container": "#1a2b44",
+                        "surface-dim": "#fbd1c4",
+                        "secondary-container": "#fd8867",
+                        "tertiary-container": "#3f2500",
+                        "tertiary": "#231300",
+                        "inverse-primary": "#b6c7e7",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-surface": "#2c160e",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffddb8",
+                        "primary-fixed-dim": "#b6c7e7",
+                        "surface-container": "#ffe9e3",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#ffe2da",
+                        "on-primary-fixed-variant": "#374762",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-tint": "#4f5f7b",
+                        "primary": "#1E1F22",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#35211B",
+                        "surface-container-highest": "#D3CCBE",
+                        "secondary-fixed-dim": "#ffb5a1",
+                        "on-error-container": "#93000a",
+                        "background": "#FAF8F5",
+                        "surface-container-low": "#F4F0E8",
+                        "surface": "#FAF8F5",
+                        "inverse-on-surface": "#F4F0E8",
+                        "on-tertiary-container": "#c78423",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1E1F22",
+                        "secondary": "#B85536",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1E1F22",
+                        "outline-variant": "#EAE6DF",
+                        "outline": "#7E786E"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "20px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "section-gap": "120px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Playfair Display"],
+                        "label-caps": ["Inter"],
+                        "display-lg-mobile": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "caption": ["Inter"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-xl": ["Playfair Display"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "48px", "fontWeight": "700" }],
+                        "display-lg": ["64px", { "lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "caption": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom V2 Stylesheet Overrides -->
+    <link rel="stylesheet" href="{% static 'css/v2_theme.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-background text-on-background font-body-lg antialiased selection:bg-secondary selection:text-on-secondary min-h-screen flex flex-col">
+
+    <!-- TopNavBar Shared Component -->
+    {% include 'components/navbar.html' %}
+
+    <!-- Messaging Alerts (Toast/Alert System) -->
+    <div class="fixed top-24 right-4 z-40 max-w-sm space-y-2 pointer-events-none" id="alertContainer">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="pointer-events-auto bg-surface-container-lowest border-l-4 {% if message.tags == 'error' %}border-error bg-error-container/10 text-error{% elif message.tags == 'success' %}border-secondary bg-surface-container/30 text-on-surface{% else %}border-primary bg-surface-container/20 text-primary{% endif %} shadow-md rounded p-4 flex items-start justify-between space-x-3 transition-opacity duration-300" role="alert">
+                    <div class="flex items-center space-x-2">
+                        {% if message.tags == 'success' %}
+                            <span class="material-symbols-outlined text-secondary">check_circle</span>
+                        {% elif message.tags == 'error' %}
+                            <span class="material-symbols-outlined text-error">warning</span>
+                        {% else %}
+                            <span class="material-symbols-outlined text-primary">info</span>
+                        {% endif %}
+                        <p class="text-sm font-semibold">{{ message }}</p>
+                    </div>
+                    <button type="button" class="text-on-surface-variant hover:text-primary focus:outline-none" onclick="this.parentElement.remove()">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content Block -->
+    <main class="flex-grow pt-20">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer Shared Component -->
+    {% include 'components/footer.html' %}
+
+    <!-- Global JavaScript -->
+    <script>
+        // User dropdown menu toggle
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+        if (userMenuButton && userMenu) {
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('hidden');
+            });
+            document.addEventListener('click', () => {
+                userMenu.classList.add('hidden');
+            });
+        }
+
+        // Mobile menu drawer toggle
+        const mobileMenuOpen = document.getElementById('mobileMenuOpen');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        const mobileMenuDrawer = document.getElementById('mobileMenuDrawer');
+
+        if (mobileMenuOpen && mobileMenuDrawer) {
+            mobileMenuOpen.addEventListener('click', () => {
+                mobileMenuDrawer.classList.remove('hidden');
+                mobileMenuDrawer.classList.remove('translate-x-full');
+                mobileMenuDrawer.classList.add('flex');
+            });
+        }
+        if (mobileMenuClose && mobileMenuDrawer) {
+            mobileMenuClose.addEventListener('click', () => {
+                mobileMenuDrawer.classList.add('hidden');
+                mobileMenuDrawer.classList.add('translate-x-full');
+                mobileMenuDrawer.classList.remove('flex');
+            });
+        }
+
+        // Auto-fade notifications after 5 seconds
+        setTimeout(() => {
+            const container = document.getElementById('alertContainer');
+            if (container) {
+                const alerts = container.children;
+                for (let i = 0; i < alerts.length; i++) {
+                    alerts[i].classList.add('opacity-0');
+                    setTimeout(() => alerts[i].remove(), 300);
+                }
+            }
+        }, 5000);
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

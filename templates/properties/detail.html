@@ -1,0 +1,842 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ property.name }} | LocalNest{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet Map CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<!-- Google Fonts: Editorial Serif (Lora) & Sans-Serif (Plus Jakarta Sans) -->
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --color-ivory: #FDFBF7;
+        --color-terracotta: #C05C3E;
+        --color-earth-brown: #3C2A21;
+        --color-saffron: #DCA134;
+        --color-charcoal: #222222;
+        --color-olive: #5B6B46;
+    }
+
+    body {
+        background-color: var(--color-ivory) !important;
+        color: var(--color-charcoal) !important;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+    }
+
+    .font-serif-headline {
+        font-family: 'Lora', Georgia, serif;
+    }
+
+    .text-editorial-title {
+        color: var(--color-earth-brown);
+    }
+
+    .text-terracotta {
+        color: var(--color-terracotta);
+    }
+
+    .bg-terracotta {
+        background-color: var(--color-terracotta);
+    }
+
+    .text-olive {
+        color: var(--color-olive);
+    }
+
+    .bg-olive {
+        background-color: var(--color-olive);
+    }
+
+    /* Prevent leaflet zoom control icons from default sizing issues */
+    .leaflet-bar a {
+        font-family: inherit !important;
+        font-size: 16px !important;
+    }
+
+    /* Transition effect for lightbox hover */
+    .gallery-hover {
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .gallery-hover:hover {
+        transform: scale(1.03);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 mb-24">
+    <!-- Editorial Header Section -->
+    <div class="mb-12 text-start max-w-4xl">
+        <span class="text-terracotta font-label-caps text-xs uppercase tracking-widest block mb-3 font-semibold">{{ property.city }}, {{ property.state }}</span>
+        <h1 class="font-serif-headline text-4xl md:text-5xl lg:text-6xl text-editorial-title mb-4 font-bold leading-tight tracking-tight">{{ property.name }}</h1>
+        <div class="flex items-center gap-3 text-xs font-label-caps text-on-surface-variant uppercase tracking-wider font-semibold">
+            <span class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm text-terracotta fill">star</span>
+                {{ property.get_average_rating }}
+            </span>
+            <span class="opacity-40">|</span>
+            <span>{{ property.reviews.count }} Guest Journal Entries</span>
+        </div>
+    </div>
+
+    <!-- Editorial Image Gallery -->
+    <div class="relative mb-16 overflow-hidden rounded-xl">
+        {% if property.images.exists %}
+            {% with total_images=property.images.count %}
+                {% if total_images == 1 %}
+                    <!-- Single Image Layout -->
+                    <div class="w-full h-[350px] md:h-[550px] relative group cursor-pointer overflow-hidden" onclick="openLightbox(0)">
+                        <img src="{{ property.images.all.0.image.url }}" alt="{{ property.name }}" class="w-full h-full object-cover gallery-hover">
+                        <div class="absolute bottom-4 right-4 bg-black/70 text-white text-xs px-3 py-1.5 rounded font-label-caps uppercase tracking-wider flex items-center gap-1.5 z-20">
+                            <span class="material-symbols-outlined text-sm">photo_camera</span> 1 Photo
+                        </div>
+                    </div>
+                {% elif total_images == 2 %}
+                    <!-- Two Images Layout -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 h-[350px] md:h-[550px] overflow-hidden">
+                        <div class="md:col-span-8 h-full relative group cursor-pointer overflow-hidden" onclick="openLightbox(0)">
+                            <img src="{{ property.images.all.0.image.url }}" alt="{{ property.name }}" class="w-full h-full object-cover gallery-hover">
+                        </div>
+                        <div class="md:col-span-4 h-full relative group cursor-pointer overflow-hidden" onclick="openLightbox(1)">
+                            <img src="{{ property.images.all.1.image.url }}" alt="{{ property.name }}" class="w-full h-full object-cover gallery-hover">
+                            <div class="absolute bottom-4 right-4 bg-black/70 text-white text-xs px-3 py-1.5 rounded font-label-caps uppercase tracking-wider flex items-center gap-1.5 z-20">
+                                <span class="material-symbols-outlined text-sm">photo_camera</span> 2 Photos
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Three+ Images Layout -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 h-[350px] md:h-[550px] overflow-hidden">
+                        <div class="md:col-span-8 h-full relative group cursor-pointer overflow-hidden" onclick="openLightbox(0)">
+                            <img src="{{ property.images.all.0.image.url }}" alt="{{ property.name }}" class="w-full h-full object-cover gallery-hover">
+                        </div>
+                        <div class="md:col-span-4 h-full flex flex-col gap-4">
+                            <div class="h-1/2 relative group cursor-pointer overflow-hidden" onclick="openLightbox(1)">
+                                <img src="{{ property.images.all.1.image.url }}" alt="{{ property.name }}" class="w-full h-full object-cover gallery-hover">
+                            </div>
+                            <div class="h-1/2 relative group cursor-pointer overflow-hidden" onclick="openLightbox(2)">
+                                <img src="{{ property.images.all.2.image.url }}" alt="{{ property.name }}" class="w-full h-full object-cover gallery-hover">
+                                {% if total_images > 3 %}
+                                    <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white z-10 transition-all hover:bg-black/60">
+                                        <span class="text-2xl font-bold">+{{ total_images|add:"-3" }}</span>
+                                        <span class="text-[9px] font-label-caps uppercase tracking-widest mt-1">View All</span>
+                                    </div>
+                                {% else %}
+                                    <div class="absolute bottom-4 right-4 bg-black/70 text-white text-xs px-3 py-1.5 rounded font-label-caps uppercase tracking-wider flex items-center gap-1.5 z-20">
+                                        <span class="material-symbols-outlined text-sm">photo_camera</span> {{ total_images }} Photos
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        {% else %}
+            <!-- Tasteful Fallback Image -->
+            <div class="w-full h-[350px] md:h-[550px] bg-surface-container-high flex flex-col items-center justify-center text-on-surface-variant gap-4">
+                <span class="material-symbols-outlined text-6xl opacity-30">home_pin</span>
+                <span class="font-label-caps uppercase tracking-widest text-xs opacity-60">Welcome to {{ property.name }}</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Content Layout (Left Column Storytelling, Right Column Sticky Booking) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 relative">
+        
+        <!-- Left Column: Immersive Narrative Sections -->
+        <div class="lg:col-span-8 space-y-20">
+            
+            <!-- Section 1: Meet Your Hosts -->
+            <div class="border-b border-outline-variant/15 pb-16">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta mb-6 font-bold">Meet Your Hosts</h3>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+                    <div class="md:col-span-5">
+                        <div class="relative rounded-lg overflow-hidden shadow-md aspect-[3/4]">
+                            {% if property.host.host_profile.profile_photo %}
+                                <img src="{{ property.host.host_profile.profile_photo.url }}" class="w-full h-full object-cover" alt="{{ property.host.username }}">
+                            {% else %}
+                                <div class="w-full h-full bg-editorial-title text-white flex items-center justify-center font-bold text-4xl">
+                                    {{ property.host.first_name|slice:":1" }}{{ property.host.last_name|slice:":1" }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="md:col-span-7 space-y-4">
+                        <span class="text-xs font-label-caps uppercase tracking-wider text-olive font-bold">THE FAMILY CUSTODIANS</span>
+                        <h2 class="font-serif-headline text-3xl text-primary font-bold">The {{ property.host.last_name }} Family</h2>
+                        <p class="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider block">
+                            Hosting in {{ property.city }} for {{ property.host.host_profile.years_hosting|default:"3" }} years · Speaks: {{ property.languages_spoken|default:"English, Hindi" }}
+                        </p>
+                        <blockquote class="font-serif-headline italic text-lg text-editorial-title border-l-2 border-terracotta pl-4 py-1 my-4 leading-relaxed">
+                            "{{ property.host.host_profile.bio|default:"We welcome you to our family hearth. Come share our food and stories." }}"
+                        </blockquote>
+                        {% if property.host.host_profile.family_intro %}
+                            <p class="text-sm text-on-surface-variant leading-relaxed font-sans">
+                                {{ property.host.host_profile.family_intro }}
+                            </p>
+                        {% endif %}
+                        {% if property.host.host_profile.fav_homemade_dish %}
+                            <div class="pt-4 border-t border-outline-variant/10 text-xs">
+                                <span class="font-label-caps uppercase tracking-wider text-terracotta font-semibold block mb-1">FAVORITE HOMEMADE RECIPE:</span>
+                                <span class="text-on-surface-variant">{{ property.host.host_profile.fav_homemade_dish }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: More Than a Stay (The Home) -->
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">More Than a Stay</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">A Living Indian Homestead</h2>
+                <div class="font-sans text-on-surface-variant leading-relaxed text-base whitespace-pre-line space-y-4">
+                    {{ property.description }}
+                </div>
+                
+                <!-- Courtyard/Hearth Details -->
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 pt-6 text-start">
+                    <div class="p-4 bg-surface-container-low border border-outline-variant/10 rounded-sm">
+                        <span class="material-symbols-outlined text-terracotta mb-2">hotel</span>
+                        <span class="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider block">Space type</span>
+                        <span class="text-sm font-semibold text-primary">{% if property.private_room %}Private Room{% else %}Shared Space{% endif %}</span>
+                    </div>
+                    <div class="p-4 bg-surface-container-low border border-outline-variant/10 rounded-sm">
+                        <span class="material-symbols-outlined text-terracotta mb-2">group</span>
+                        <span class="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider block">Max guests</span>
+                        <span class="text-sm font-semibold text-primary">{{ property.max_guests }} Welcome Guests</span>
+                    </div>
+                    <div class="p-4 bg-surface-container-low border border-outline-variant/10 rounded-sm">
+                        <span class="material-symbols-outlined text-terracotta mb-2">local_cafe</span>
+                        <span class="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider block">Home kitchen</span>
+                        <span class="text-sm font-semibold text-primary">Wood-fired Hearth</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Food Experience ("Come Hungry.") -->
+            {% if property.food_menu %}
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">Come Hungry</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">The Shared Hearth</h2>
+                <p class="font-body-md text-on-surface-variant leading-relaxed">
+                    Food is not an amenity here; it is the center of family life. Every day, the kitchen hearth comes alive with organic ingredients, local spices, and recipes passed down through generations.
+                </p>
+                
+                <div class="bg-surface-container-low border border-outline-variant/10 rounded-lg p-6 md:p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                        <div>
+                            <span class="font-label-caps text-[10px] tracking-wider text-on-surface-variant/75 uppercase block mb-1">Cooking Style</span>
+                            <h6 class="font-headline-md text-base font-bold text-secondary flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">restaurant_menu</span> {{ property.food_menu.cooking_style }}</h6>
+                        </div>
+                        <div>
+                            <span class="font-label-caps text-[10px] tracking-wider text-on-surface-variant/75 uppercase block mb-1">Spice Profile</span>
+                            <h6 class="font-headline-md text-base font-bold text-secondary flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">local_fire_department</span> {{ property.food_menu.spice_level }}</h6>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4 text-sm text-on-surface-variant">
+                        {% if property.food_menu.special_dishes %}
+                            <div>
+                                <strong class="font-label-caps text-[10px] tracking-wider mr-2 text-terracotta block mb-1">SIGNATURE DISHES:</strong>
+                                <p class="font-serif-headline italic text-base text-primary font-semibold">{{ property.food_menu.special_dishes }}</p>
+                            </div>
+                        {% endif %}
+                        {% if property.food_menu.local_desserts %}
+                            <div>
+                                <strong class="font-label-caps text-[10px] tracking-wider mr-2 text-terracotta block mb-1">SWEET ENDS & BEVERAGES:</strong>
+                                <p class="text-on-surface-variant">{{ property.food_menu.local_desserts }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        <hr class="my-4 border-outline-variant/10">
+                        <div class="flex flex-col gap-3">
+                            {% if property.food_menu.breakfast_included %}
+                                <div><strong class="font-label-caps text-[10px] tracking-wider mr-1">Breakfast:</strong> {{ property.food_menu.breakfast_details }}</div>
+                            {% endif %}
+                            {% if property.food_menu.lunch_included %}
+                                <div><strong class="font-label-caps text-[10px] tracking-wider mr-1">Lunch:</strong> {{ property.food_menu.lunch_details }}</div>
+                            {% endif %}
+                            {% if property.food_menu.dinner_included %}
+                                <div><strong class="font-label-caps text-[10px] tracking-wider mr-1">Dinner:</strong> {{ property.food_menu.dinner_details }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if property.food_menu.custom_notes %}
+                        <p class="text-xs text-on-surface-variant mt-4 italic border-t border-outline-variant/10 pt-4">"{{ property.food_menu.custom_notes }}"</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Section 4: Local Experiences -->
+            {% if property.host.experiences.exists %}
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">Your Local Life</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">Traditions to Live By</h2>
+                <p class="font-body-md text-on-surface-variant leading-relaxed">
+                    Participate in the everyday crafts, markets, and walks led by the family.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {% for exp in property.host.experiences.all %}
+                        <div class="bg-surface border border-outline-variant/10 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            {% if exp.image %}
+                                <div class="h-48 overflow-hidden">
+                                    <img src="{{ exp.image.url }}" alt="{{ exp.title }}" class="w-full h-full object-cover">
+                                </div>
+                            {% endif %}
+                            <div class="p-5 space-y-2">
+                                <span class="text-[10px] font-label-caps uppercase tracking-wider text-olive font-bold">{{ exp.category }} · {{ exp.duration }}</span>
+                                <h4 class="font-serif-headline text-lg font-bold text-primary">{{ exp.title }}</h4>
+                                <p class="text-xs text-on-surface-variant line-clamp-3 leading-relaxed">{{ exp.description }}</p>
+                                <div class="pt-3 flex justify-between items-center text-xs border-t border-outline-variant/10">
+                                    <span class="text-on-surface-variant">Led by the family</span>
+                                    <strong class="text-terracotta">₹{{ exp.price }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Section 5: Local Secrets -->
+            {% if property.nearby_attractions %}
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">Local Secrets</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">Hidden Paths & Traditions</h2>
+                <blockquote class="font-serif-headline italic text-lg text-editorial-title border-l-2 border-terracotta pl-4 py-1 leading-relaxed">
+                    "Skip the tour buses. Walk the trails to my grandfather's favorite tea vendor, or sit at the hidden clearing by the stream."
+                </blockquote>
+                <p class="font-sans text-on-surface-variant leading-relaxed text-sm whitespace-pre-line">{{ property.nearby_attractions }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Section 6: Where You Are Staying -->
+            {% if property.destination %}
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">Where You Are Staying</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">{{ property.destination.name }}</h2>
+                <p class="font-body-md text-on-surface-variant leading-relaxed whitespace-pre-line">
+                    {{ property.destination.description }}
+                </p>
+                {% if property.destination.local_food %}
+                    <div class="p-4 bg-surface-container-low border border-outline-variant/10 rounded-sm text-xs">
+                        <strong class="font-label-caps tracking-wider block mb-1 text-terracotta">REGIONAL CULINARY SECRETS:</strong>
+                        <span class="text-on-surface-variant">{{ property.destination.local_food }}</span>
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Section 7: A Day Here -->
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">A Day Here</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">Sync with the Homestead</h2>
+                
+                <div class="relative border-l border-outline-variant/30 pl-8 ml-3 space-y-10 my-8">
+                    <div class="relative">
+                        <span class="absolute -left-[37px] top-1.5 w-[11px] h-[11px] rounded-full bg-terracotta border border-background shadow-sm"></span>
+                        <span class="text-terracotta font-label-caps text-[10px] tracking-wider block mb-1">08:00 AM – The Morning Hearth</span>
+                        <h3 class="font-serif-headline text-lg text-primary font-bold mb-1.5">Sunrise Tea & Gatherings</h3>
+                        <p class="text-sm text-on-surface-variant leading-relaxed">
+                            {% if property.food_menu.breakfast_included %}{{ property.food_menu.breakfast_details }}{% else %}Organic garden herbs boiled with local milk served in the open courtyard.{% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="relative">
+                        <span class="absolute -left-[37px] top-1.5 w-[11px] h-[11px] rounded-full bg-terracotta border border-background shadow-sm"></span>
+                        <span class="text-terracotta font-label-caps text-[10px] tracking-wider block mb-1">02:30 PM – Immersion Hours</span>
+                        <h3 class="font-serif-headline text-lg text-primary font-bold mb-1.5">Guided Regional Excursions</h3>
+                        <p class="text-sm text-on-surface-variant leading-relaxed">
+                            Walk the local paths, visit the artisan workshops, or forage wild fruits alongside the family.
+                        </p>
+                    </div>
+                    
+                    <div class="relative">
+                        <span class="absolute -left-[37px] top-1.5 w-[11px] h-[11px] rounded-full bg-terracotta border border-background shadow-sm"></span>
+                        <span class="text-terracotta font-label-caps text-[10px] tracking-wider block mb-1">07:30 PM – Shared Table Dinner</span>
+                        <h3 class="font-serif-headline text-lg text-primary font-bold mb-1.5">Hearthside Cooking Exchange</h3>
+                        <p class="text-sm text-on-surface-variant leading-relaxed">
+                            {% if property.food_menu.dinner_included %}{{ property.food_menu.dinner_details }}{% else %}Roll fresh wheat breads and slow-cook farm greens over the woodstove.{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 8: Your Space (Rooms & Amenities) -->
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">Your Space</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">Practical Details</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for amenity in property.amenities.all %}
+                        <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                            <span class="material-symbols-outlined text-olive">{{ amenity.icon|default:"check_circle" }}</span>
+                            <span>{{ amenity.name }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Section 9: Location -->
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">The Coordinates</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">Find Us</h2>
+                <p class="font-body-md text-on-surface-variant leading-relaxed mb-6">
+                    Set in the historical region of {{ property.city }}, {{ property.state }}. Exact coordinates will be provided after reservation is accepted.
+                </p>
+                <div id="mapDetail" class="w-full h-[380px] rounded-lg border border-outline-variant/15 shadow-sm overflow-hidden z-10"></div>
+                <div class="flex justify-between text-xs font-label-caps text-on-surface-variant uppercase tracking-wider mt-4">
+                    <span>Check-in: {{ property.check_in_time|time:"g:i A" }}</span>
+                    <span>Check-out: {{ property.check_out_time|time:"g:i A" }}</span>
+                </div>
+            </div>
+
+            <!-- Section 10: Guestbook (Reviews) -->
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">Guestbook</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">Stories From Stayed Guests</h2>
+                
+                {% if property.reviews.all %}
+                    <!-- Rating breakdown progress bars -->
+                    <div class="bg-surface-container-low border border-outline-variant/10 p-6 rounded-lg mb-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="flex justify-between items-center mb-1 text-xs text-on-surface-variant">
+                                    <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">restaurant</span> Homemade Food</span>
+                                    <span class="font-semibold text-primary">{{ property.get_food_rating }} / 5.0</span>
+                                </div>
+                                <div class="bg-surface-container-high h-2 rounded-full overflow-hidden w-full">
+                                    <div class="bg-terracotta h-full rounded-full" style="width: {{ property.get_food_rating_percentage }}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1 text-xs text-on-surface-variant">
+                                    <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">clean_hands</span> Cleanliness</span>
+                                    <span class="font-semibold text-primary">{{ property.get_cleanliness_rating }} / 5.0</span>
+                                </div>
+                                <div class="bg-surface-container-high h-2 rounded-full overflow-hidden w-full">
+                                    <div class="bg-terracotta h-full rounded-full" style="width: {{ property.get_cleanliness_rating_percentage }}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1 text-xs text-on-surface-variant">
+                                    <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">sentiment_satisfied</span> Host Hospitality</span>
+                                    <span class="font-semibold text-primary">{{ property.get_host_behaviour_rating }} / 5.0</span>
+                                </div>
+                                <div class="bg-surface-container-high h-2 rounded-full overflow-hidden w-full">
+                                    <div class="bg-terracotta h-full rounded-full" style="width: {{ property.get_host_behaviour_rating_percentage }}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1 text-xs text-on-surface-variant">
+                                    <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">explore</span> Cultural Experience</span>
+                                    <span class="font-semibold text-primary">{{ property.get_cultural_experience_rating }} / 5.0</span>
+                                </div>
+                                <div class="bg-surface-container-high h-2 rounded-full overflow-hidden w-full">
+                                    <div class="bg-terracotta h-full rounded-full" style="width: {{ property.get_cultural_experience_rating_percentage }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col gap-4">
+                        {% for review in property.reviews.all %}
+                            <div class="journal-paper p-6 mb-4 hover-premium animate-fade-in-up">
+                                <div class="flex justify-between items-center border-b border-outline-variant/10 pb-3 mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="rounded-full bg-secondary/15 text-secondary w-8 h-8 flex items-center justify-center font-bold text-xs">
+                                            {{ review.author.username|slice:":1"|upper }}
+                                        </div>
+                                        <div>
+                                            <span class="font-sans text-xs font-bold text-primary block leading-none">{{ review.author.get_full_name|default:review.author.username }}</span>
+                                            <span class="text-[9px] text-on-surface-variant uppercase tracking-widest font-semibold">{{ review.created_at|date:"F Y" }}</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-secondary font-label-caps text-xs flex items-center gap-0.5 bg-secondary/5 px-2.5 py-1 rounded border border-secondary/15 font-bold"><span class="material-symbols-outlined text-xs fill">star</span> {{ review.overall_rating }} ★</span>
+                                </div>
+                                <blockquote class="font-serif italic text-base md:text-lg text-editorial-title my-3 leading-relaxed">
+                                    "{{ review.comments }}"
+                                </blockquote>
+                                
+                                <!-- Star category rating details (mini row) -->
+                                <div class="flex flex-wrap gap-x-4 gap-y-2 mt-4 pt-3 border-t border-outline-variant/10 text-[9px] text-on-surface-variant/75 uppercase tracking-wider font-semibold">
+                                    <span>Food: {{ review.food_rating }}★</span>
+                                    <span>Cleanliness: {{ review.cleanliness_rating }}★</span>
+                                    <span>Host: {{ review.host_behaviour_rating }}★</span>
+                                    <span>Culture: {{ review.cultural_experience_rating }}★</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-on-surface-variant italic">No guest stories in the guestbook yet. Be the first to share your journey!</p>
+                {% endif %}
+            </div>
+
+            <!-- Section 11: Related Stories -->
+            {% if related_stories %}
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">Stories from this Nest</h3>
+                <p class="font-body-md text-on-surface-variant leading-relaxed">
+                    Read journals and insights shared by other travelers:
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {% for story in related_stories %}
+                        {% include 'components/story_card.html' with post=story %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Section 12: Trust & Verification -->
+            <div class="border-b border-outline-variant/15 pb-16 space-y-6">
+                <h3 class="font-label-caps text-xs uppercase tracking-widest text-terracotta font-bold">Belonging with Safety</h3>
+                <h2 class="font-serif-headline text-3xl text-primary font-bold">Trusted Homestays</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-start">
+                    <div class="flex items-start gap-4">
+                        <span class="material-symbols-outlined text-terracotta text-2xl">verified_user</span>
+                        <div>
+                            <h5 class="text-sm font-semibold text-primary mb-1">Verified Host & Home</h5>
+                            <p class="text-xs text-on-surface-variant leading-relaxed">We physically verify each home's cleanliness, family setup, and local safety.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <span class="material-symbols-outlined text-terracotta text-2xl">gpp_good</span>
+                        <div>
+                            <h5 class="text-sm font-semibold text-primary mb-1">Secure Reservation Escrow</h5>
+                            <p class="text-xs text-on-surface-variant leading-relaxed">Payments are held securely and only disbursed to the family after check-in.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 13: Final CTA -->
+            <div class="py-16 text-center space-y-8 bg-surface-container-low rounded-xl border border-outline-variant/10 p-8">
+                <span class="text-xs font-label-caps uppercase tracking-widest text-terracotta font-bold block">YOUR STORY STARTS HERE</span>
+                <h2 class="font-serif-headline text-3xl md:text-4xl text-primary font-bold max-w-lg mx-auto leading-tight">Your room is waiting.<br>Your story starts here.</h2>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <button onclick="openBookingDrawer()" class="bg-terracotta hover:bg-terracotta/95 text-white font-label-caps text-xs px-8 py-4 rounded shadow transition-colors font-bold uppercase tracking-wider">Request to Stay</button>
+                    <a href="{% url 'properties:search' %}" class="border border-outline-variant/30 hover:bg-surface-container-high text-primary font-label-caps text-xs px-8 py-4 rounded transition-all hover:no-underline font-bold uppercase tracking-wider">Explore More Homes</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Desktop Sticky Booking Card -->
+        <div class="lg:col-span-4 hidden lg:block">
+            <div id="desktopSidebarContent" class="sticky top-24">
+                <!-- Javascript will mount #bookingCard here on Desktop -->
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Raw Booking Card HTML (Target of JS repositioning) -->
+<div id="bookingCard" class="p-6 bg-surface border border-outline-variant/15 rounded-lg shadow-md space-y-6 glass-premium hover-premium border-glow animate-fade-in-up">
+    <div class="pb-4 border-b border-outline-variant/10">
+        <span class="text-[9px] font-label-caps text-on-surface-variant uppercase tracking-widest block mb-0.5 font-bold">Stay with the family</span>
+        <div class="flex justify-between items-end">
+            <span class="font-serif-headline text-2xl font-bold text-terracotta">₹{{ property.price_per_night }} <span class="text-xs text-on-surface-variant font-sans font-normal">/ Night</span></span>
+            <span class="text-xs font-label-caps text-on-surface-variant flex items-center gap-0.5 font-semibold"><span class="material-symbols-outlined text-xs fill text-terracotta">star</span> {{ property.get_average_rating }} ★</span>
+        </div>
+    </div>
+    
+    <form action="{% url 'bookings:create_booking' property.id %}" method="post" novalidate class="space-y-4">
+        {% csrf_token %}
+        
+        <div>
+            <label class="font-label-caps text-[10px] tracking-wider text-primary block mb-2 font-bold">Check-in Date</label>
+            <input type="date" name="start_date" id="id_start_date" class="w-full bg-transparent border-b border-outline-variant focus:border-terracotta py-2 px-1 text-sm outline-none transition-colors rounded-none border-t-0 border-l-0 border-r-0 focus:ring-0" required>
+        </div>
+        
+        <div>
+            <label class="font-label-caps text-[10px] tracking-wider text-primary block mb-2 font-bold">Check-out Date</label>
+            <input type="date" name="end_date" id="id_end_date" class="w-full bg-transparent border-b border-outline-variant focus:border-terracotta py-2 px-1 text-sm outline-none transition-colors rounded-none border-t-0 border-l-0 border-r-0 focus:ring-0" required>
+        </div>
+        
+        <div>
+            <label class="font-label-caps text-[10px] tracking-wider text-primary block mb-2 font-bold">Travelers Count</label>
+            <input type="number" name="guest_count" id="id_guest_count" class="w-full bg-transparent border-b border-outline-variant focus:border-terracotta py-2 px-1 text-sm outline-none transition-colors rounded-none border-t-0 border-l-0 border-r-0 focus:ring-0" min="1" max="{{ property.max_guests }}" value="1" required>
+            <span class="text-[9px] text-on-surface-variant mt-1.5 block">Maximum {{ property.max_guests }} guests welcomed.</span>
+        </div>
+
+        {% if property.host.experiences.exists %}
+            <div>
+                <label class="font-label-caps text-[10px] tracking-wider text-primary block mb-2 font-bold font-semibold">Heritage Experiences</label>
+                <div class="flex flex-col gap-2 p-3 bg-surface-container-low border border-outline-variant/10 rounded-sm">
+                    {% for exp in property.host.experiences.all %}
+                        <div class="flex items-center gap-2 text-sm">
+                            <input class="experience-checkbox rounded border-outline-variant/30 text-terracotta focus:ring-terracotta cursor-pointer mt-0.5" type="checkbox" name="experiences" value="{{ exp.id }}" data-price="{{ exp.price }}" id="exp_{{ exp.id }}">
+                            <label class="text-xs text-on-surface-variant flex justify-between w-full cursor-pointer" for="exp_{{ exp.id }}">
+                                <span>{{ exp.title }}</span>
+                                <strong class="text-terracotta">+₹{{ exp.price }}</strong>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="p-4 bg-surface-container-low border border-outline-variant/10 rounded-sm text-xs text-on-surface-variant">
+            <div id="priceBreakdown" class="text-start mb-4 hidden">
+                <div class="flex justify-between mb-2">
+                    <span id="stayLabel">Stay:</span>
+                    <span id="stayPrice" class="font-semibold text-primary">₹0.00</span>
+                </div>
+                <div class="flex justify-between mb-2 hidden" id="expBreakdownRow">
+                    <span>Experiences:</span>
+                    <span id="expPrice" class="font-semibold text-primary">₹0.00</span>
+                </div>
+                <hr class="my-2 border-outline-variant/10">
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-semibold text-on-surface-variant">Total Reservation:</span>
+                <strong class="text-terracotta text-lg font-bold" id="totalPriceDisplay">₹0.00</strong>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+            {% if user.is_tourist %}
+                <button type="submit" class="bg-terracotta hover:bg-terracotta/95 text-white font-label-caps text-xs py-4 rounded transition-all w-full text-center tracking-wider font-bold shadow-md uppercase">Request to Stay</button>
+            {% else %}
+                <button type="button" class="w-full py-4 bg-surface-container-high text-on-surface-variant text-xs font-label-caps uppercase tracking-wider rounded cursor-not-allowed" disabled>Hosts cannot book listings</button>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="bg-terracotta hover:bg-terracotta/95 text-white font-label-caps text-xs py-4 rounded text-center text-decoration-none block tracking-wider font-bold shadow-md uppercase">Login to Request</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Floating Mobile Reservation Action Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-background/95 backdrop-blur-md border-t border-outline-variant/15 px-margin-mobile md:px-margin-desktop py-4 z-40 shadow-xl lg:hidden">
+    <div class="max-w-container-max mx-auto flex justify-between items-center h-14">
+        <div>
+            <span class="text-[9px] font-label-caps text-on-surface-variant uppercase tracking-widest block mb-0.5">Stay with the family</span>
+            <strong class="font-serif-headline text-primary leading-none block font-bold text-sm">{{ property.name }}</strong>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="font-body-md text-primary font-semibold text-sm">₹{{ property.price_per_night }} <span class="text-[9px] text-on-surface-variant font-label-caps uppercase tracking-wider font-normal">/ Night</span></span>
+            <button onclick="openBookingDrawer()" class="bg-terracotta hover:bg-terracotta/95 text-white font-label-caps text-xs px-6 py-3.5 rounded shadow transition-colors font-bold uppercase">Request</button>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Drawer Overlay -->
+<div class="fixed inset-0 bg-primary/45 backdrop-blur-sm z-50 transition-opacity hidden opacity-0 duration-300" id="drawerOverlay" onclick="closeBookingDrawer()"></div>
+
+<!-- Slide-out Booking Drawer -->
+<div class="fixed top-0 right-0 w-full sm:w-[480px] h-screen bg-background z-50 border-l border-outline-variant/15 shadow-2xl transition-transform translate-x-full duration-500 flex flex-col lg:hidden" id="bookingDrawer">
+    <div class="p-6 border-b border-outline-variant/15 flex justify-between items-center">
+        <div>
+            <h4 class="font-serif-headline text-lg text-primary font-bold mb-0.5">Reserve Stay</h4>
+            <span class="text-xs text-on-surface-variant">Submit date requests to the family</span>
+        </div>
+        <button class="text-2xl text-on-surface-variant hover:text-primary transition-colors leading-none" onclick="closeBookingDrawer()">&times;</button>
+    </div>
+    
+    <div class="p-6 overflow-y-auto flex-grow" id="mobileDrawerContent">
+        <!-- Javascript will mount #bookingCard here on Mobile -->
+    </div>
+</div>
+
+<!-- Fullscreen Lightbox Modal -->
+<div id="lightboxModal" class="fixed inset-0 bg-black/95 z-50 flex flex-col justify-between hidden opacity-0 transition-opacity duration-300">
+    <div class="flex justify-between items-center p-6 text-white z-20">
+        <span id="lightboxCounter" class="font-label-caps text-xs tracking-wider">1 / 5</span>
+        <button onclick="closeLightbox()" class="text-3xl text-white/80 hover:text-white leading-none">&times;</button>
+    </div>
+    
+    <div class="flex-grow flex items-center justify-between px-4 sm:px-12 relative">
+        <button onclick="prevLightbox()" class="text-4xl text-white/50 hover:text-white leading-none z-20">&lsaquo;</button>
+        <div class="w-full h-[70vh] flex items-center justify-center select-none">
+            <img id="lightboxImage" src="" alt="Lightbox image" class="max-w-full max-h-full object-contain rounded transition-all duration-300">
+        </div>
+        <button onclick="nextLightbox()" class="text-4xl text-white/50 hover:text-white leading-none z-20">&rsaquo;</button>
+    </div>
+    
+    <div class="p-6 text-center text-white/60 text-xs font-label-caps tracking-widest z-20" id="lightboxCaption">
+        {{ property.name }}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet Map JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    // Lightbox Images JSON
+    const galleryImages = [
+        {% for img in property.images.all %}
+            "{{ img.image.url }}",
+        {% endfor %}
+    ];
+
+    let lightboxIndex = 0;
+    const lightboxModal = document.getElementById('lightboxModal');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxCounter = document.getElementById('lightboxCounter');
+    
+    function openLightbox(index) {
+        if (!galleryImages.length) return;
+        lightboxIndex = index;
+        updateLightbox();
+        lightboxModal.classList.remove('hidden');
+        setTimeout(() => lightboxModal.classList.add('opacity-100'), 20);
+    }
+    
+    function closeLightbox() {
+        lightboxModal.classList.remove('opacity-100');
+        setTimeout(() => lightboxModal.classList.add('hidden'), 300);
+    }
+    
+    function prevLightbox() {
+        lightboxIndex = (lightboxIndex - 1 + galleryImages.length) % galleryImages.length;
+        updateLightbox();
+    }
+    
+    function nextLightbox() {
+        lightboxIndex = (lightboxIndex + 1) % galleryImages.length;
+        updateLightbox();
+    }
+    
+    function updateLightbox() {
+        lightboxImage.src = galleryImages[lightboxIndex];
+        lightboxCounter.textContent = `${lightboxIndex + 1} / ${galleryImages.length}`;
+    }
+
+    // Drawer handlers
+    function openBookingDrawer() {
+        const drawer = document.getElementById('bookingDrawer');
+        const overlay = document.getElementById('drawerOverlay');
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+            drawer.classList.remove('translate-x-full');
+            overlay.classList.add('opacity-100');
+        }, 20);
+    }
+
+    function closeBookingDrawer() {
+        const drawer = document.getElementById('bookingDrawer');
+        const overlay = document.getElementById('drawerOverlay');
+        drawer.classList.add('translate-x-full');
+        overlay.classList.remove('opacity-100');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 300);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Reposition booking card dynamically between desktop sidebar and mobile drawer
+        const bookingCard = document.getElementById('bookingCard');
+        const desktopContainer = document.getElementById('desktopSidebarContent');
+        const mobileDrawerContent = document.getElementById('mobileDrawerContent');
+        
+        function repositionBookingCard() {
+            if (window.innerWidth < 1024) {
+                if (bookingCard.parentElement !== mobileDrawerContent) {
+                    mobileDrawerContent.appendChild(bookingCard);
+                }
+            } else {
+                if (bookingCard.parentElement !== desktopContainer) {
+                    desktopContainer.appendChild(bookingCard);
+                }
+            }
+        }
+        
+        window.addEventListener('resize', repositionBookingCard);
+        repositionBookingCard(); // Initial run
+
+        const lat = parseFloat("{{ property.latitude }}");
+        const lng = parseFloat("{{ property.longitude }}");
+
+        // Initialize Map
+        const map = L.map('mapDetail', {
+            center: [lat, lng],
+            zoom: 14,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        // OpenStreetMap Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add Marker
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup("<b>{{ property.name }}</b><br>{{ property.city }}, {{ property.state }}")
+            .openPopup();
+
+        // Price calculator helper
+        const pricePerNight = parseFloat("{{ property.price_per_night }}");
+        const startDateInput = document.getElementById('id_start_date');
+        const endDateInput = document.getElementById('id_end_date');
+        const guestsInput = document.getElementById('id_guest_count');
+        const expCheckboxes = document.querySelectorAll('.experience-checkbox');
+        const totalPriceDisplay = document.getElementById('totalPriceDisplay');
+
+        function calculatePrice() {
+            const startVal = startDateInput.value;
+            const endVal = endDateInput.value;
+            const guests = parseInt(guestsInput.value) || 1;
+            
+            const breakdownEl = document.getElementById('priceBreakdown');
+            const stayLabelEl = document.getElementById('stayLabel');
+            const stayPriceEl = document.getElementById('stayPrice');
+            const expRowEl = document.getElementById('expBreakdownRow');
+            const expPriceEl = document.getElementById('expPrice');
+            
+            if (startVal && endVal) {
+                const start = new Date(startVal);
+                const end = new Date(endVal);
+                
+                if (end > start) {
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    const baseTotal = diffDays * pricePerNight;
+                    let expTotal = 0;
+                    expCheckboxes.forEach(cb => {
+                        if (cb.checked) {
+                            expTotal += parseFloat(cb.dataset.price) || 0;
+                        }
+                    });
+                    const finalExpTotal = expTotal * guests;
+                    const grandTotal = baseTotal + finalExpTotal;
+                    
+                    // Update Breakdown UI
+                    if (breakdownEl) {
+                        breakdownEl.classList.remove('hidden');
+                        stayLabelEl.textContent = `Stay (₹${pricePerNight.toFixed(2)} × ${diffDays} night${diffDays > 1 ? 's' : ''}):`;
+                        stayPriceEl.textContent = `₹${baseTotal.toFixed(2)}`;
+                        
+                        if (finalExpTotal > 0) {
+                            expRowEl.classList.remove('hidden');
+                            expPriceEl.textContent = `₹${finalExpTotal.toFixed(2)}`;
+                        } else {
+                            expRowEl.classList.add('hidden');
+                        }
+                    }
+                    
+                    totalPriceDisplay.textContent = "₹" + grandTotal.toFixed(2);
+                } else {
+                    if (breakdownEl) breakdownEl.classList.add('hidden');
+                    totalPriceDisplay.textContent = "₹0.00";
+                }
+            } else {
+                if (breakdownEl) breakdownEl.classList.add('hidden');
+                totalPriceDisplay.textContent = "₹0.00";
+            }
+        }
+
+        startDateInput.addEventListener('change', calculatePrice);
+        endDateInput.addEventListener('change', calculatePrice);
+        guestsInput.addEventListener('input', calculatePrice);
+        expCheckboxes.forEach(cb => cb.addEventListener('change', calculatePrice));
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Host Profile | LocalNest{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-7">
+            <div class="card card-custom glass-card p-4 fade-in-up">
+                <div class="card-body">
+                    <h2 class="h3 fw-bold text-success mb-4 text-center">Edit Host Profile</h2>
+                    
+                    <!-- Verification Status Banner -->
+                    <div class="card mb-4 border-0">
+                        <div class="card-body rounded d-flex align-items-center justify-content-between p-3
+                            {% if profile.verification_status == 'APPROVED' %}bg-success-subtle text-success
+                            {% elif profile.verification_status == 'REJECTED' %}bg-danger-subtle text-danger
+                            {% else %}bg-warning-subtle text-warning-emphasis{% endif %}">
+                            <div class="d-flex align-items-center">
+                                <i class="bi {% if profile.verification_status == 'APPROVED' %}bi-patch-check-fill
+                                             {% elif profile.verification_status == 'REJECTED' %}bi-shield-x-fill
+                                             {% else %}bi-clock-history{% endif %} fs-3 me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Verification Status: {{ profile.get_verification_status_display }}</h6>
+                                    <p class="small mb-0 opacity-75">
+                                        {% if profile.verification_status == 'APPROVED' %}
+                                            Your profile is verified. You can publish property listings.
+                                        {% elif profile.verification_status == 'REJECTED' %}
+                                            Verification rejected: {{ profile.verification_notes|default:"Please upload valid documents." }}
+                                        {% else %}
+                                            Our administrators are reviewing your verification documents.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <h5 class="fw-bold text-success mb-3 pb-2 border-bottom">Personal Details</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_first_name" class="form-label fw-semibold text-muted">First Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_last_name" class="form-label fw-semibold text-muted">Last Name</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="id_email" class="form-label fw-semibold text-muted">Email Address</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="id_phone_number" class="form-label fw-semibold text-muted">Phone Number</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="id_address" class="form-label fw-semibold text-muted">Homestay Address</label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                    <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="id_bio" class="form-label fw-semibold text-muted">Bio / About Your Family</label>
+                                {{ form.bio }}
+                                {% if form.bio.errors %}
+                                    <div class="text-danger small mt-1">{{ form.bio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="id_profile_photo" class="form-label fw-semibold text-muted">Profile Photo</label>
+                                {% if profile.profile_photo %}
+                                    <div class="mb-2">
+                                        <img src="{{ profile.profile_photo.url }}" alt="Profile Photo" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                                    </div>
+                                {% endif %}
+                                {{ form.profile_photo }}
+                                {% if form.profile_photo.errors %}
+                                    <div class="text-danger small mt-1">{{ form.profile_photo.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold text-success mt-4 mb-3 pb-2 border-bottom">Host Experience & Details</h5>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="id_family_intro" class="form-label fw-semibold text-muted">Family Introduction</label>
+                                {{ form.family_intro }}
+                                {% if form.family_intro.errors %}
+                                    <div class="text-danger small mt-1">{{ form.family_intro.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_occupation" class="form-label fw-semibold text-muted">Occupation</label>
+                                {{ form.occupation }}
+                                {% if form.occupation.errors %}
+                                    <div class="text-danger small mt-1">{{ form.occupation.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_years_hosting" class="form-label fw-semibold text-muted">Years Hosting</label>
+                                {{ form.years_hosting }}
+                                {% if form.years_hosting.errors %}
+                                    <div class="text-danger small mt-1">{{ form.years_hosting.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_response_time" class="form-label fw-semibold text-muted">Average Response Time</label>
+                                {{ form.response_time }}
+                                {% if form.response_time.errors %}
+                                    <div class="text-danger small mt-1">{{ form.response_time.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_response_rate" class="form-label fw-semibold text-muted">Response Rate (%)</label>
+                                {{ form.response_rate }}
+                                {% if form.response_rate.errors %}
+                                    <div class="text-danger small mt-1">{{ form.response_rate.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_fav_local_place" class="form-label fw-semibold text-muted">Favorite Local Attraction</label>
+                                {{ form.fav_local_place }}
+                                {% if form.fav_local_place.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fav_local_place.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_fav_homemade_dish" class="form-label fw-semibold text-muted">Signature Homemade Dish</label>
+                                {{ form.fav_homemade_dish }}
+                                {% if form.fav_homemade_dish.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fav_homemade_dish.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold text-success mt-4 mb-3 pb-2 border-bottom">Emergency Contact</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_emergency_contact_name" class="form-label fw-semibold text-muted">Contact Name</label>
+                                {{ form.emergency_contact_name }}
+                                {% if form.emergency_contact_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.emergency_contact_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_emergency_contact_phone" class="form-label fw-semibold text-muted">Contact Phone Number</label>
+                                {{ form.emergency_contact_phone }}
+                                {% if form.emergency_contact_phone.errors %}
+                                    <div class="text-danger small mt-1">{{ form.emergency_contact_phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold text-success mt-4 mb-3 pb-2 border-bottom">Documents & Verification</h5>
+                        <div class="alert alert-warning mb-3 py-2 px-3 small" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Uploading new documents will reset your verification status to <strong>Pending Approval</strong>.
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_government_id" class="form-label fw-semibold text-muted">Government ID Document</label>
+                                {% if profile.government_id %}
+                                    <div class="mb-2 small">
+                                        <a href="{{ profile.government_id.url }}" target="_blank" class="text-success"><i class="bi bi-file-earmark-pdf-fill me-1"></i>View Current Document</a>
+                                    </div>
+                                {% endif %}
+                                {{ form.government_id }}
+                                {% if form.government_id.errors %}
+                                    <div class="text-danger small mt-1">{{ form.government_id.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_selfie_photo" class="form-label fw-semibold text-muted">Identity Selfie Photo</label>
+                                {% if profile.selfie_photo %}
+                                    <div class="mb-2">
+                                        <img src="{{ profile.selfie_photo.url }}" alt="Selfie Photo" class="rounded" style="width: 100px; height: 75px; object-fit: cover;">
+                                    </div>
+                                {% endif %}
+                                {{ form.selfie_photo }}
+                                {% if form.selfie_photo.errors %}
+                                    <div class="text-danger small mt-1">{{ form.selfie_photo.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{% url 'dashboard:dispatcher' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                            <button type="submit" class="btn btn-orange px-4">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

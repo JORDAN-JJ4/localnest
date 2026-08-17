@@ -1,0 +1,23 @@
+{% load static %}
+<footer class="bg-surface-container dark:bg-primary-container border-t border-outline-variant/10">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-section-gap px-margin-mobile md:px-margin-desktop py-section-gap w-full max-w-container-max mx-auto opacity-90 hover:opacity-100 transition-opacity">
+        <div>
+            <h2 class="font-headline-lg text-headline-lg text-primary dark:text-on-primary-container mb-6">LocalNest</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant max-w-sm">
+                © 2026 LocalNest. Cinematic hospitality. Human-first storytelling.
+            </p>
+        </div>
+        <div class="grid grid-cols-2 gap-8 font-body-md text-body-md text-on-surface-variant">
+            <div class="flex flex-col space-y-4">
+                <a class="hover:text-secondary hover:no-underline transition-colors" href="{% url 'properties:search' %}">Philosophy</a>
+                <a class="hover:text-secondary hover:no-underline transition-colors" href="{% url 'properties:search' %}?type=homes">Community Stays</a>
+                <a class="hover:text-secondary hover:no-underline transition-colors" href="{% url 'properties:search' %}?type=experiences">Trust &amp; Safety</a>
+            </div>
+            <div class="flex flex-col space-y-4">
+                <a class="hover:text-secondary hover:no-underline transition-colors" href="{% url 'core:blog_list' %}">Journal</a>
+                <a class="hover:text-secondary hover:no-underline transition-colors" href="#">Privacy</a>
+                <a class="hover:text-secondary hover:no-underline transition-colors" href="#">Careers</a>
+            </div>
+        </div>
+    </div>
+</footer>

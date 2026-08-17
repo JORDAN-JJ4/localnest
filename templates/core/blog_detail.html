@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} | LocalNest Journal{% endblock %}
+
+{% block extra_css %}
+<!-- Blog detail specific styling is fully managed via Tailwind -->
+{% endblock %}
+
+{% block content %}
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 mb-24">
+    
+    <!-- Editorial Header -->
+    <div class="text-center mb-12">
+        <span class="text-secondary font-label-caps text-label-caps uppercase tracking-widest block mb-2">{{ post.get_category_display }}</span>
+        <h1 class="font-display-lg text-display-lg text-primary mb-4 leading-tight max-w-4xl mx-auto">{{ post.title }}</h1>
+        <p class="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider">
+            Published on {{ post.created_at|date:"F d, Y" }} &bull; written by {{ post.author.get_full_name|default:post.author.username }}
+        </p>
+    </div>
+
+    <!-- Featured Image -->
+    <div class="w-full aspect-[21/10] md:aspect-[21/9] rounded-lg overflow-hidden mb-16 bg-primary/10 shadow-sm">
+        {% if post.featured_image %}
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+        {% else %}
+            <div class="w-full h-full flex items-center justify-center bg-surface-container-high text-on-surface-variant">
+                <span class="material-symbols-outlined text-6xl opacity-40">menu_book</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Narrative content column -->
+    <div class="max-w-3xl mx-auto">
+        <article class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mb-16 whitespace-pre-line">
+            {{ post.content|safe }}
+        </article>
+
+        <!-- Related commerce links (Content-to-Commerce Network) -->
+        {% if post.property or post.host or post.destination %}
+            <div class="my-16 bg-surface-container-low border border-outline-variant/10 rounded-lg p-6 md:p-8">
+                <span class="font-label-caps text-label-caps text-secondary block mb-6 tracking-widest uppercase">Experience This Story</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    {% if post.property %}
+                        <div>
+                            <h4 class="font-headline-md text-headline-md text-primary mb-4 font-semibold uppercase tracking-wider">The Homestead</h4>
+                            {% include 'components/property_card.html' with property=post.property %}
+                        </div>
+                    {% endif %}
+                    {% if post.host and post.host.host_profile %}
+                        <div>
+                            <h4 class="font-headline-md text-headline-md text-primary mb-4 font-semibold uppercase tracking-wider">The Host Family</h4>
+                            {% include 'components/family_card.html' with host_profile=post.host.host_profile %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if post.destination %}
+                    <div class="mt-8 pt-6 border-t border-outline-variant/10 text-center">
+                        <a href="{% url 'properties:destination_detail' post.destination.slug %}" class="inline-flex items-center text-xs font-label-caps text-primary hover:text-secondary tracking-widest uppercase hover:no-underline transition-all">
+                            Explore All of {{ post.destination.name }} <span class="material-symbols-outlined text-sm ml-1.5">arrow_forward</span>
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <hr class="my-12 border-outline-variant/10">
+
+        <!-- More stories -->
+        {% if recent_posts %}
+            <div>
+                <h4 class="font-headline-lg text-headline-lg text-primary mb-8 border-b border-outline-variant/10 pb-3">More Stories from the Journal</h4>
+                <div class="flex flex-col gap-6">
+                    {% for r_post in recent_posts %}
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-center border-b border-outline-variant/10 pb-6 mb-2 last:border-b-0 last:pb-0 last:mb-0">
+                            <div class="md:col-span-1 aspect-[16/10] overflow-hidden rounded-md bg-primary/10">
+                                {% if r_post.featured_image %}
+                                    <img src="{{ r_post.featured_image.url }}" class="w-full h-full object-cover" alt="{{ r_post.title }}">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-surface-container-high text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-2xl opacity-40">menu_book</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="md:col-span-3">
+                                <span class="font-label-caps text-[9px] text-on-surface-variant/80 uppercase tracking-widest block mb-1">{{ r_post.get_category_display }}</span>
+                                <h5 class="mb-2">
+                                    <a href="{% url 'core:blog_detail' r_post.slug %}" class="font-headline-md text-headline-md text-primary hover:text-secondary transition-colors duration-300 font-semibold leading-snug">
+                                        {{ r_post.title }}
+                                    </a>
+                                </h5>
+                                <a href="{% url 'core:blog_detail' r_post.slug %}" class="inline-flex items-center text-xs font-label-caps text-secondary uppercase tracking-widest hover:text-primary transition-colors">
+                                    Read Article <span class="material-symbols-outlined text-xs ml-1">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

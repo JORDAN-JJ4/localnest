@@ -1,0 +1,75 @@
+{% load static %}
+<div class="group flex flex-col justify-between bg-transparent h-full border border-outline-variant/10 rounded-lg p-6 hover:shadow-md transition-shadow bg-surface-container-lowest">
+    <!-- Image Wrap: Large portrait framing -->
+    <div class="relative w-full aspect-[4/5] overflow-hidden bg-primary/5 mb-6 rounded">
+        {% if family and family.photo %}
+            <img src="{{ family.photo.url }}" alt="{{ family.name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102">
+        {% elif host_profile_obj and host_profile_obj.profile_photo %}
+            <img src="{{ host_profile_obj.profile_photo.url }}" alt="The {% if family %}{{ family.name }}{% else %}{{ host_profile_obj.user.last_name }}{% endif %} Family" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102">
+        {% else %}
+            <div class="w-full h-full flex items-center justify-center bg-surface-container-high text-on-surface-variant">
+                <span class="material-symbols-outlined text-4xl opacity-30">group</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Content Body -->
+    <div class="flex-grow flex flex-col justify-between">
+        <div>
+            <!-- Location -->
+            <span class="text-terracotta font-label-caps text-[10px] uppercase tracking-widest block mb-2 font-bold">
+                {% if host_profile_obj %}{{ host_profile_obj.address|default:host_profile_obj.user.properties.first.city|default:"India" }}{% else %}India{% endif %}
+            </span>
+            
+            <!-- Family Name -->
+            <h4 class="mb-2">
+                {% if host_profile_obj %}
+                    <a href="{% url 'accounts:host_profile_detail' host_profile_obj.id %}" class="font-serif-headline text-2xl text-primary hover:text-terracotta hover:no-underline transition-colors duration-300 block font-bold">
+                        {% if family %}{{ family.name }}{% else %}The {{ host_profile_obj.user.last_name|default:host_profile_obj.user.username }} Family{% endif %}
+                    </a>
+                {% else %}
+                    <span class="font-serif-headline text-2xl text-primary block font-bold">
+                        {% if family %}{{ family.name }}{% else %}Family Stay{% endif %}
+                    </span>
+                {% endif %}
+            </h4>
+
+            <!-- Tagline / Intro -->
+            <p class="font-serif-headline italic text-sm text-editorial-title mb-4 leading-relaxed line-clamp-2">
+                {% if family %}"{{ family.intro }}"{% elif host_profile_obj %}"{{ host_profile_obj.bio }}"{% endif %}
+            </p>
+            
+            <!-- Human Details -->
+            <div class="space-y-2 border-t border-outline-variant/10 pt-4 mb-6 text-xs text-on-surface-variant">
+                <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-olive">translate</span>
+                    <span><strong>Languages:</strong> {% if family %}{{ family.languages }}{% elif host_profile_obj %}{{ host_profile_obj.languages_spoken|default:"Hindi, English" }}{% endif %}</span>
+                </div>
+                {% if host_profile_obj %}
+                <div class="flex items-start gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-olive">star</span>
+                    <span>
+                        <strong>Known for:</strong> 
+                        {% if host_profile_obj.fav_homemade_dish and host_profile_obj.fav_local_place %}
+                            {{ host_profile_obj.fav_homemade_dish }} &bull; {{ host_profile_obj.fav_local_place }}
+                        {% elif host_profile_obj.fav_homemade_dish %}
+                            {{ host_profile_obj.fav_homemade_dish }}
+                        {% else %}
+                            Warm hospitality & traditional recipes
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- CTA Link -->
+        {% if host_profile_obj %}
+        <div class="pt-2 border-t border-outline-variant/10">
+            <a href="{% url 'accounts:host_profile_detail' host_profile_obj.id %}" class="inline-flex items-center text-xs font-label-caps text-terracotta hover:text-primary uppercase tracking-widest hover:no-underline transition-colors font-bold">
+                Meet the family <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Share Your Story | 1000 Stories of India{% endblock %}
+
+{% block content %}
+<div class="relative bg-primary text-white py-16 mb-12 bg-cover bg-center" style="background-image: linear-gradient(to bottom, rgba(4, 22, 46, 0.9), rgba(4, 22, 46, 0.95)), url('{% static 'img/custom_photographer.jpg' %}');">
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+        <span class="text-secondary font-bold uppercase tracking-widest text-[10px] block mb-2">1000 Stories of India</span>
+        <h1 class="font-serif text-3xl md:text-4xl font-bold mb-3">Share Your Heritage Story</h1>
+        <p class="text-white/70 max-w-xl mx-auto text-xs md:text-sm leading-relaxed">
+            Every home is a living archive of recipes, traditions, and memories. Document your history and help people understand the real India.
+        </p>
+    </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-4 mb-24">
+    <!-- Messages box -->
+    {% if messages %}
+        <div class="mb-6 space-y-2.5">
+            {% for msg in messages %}
+                <div class="p-4 rounded-md text-xs font-semibold {% if msg.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-red-50 text-red-800 border border-red-200{% endif %}">
+                    {{ msg }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="bg-surface-container-lowest border border-outline-variant/10 rounded-xl p-6 md:p-8 shadow-sm">
+        <form method="POST" action="{% url 'core:stories_share' %}" enctype="multipart/form-data" class="space-y-8 text-xs text-on-surface-variant font-medium">
+            {% csrf_token %}
+
+            <!-- Section 1: Contributor Details -->
+            <div class="space-y-4">
+                <h3 class="text-sm font-bold text-primary uppercase tracking-wider border-b border-outline-variant/10 pb-2">1. Contributor Profile</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="name" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Full Name <span class="text-secondary">*</span></label>
+                        <input type="text" id="name" name="name" required placeholder="e.g. Arundhati Roy" class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Email Address <span class="text-secondary">*</span></label>
+                        <input type="email" id="email" name="email" required placeholder="e.g. arundhati@example.com" class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="occupation" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Occupation / Role</label>
+                        <input type="text" id="occupation" name="occupation" placeholder="e.g. School Teacher, Weaver, Architect" class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition">
+                    </div>
+                    <div>
+                        <label for="bio" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Short Bio</label>
+                        <input type="text" id="bio" name="bio" placeholder="e.g. Story collector and spice farm custodian in Wayanad." class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Story Details -->
+            <div class="space-y-4">
+                <h3 class="text-sm font-bold text-primary uppercase tracking-wider border-b border-outline-variant/10 pb-2">2. Your Story</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="title" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Story Title <span class="text-secondary">*</span></label>
+                        <input type="text" id="title" name="title" required placeholder="e.g. The Craft of Handloom Sarees in Maheshwar" class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition">
+                    </div>
+                    <div>
+                        <label for="category" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Category <span class="text-secondary">*</span></label>
+                        <select id="category" name="category" required class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition font-semibold">
+                            <option value="FAMILY">Family Stories</option>
+                            <option value="FOOD">Food Stories</option>
+                            <option value="CRAFT">Craft Stories</option>
+                            <option value="HERITAGE">Heritage Stories</option>
+                            <option value="GENERATIONAL">Generational Stories</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="intro" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Short Introduction / Summary</label>
+                    <textarea id="intro" name="intro" rows="2" placeholder="Write a brief, engaging summary of what this story is about..." class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition"></textarea>
+                </div>
+
+                <div>
+                    <label for="content" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Story Content <span class="text-secondary">*</span></label>
+                    <textarea id="content" name="content" rows="8" required placeholder="Tell your story. You can structure it in chapters or paragraphs. Feel free to describe traditional recipes, family tree relationships, or cultural practices..." class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition font-serif text-sm"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="featured_image" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Featured Story Image</label>
+                        <input type="file" id="featured_image" name="featured_image" accept="image/*" class="w-full text-xs text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                    </div>
+                    <div>
+                        <label for="visibility" class="block text-[10px] font-bold uppercase tracking-wider mb-1 text-primary">Visibility Preference</label>
+                        <select id="visibility" name="visibility" class="w-full px-3.5 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-md focus:outline-none focus:border-secondary transition font-semibold">
+                            <option value="PUBLIC">Public (Visible to everyone)</option>
+                            <option value="COMMUNITY">Community Only (Logged-in LocalNest users only)</option>
+                            <option value="PRIVATE">Private (Saved for review only)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Consent -->
+            <div class="bg-primary/5 rounded-lg p-5 border border-outline-variant/10 space-y-3.5">
+                <div class="flex items-start gap-3">
+                    <input type="checkbox" id="consent" name="consent" required class="mt-0.5 rounded text-secondary focus:ring-secondary cursor-pointer">
+                    <label for="consent" class="text-[11px] text-on-surface leading-relaxed cursor-pointer">
+                        <span class="font-bold text-primary block mb-0.5">Consent & Editorial Agreement <span class="text-secondary">*</span></span>
+                        I verify that I have the right to share this story, and I consent to publishing it under the LocalNest editorial team guidelines to promote slow travel and real Indian cultures.
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex items-center gap-4 justify-end pt-4 border-t border-outline-variant/10">
+                <a href="{% url 'core:stories_list' %}" class="bg-transparent hover:bg-surface-container-high text-on-surface border border-outline-variant/25 px-6 py-2.5 rounded-md font-bold uppercase tracking-wider text-[11px] transition hover:no-underline">Cancel</a>
+                <button type="submit" class="bg-secondary hover:bg-primary text-white px-8 py-2.5 rounded-md font-bold uppercase tracking-wider text-[11px] shadow transition">Submit Story</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

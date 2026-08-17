@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Choose Payment Method | LocalNest{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-margin-mobile py-12 mb-24">
+    <div class="bg-surface-container-lowest border border-outline-variant/10 rounded-lg p-8 shadow-sm">
+        <span class="text-[9px] font-label-caps text-on-surface-variant/80 uppercase tracking-widest text-center block mb-2">Safehold Reservation</span>
+        <h2 class="font-headline-xl text-headline-xl text-primary text-center mb-6 font-semibold">Choose Payment Method</h2>
+
+        <!-- Booking Summary Box -->
+        <div class="p-6 bg-surface-container-low border border-outline-variant/10 rounded-lg mb-6 flex flex-col gap-3 text-sm text-on-surface-variant">
+            <h5 class="font-label-caps text-xs text-secondary uppercase tracking-widest border-b border-outline-variant/10 pb-2 mb-1">Summary of Journey</h5>
+            <div class="flex justify-between">
+                <span>Homestay:</span>
+                <span class="font-semibold text-primary">{{ booking.property.name }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span>Dates:</span>
+                <span class="font-semibold text-primary">{{ booking.start_date }} to {{ booking.end_date }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span>Travelers:</span>
+                <span class="font-semibold text-primary">{{ booking.guest_count }} guest{{ booking.guest_count|pluralize }}</span>
+            </div>
+            <hr class="my-1 border-outline-variant/10">
+            <div class="flex justify-between items-center">
+                <span class="font-semibold">Total Payable:</span>
+                <span class="font-headline-md text-secondary font-bold">INR {{ booking.total_price }}</span>
+            </div>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="flex flex-col gap-4 mb-6">
+                <!-- Option 1: Cash on Arrival -->
+                <label class="relative flex items-start gap-3.5 p-4 rounded-lg border border-outline-variant/20 cursor-pointer transition-all bg-surface-container-low/40 hover:bg-surface-container-low">
+                    <input class="rounded-full border-outline-variant/30 text-secondary focus:ring-secondary cursor-pointer mt-1" type="radio" name="payment_method" id="pay_cash" value="CASH_ON_ARRIVAL" checked>
+                    <span class="block">
+                        <span class="font-bold text-primary text-sm flex items-center gap-1.5"><span class="material-symbols-outlined text-base">payments</span> Cash on Arrival</span>
+                        <span class="text-xs text-on-surface-variant mt-1 block">Pay the host family directly in cash when you arrive at the homestay.</span>
+                    </span>
+                </label>
+
+                <!-- Option 2: Razorpay Online Simulated -->
+                <label class="relative flex items-start gap-3.5 p-4 rounded-lg border border-outline-variant/20 cursor-pointer transition-all bg-surface-container-low/40 hover:bg-surface-container-low">
+                    <input class="rounded-full border-outline-variant/30 text-secondary focus:ring-secondary cursor-pointer mt-1" type="radio" name="payment_method" id="pay_online" value="RAZORPAY">
+                    <span class="block">
+                        <span class="font-bold text-primary text-sm flex items-center gap-1.5"><span class="material-symbols-outlined text-base">credit_card</span> Pay Online (Simulated)</span>
+                        <span class="text-xs text-on-surface-variant mt-1 block">Pay securely using credit cards, UPI, or net banking. Simulated Razorpay transaction.</span>
+                    </span>
+                </label>
+            </div>
+
+            <button type="submit" class="bg-secondary hover:bg-secondary/95 text-on-secondary font-label-caps text-label-caps py-4 rounded hover:opacity-95 transition-all shadow-[inset_0px_1px_0px_rgba(255,255,255,0.2)] w-full text-center tracking-wider">Confirm Payment Choice</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

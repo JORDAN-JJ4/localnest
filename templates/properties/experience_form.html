@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Experience{% else %}Add Experience{% endif %} | LocalNest{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card card-custom glass-card p-4 fade-in-up">
+                <div class="card-body">
+                    <h2 class="h3 fw-bold text-success mb-4 text-center">
+                        {% if form.instance.pk %}Edit Host Experience{% else %}Create Local Experience{% endif %}
+                    </h2>
+                    <p class="text-muted small text-center mb-4">Share signature village walks, private spice kitchen classes, or sunrise treks with travelers.</p>
+                    
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label fw-semibold text-muted">Experience Title</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_price" class="form-label fw-semibold text-muted">Price per traveler (₹)</label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                    <div class="text-danger small mt-1">{{ form.price.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_duration" class="form-label fw-semibold text-muted">Duration (e.g. 3 hours)</label>
+                                {{ form.duration }}
+                                {% if form.duration.errors %}
+                                    <div class="text-danger small mt-1">{{ form.duration.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_category" class="form-label fw-semibold text-muted">Activity Category</label>
+                            {{ form.category }}
+                            <div class="form-text text-muted small" style="font-size: 0.72rem;">e.g., Cooking Class, Village Walk, Spice Plantation Tour</div>
+                            {% if form.category.errors %}
+                                <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label fw-semibold text-muted">Experience Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_image" class="form-label fw-semibold text-muted">Experience Showcase Photo</label>
+                            {% if form.instance.image %}
+                                <div class="mb-2">
+                                    <img src="{{ form.instance.image.url }}" class="rounded shadow-sm" style="width: 120px; height: 90px; object-fit: cover;">
+                                </div>
+                            {% endif %}
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-2 border-top">
+                            <a href="{% url 'dashboard:dispatcher' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                            <button type="submit" class="btn btn-orange px-4">{% if form.instance.pk %}Save Changes{% else %}Publish Experience{% endif %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

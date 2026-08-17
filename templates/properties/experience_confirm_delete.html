@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Experience | LocalNest{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card card-custom glass-card p-5 fade-in-up">
+                <div class="card-body">
+                    <div class="mb-4 text-danger">
+                        <i class="bi bi-trash3-fill" style="font-size: 4.5rem;"></i>
+                    </div>
+                    <h3 class="fw-bold text-success-emphasis mb-3" style="font-family: var(--heading-font);">Delete Local Experience</h3>
+                    <p class="text-muted mb-4">Are you sure you want to delete <strong>"{{ object.title }}"</strong>? This action is permanent and cannot be undone.</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{% url 'dashboard:dispatcher' %}" class="btn btn-outline-secondary px-4 py-2 fw-semibold">Cancel</a>
+                            <button type="submit" class="btn btn-danger px-4 py-2 fw-semibold">Delete Permanently</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

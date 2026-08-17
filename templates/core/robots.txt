@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /bookings/
+Disallow: /chat/
+Disallow: /payments/
+Disallow: /accounts/profile/

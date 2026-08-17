@@ -1,0 +1,56 @@
+{% load static %}
+<div class="group flex flex-col justify-between bg-transparent h-full">
+    <!-- Image Wrap: No rounded corners, no shadows, flat framing -->
+    <div class="relative w-full aspect-[4/3] overflow-hidden bg-primary/5 mb-5">
+        {% if property.images.exists %}
+            <img src="{{ property.images.first.image.url }}" alt="{{ property.name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103">
+        {% else %}
+            <div class="w-full h-full flex items-center justify-center bg-surface-container-high text-on-surface-variant">
+                <span class="material-symbols-outlined text-4xl opacity-30">image</span>
+            </div>
+        {% endif %}
+        
+        <!-- Price overlay - elegant and flat in top right or bottom left -->
+        <div class="absolute bottom-4 left-4 bg-primary text-white text-xs font-semibold px-2.5 py-1.5 shadow-sm">
+            ₹{{ property.price_per_night }} <span class="text-[9px] font-normal opacity-85">/ night</span>
+        </div>
+    </div>
+
+    <!-- Content Body: No card borders, pure whitespace, strong typographic hierarchy -->
+    <div class="flex-grow flex flex-col justify-between">
+        <div>
+            <!-- Location and Rating row -->
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-secondary font-label-caps text-[9px] uppercase tracking-widest block font-bold">
+                    {{ property.city|upper }}, {{ property.state|upper }}
+                </span>
+                <span class="flex items-center gap-0.5 text-xs text-primary font-medium">
+                    <span class="material-symbols-outlined text-xs text-secondary fill">star</span>
+                    {{ property.get_average_rating|default:"5.0" }}
+                </span>
+            </div>
+
+            <!-- Title -->
+            <h4 class="mb-2">
+                <a href="{% url 'properties:detail' property.id %}" class="font-serif text-xl text-primary hover:text-secondary hover:no-underline transition-colors duration-300 line-clamp-1 block leading-tight">
+                    {{ property.name }}
+                </a>
+            </h4>
+            
+            <!-- Description -->
+            <p class="text-outline text-xs leading-relaxed line-clamp-2 mb-4">
+                {{ property.description }}
+            </p>
+        </div>
+
+        <!-- Footer / CTA row -->
+        <div class="pt-2 flex justify-between items-center border-t border-outline-variant/10 mt-auto">
+            <span class="text-[9px] font-label-caps text-outline/75 uppercase tracking-widest flex items-center gap-1">
+                Hosted by the {{ property.host.last_name }} Family
+            </span>
+            <a href="{% url 'properties:detail' property.id %}" class="inline-flex items-center text-xs font-label-caps text-secondary hover:text-primary uppercase tracking-widest hover:no-underline transition-colors">
+                View homestay <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+{% load static %}
+
+{% if host_profile.host_user %}
+    <!-- host_profile is a Family object (from homepage/other views) -->
+    {% with family=host_profile host_profile_obj=host_profile.host_user.host_profile %}
+        {% include 'components/family_card_render.html' with family=family host_profile_obj=host_profile_obj %}
+    {% endwith %}
+{% else %}
+    <!-- host_profile is a HostProfile object (from search view) -->
+    {% with family=host_profile.user.host_families.first host_profile_obj=host_profile %}
+        {% include 'components/family_card_render.html' with family=family host_profile_obj=host_profile_obj %}
+    {% endwith %}
+{% endif %}

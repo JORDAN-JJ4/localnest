@@ -1,0 +1,113 @@
+{% load static %}
+<header class="fixed w-full z-50 bg-background/80 backdrop-blur-md border-b border-outline-variant/10 top-0 transition-all duration-300">
+    <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-unit w-full max-w-container-max mx-auto h-20">
+        <!-- Logo & Tagline -->
+        <div class="flex flex-col items-start leading-tight">
+            <a class="font-serif text-2xl font-bold tracking-tight text-primary hover:no-underline hover:text-secondary transition-colors" href="{% url 'core:home' %}">
+                LocalNest
+            </a>
+            <span class="hidden lg:inline text-[9px] font-label-caps tracking-widest text-outline uppercase font-semibold mt-0.5">Come for India. Stay for the people.</span>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="hidden md:flex items-center space-x-8 font-label-caps text-label-caps">
+            <!-- Discover Dropdown -->
+            <div class="relative group" id="discoverDropdown">
+                <button class="flex items-center gap-0.5 text-on-surface-variant hover:text-secondary transition-colors focus:outline-none py-2">
+                    Discover
+                    <span class="material-symbols-outlined text-sm transition-transform group-hover:rotate-180">keyboard_arrow_down</span>
+                </button>
+                <div class="absolute left-0 mt-1 w-44 bg-surface border border-outline-variant/30 rounded-sm shadow-md py-1.5 hidden group-hover:block hover:block z-50">
+                    <a class="block px-4 py-2 text-xs font-semibold text-on-surface hover:bg-surface-container-low hover:no-underline" href="{% url 'properties:search' %}">All Stays</a>
+                    <a class="block px-4 py-2 text-xs font-semibold text-on-surface hover:bg-surface-container-low hover:no-underline" href="{% url 'properties:search' %}?type=homes">Homes</a>
+                    <a class="block px-4 py-2 text-xs font-semibold text-on-surface hover:bg-surface-container-low hover:no-underline" href="{% url 'properties:search' %}?type=hosts">Families</a>
+                </div>
+            </div>
+            
+            <a class="{% if request.resolver_match.view_name == 'properties:search' and request.GET.type == 'homes' %}text-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} hover:no-underline transition-colors duration-300" href="{% url 'properties:search' %}?type=homes">Stays</a>
+            <a class="{% if request.resolver_match.view_name == 'properties:search' and request.GET.type == 'experiences' %}text-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} hover:no-underline transition-colors duration-300" href="{% url 'properties:search' %}?type=experiences">Experiences</a>
+            <a class="{% if 'stories_list' in request.resolver_match.view_name or 'story_detail' in request.resolver_match.view_name %}text-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} hover:no-underline transition-colors duration-300" href="{% url 'core:stories_list' %}">1000 Stories</a>
+            <a class="{% if 'secrets_list' in request.resolver_match.view_name or 'secret_detail' in request.resolver_match.view_name %}text-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} hover:no-underline transition-colors duration-300" href="{% url 'core:secrets_list' %}">Local Secrets</a>
+            <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors duration-300" href="#about-us">About Us</a>
+        </nav>
+
+        <!-- Right Side Icons & CTAs -->
+        <div class="flex items-center space-x-6">
+            <!-- Wishlist Link -->
+            <a href="{% url 'dashboard:dispatcher' %}?tab=wishlist" class="text-on-surface-variant hover:text-secondary transition-colors flex items-center gap-1 text-xs font-label-caps" aria-label="Wishlist">
+                <span class="material-symbols-outlined text-xl">favorite</span>
+                <span class="hidden lg:inline">Wishlist</span>
+            </a>
+
+            <!-- Hamburger Menu for Desktop & Mobile -->
+            <button class="text-on-surface-variant hover:text-secondary focus:outline-none flex items-center" id="mobileMenuOpen" aria-label="Open Menu">
+                <span class="material-symbols-outlined text-2xl">menu</span>
+            </button>
+
+            <!-- Authentication Button -->
+            {% if user.is_authenticated %}
+                <div class="relative inline-block text-left" id="userMenuDropdown">
+                    <button class="flex items-center focus:outline-none" id="userMenuButton">
+                        {% if user.host_profile.profile_photo %}
+                            <img src="{{ user.host_profile.profile_photo.url }}" class="rounded-full w-9 h-9 object-cover border border-outline-variant/30" alt="{{ user.username }}">
+                        {% elif user.profile.profile_photo %}
+                            <img src="{{ user.profile.profile_photo.url }}" class="rounded-full w-9 h-9 object-cover border border-outline-variant/30" alt="{{ user.username }}">
+                        {% else %}
+                            <div class="rounded-full bg-secondary text-on-secondary w-9 h-9 flex items-center justify-center font-bold text-sm">
+                                {{ user.username|slice:":1"|upper }}
+                            </div>
+                        {% endif %}
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-surface border border-outline-variant rounded-sm shadow-lg py-2 hidden z-50" id="userMenu">
+                        <div class="px-4 py-2 border-b border-outline-variant/20 text-xs font-label-caps text-on-surface-variant">Hi, {{ user.first_name|default:user.username }}</div>
+                        <a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low hover:no-underline transition-colors" href="{% url 'dashboard:dispatcher' %}">Dashboard</a>
+                        <a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low hover:no-underline transition-colors" href="{% url 'accounts:profile_edit' %}">Settings</a>
+                        <form action="{% url 'accounts:logout' %}" method="post" class="border-t border-outline-variant/20 mt-2 pt-2">
+                            {% csrf_token %}
+                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-error hover:bg-error-container transition-colors font-semibold">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <a class="nav-login-link text-on-surface-variant hover:text-secondary font-label-caps text-label-caps mr-4 transition-colors hover:no-underline" href="{% url 'accounts:login' %}">Log in</a>
+                <a class="bg-secondary text-on-secondary font-label-caps text-label-caps px-6 py-2.5 rounded-sm hover:bg-secondary/90 hover:no-underline transition-all shadow-[inset_0px_1px_0px_rgba(255,255,255,0.2)]" href="{% url 'accounts:login' %}?signup=true">
+                    Sign up
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<!-- Sidebar Menu Drawer Component -->
+<div class="fixed inset-y-0 right-0 z-50 w-full max-w-xs bg-surface border-l border-outline-variant/20 shadow-2xl p-6 hidden flex-col transition-all duration-300 translate-x-full" id="mobileMenuDrawer">
+    <div class="flex items-center justify-between pb-6 border-b border-outline-variant/20">
+        <a class="font-serif text-2xl font-bold text-primary hover:no-underline" href="{% url 'core:home' %}">LocalNest</a>
+        <button class="text-primary focus:outline-none" id="mobileMenuClose">
+            <span class="material-symbols-outlined text-3xl">close</span>
+        </button>
+    </div>
+    
+    <div class="flex-grow py-8 flex flex-col space-y-5 font-label-caps text-label-caps text-base overflow-y-auto">
+        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'properties:search' %}">Discover Stays</a>
+        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'properties:search' %}?type=homes">Homes</a>
+        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'properties:search' %}?type=hosts">Families</a>
+        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'properties:search' %}?type=experiences">Experiences</a>
+        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'core:stories_list' %}">1000 Stories</a>
+        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'core:secrets_list' %}">Local Secrets</a>
+        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="#about-us">About Us</a>
+    </div>
+    
+    <div class="pt-6 border-t border-outline-variant/20 flex flex-col space-y-4">
+        {% if user.is_authenticated %}
+            <a class="bg-secondary text-on-secondary font-label-caps text-label-caps py-3 rounded-sm text-center hover:bg-secondary/90 hover:no-underline transition-colors shadow-sm" href="{% url 'dashboard:dispatcher' %}">Go to Dashboard</a>
+            <form action="{% url 'accounts:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-surface-container-high text-error font-label-caps text-label-caps py-3 rounded-sm text-center hover:bg-error-container transition-colors font-semibold">Logout</button>
+            </form>
+        {% else %}
+            <a class="bg-surface-container-high text-on-surface font-label-caps text-label-caps py-3 rounded-sm text-center hover:bg-surface-container-highest hover:no-underline transition-colors font-semibold" href="{% url 'accounts:login' %}">Sign In</a>
+            <a class="bg-secondary text-on-secondary font-label-caps text-label-caps py-3 rounded-sm text-center hover:bg-secondary/90 hover:no-underline transition-colors shadow-sm" href="{% url 'accounts:register_tourist' %}">Sign Up</a>
+            <a class="border border-secondary text-secondary font-label-caps text-label-caps py-3 rounded-sm text-center hover:bg-secondary/5 hover:no-underline transition-colors" href="{% url 'accounts:register_host' %}">Become a Host</a>
+        {% endif %}
+    </div>
+</div>

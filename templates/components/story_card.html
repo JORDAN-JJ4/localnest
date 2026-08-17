@@ -1,0 +1,24 @@
+{% load static %}
+<a href="{% url 'core:blog_detail' post.slug %}" class="group block flex flex-col justify-between h-full hover:no-underline">
+    <div>
+        <div class="relative overflow-hidden mb-6 rounded-lg aspect-[16/10] bg-primary/10">
+            {% if post.featured_image %}
+                <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103" src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+            {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-surface-container-high text-on-surface-variant">
+                    <span class="material-symbols-outlined text-4xl opacity-40">menu_book</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div>
+            <span class="font-label-caps text-[10px] text-on-surface-variant/80 uppercase tracking-widest block mb-2">{{ post.created_at|date:"M d, Y" }} &bull; by {{ post.author.get_full_name|default:post.author.username }}</span>
+            <h3 class="font-headline-md text-headline-md text-primary font-semibold mb-3 group-hover:text-secondary transition-colors duration-300 leading-snug">{{ post.title }}</h3>
+            <p class="text-sm text-on-surface-variant leading-relaxed line-clamp-3 mb-6">{{ post.content|striptags }}</p>
+        </div>
+    </div>
+    
+    <span class="inline-flex items-center text-xs font-label-caps text-secondary uppercase tracking-widest group-hover:text-primary transition-colors mt-auto">
+        Read Article <span class="material-symbols-outlined text-xs ml-1">arrow_forward</span>
+    </span>
+</a>
