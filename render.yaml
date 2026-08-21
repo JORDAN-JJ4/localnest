@@ -12,7 +12,7 @@ services:
       python manage.py collectstatic --noinput
     startCommand: >
       python manage.py migrate &&
-      python seed_data.py &&
+      python manage.py seed_data &&
       gunicorn localnest.wsgi --log-file - --workers 2 --timeout 120
     healthCheckPath: /health/
     envVars:
