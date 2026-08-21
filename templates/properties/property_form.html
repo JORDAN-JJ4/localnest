@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ title }} | LocalNest{% endblock %}
 
@@ -8,259 +9,277 @@
 <style>
     #map {
         height: 350px;
-        border-radius: 12px;
-        border: 2px solid var(--primary-green);
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        border-radius: 4px;
+        border: 1px solid rgba(126, 120, 110, 0.3);
+        box-shadow: inset 0 2px 4px rgba(44, 22, 14, 0.04);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card card-custom glass-card p-4 fade-in-up">
-                <div class="card-body">
-                    <h1 class="h2 fw-bold text-success mb-4 text-center">{{ title }}</h1>
+<div class="min-h-[calc(100vh-160px)] bg-background py-12">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="max-w-4xl mx-auto bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg p-8 md:p-12 space-y-8">
+            
+            <!-- Header -->
+            <div class="text-center space-y-2">
+                <span class="text-secondary font-label-caps text-xs uppercase tracking-widest block font-bold">Homestay Manager</span>
+                <h1 class="font-serif text-3xl text-primary font-bold tracking-tight">{{ title }}</h1>
+                <p class="text-xs text-on-surface-variant max-w-md mx-auto">Fill in your property detail, food menus, location coords, and photos to list your home.</p>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data" class="space-y-8" novalidate>
+                {% csrf_token %}
+                
+                <!-- Non-field Errors -->
+                {% if property_form.non_field_errors or food_form.non_field_errors %}
+                    <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold space-y-1">
+                        {% for error in property_form.non_field_errors %}
+                            <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
+                        {% endfor %}
+                        {% for error in food_form.non_field_errors %}
+                            <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Section: Basic Listing Info -->
+                <div class="space-y-4">
+                    <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">info</span> Listing Details
+                    </h3>
                     
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        
-                        <!-- Non-field Errors -->
-                        {% if property_form.non_field_errors or food_form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for error in property_form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
-                                {% for error in food_form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
-                            </div>
-                        {% endif %}
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+                        <div class="space-y-1.5 md:col-span-5">
+                            <label class="ln-label">Destination Region</label>
+                            {{ property_form.destination }}
+                            {% if property_form.destination.errors %}<div class="ln-error-text">{{ property_form.destination.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5 md:col-span-4">
+                            <label class="ln-label">Property Name</label>
+                            {{ property_form.name }}
+                            {% if property_form.name.errors %}<div class="ln-error-text">{{ property_form.name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5 md:col-span-3">
+                            <label class="ln-label">Price per Night (INR)</label>
+                            {{ property_form.price_per_night }}
+                            {% if property_form.price_per_night.errors %}<div class="ln-error-text">{{ property_form.price_per_night.errors.0 }}</div>{% endif %}
+                        </div>
 
-                        <div class="row g-4">
-                            <!-- Section: Basic Listing Info -->
-                            <div class="col-12">
-                                <h5 class="fw-bold text-success pb-2 border-bottom"><i class="bi bi-info-circle-fill me-1"></i> Listing Details</h5>
-                            </div>
-                            
-                            <div class="col-md-5">
-                                <label class="form-label fw-semibold text-muted">Destination Region</label>
-                                {{ property_form.destination }}
-                                {% if property_form.destination.errors %}<div class="text-danger small mt-1">{{ property_form.destination.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold text-muted">Property Name</label>
-                                {{ property_form.name }}
-                                {% if property_form.name.errors %}<div class="text-danger small mt-1">{{ property_form.name.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label fw-semibold text-muted">Price per Night (INR)</label>
-                                {{ property_form.price_per_night }}
-                                {% if property_form.price_per_night.errors %}<div class="text-danger small mt-1">{{ property_form.price_per_night.errors.0 }}</div>{% endif %}
-                            </div>
+                        <div class="space-y-1.5 md:col-span-4">
+                            <label class="ln-label">Max Guests</label>
+                            {{ property_form.max_guests }}
+                            {% if property_form.max_guests.errors %}<div class="ln-error-text">{{ property_form.max_guests.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="md:col-span-8 flex items-center pt-5">
+                            <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs">
+                                {{ property_form.private_room }}
+                                <span>Offers Private Guest Room</span>
+                            </label>
+                        </div>
 
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold text-muted">Max Guests</label>
-                                {{ property_form.max_guests }}
-                                {% if property_form.max_guests.errors %}<div class="text-danger small mt-1">{{ property_form.max_guests.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-4 d-flex align-items-center">
-                                <div class="form-check mt-4">
-                                    {{ property_form.private_room }}
-                                    <label class="form-check-label fw-semibold text-muted" for="id_private_room">
-                                        Offers Private Guest Room
+                        <div class="space-y-1.5 md:col-span-12">
+                            <label class="ln-label">Description</label>
+                            <textarea name="description" id="id_description" rows="4" class="ln-input" placeholder="Describe the atmosphere, environment, and physical details of your home..." required>{{ property_form.description.value|default:'' }}</textarea>
+                            {% if property_form.description.errors %}<div class="ln-error-text">{{ property_form.description.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="space-y-1.5 md:col-span-6">
+                            <label class="ln-label">Check-in Time</label>
+                            {{ property_form.check_in_time }}
+                            {% if property_form.check_in_time.errors %}<div class="ln-error-text">{{ property_form.check_in_time.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5 md:col-span-6">
+                            <label class="ln-label">Check-out Time</label>
+                            {{ property_form.check_out_time }}
+                            {% if property_form.check_out_time.errors %}<div class="ln-error-text">{{ property_form.check_out_time.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Location & Map -->
+                <div class="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">pin_drop</span> Location & Map Coordinates
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+                        <div class="space-y-1.5 md:col-span-4">
+                            <label class="ln-label">Village / Locality</label>
+                            {{ property_form.village }}
+                        </div>
+                        <div class="space-y-1.5 md:col-span-4">
+                            <label class="ln-label">City / District</label>
+                            {{ property_form.city }}
+                            {% if property_form.city.errors %}<div class="ln-error-text">{{ property_form.city.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5 md:col-span-4">
+                            <label class="ln-label">State</label>
+                            {{ property_form.state }}
+                            {% if property_form.state.errors %}<div class="ln-error-text">{{ property_form.state.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5 md:col-span-12">
+                            <label class="ln-label">Full Address</label>
+                            {{ property_form.address }}
+                            {% if property_form.address.errors %}<div class="ln-error-text">{{ property_form.address.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="space-y-1.5 md:col-span-12">
+                            <p class="text-[10px] text-on-surface-variant/80 mb-2">Drag the marker or click on the map to pin your homestay location exactly.</p>
+                            {{ property_form.latitude }}
+                            {{ property_form.longitude }}
+                            <div id="map"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Food Menu -->
+                <div class="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">restaurant</span> Homemade Food Options
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div class="space-y-3 bg-surface-container-low/40 p-4 border border-outline-variant/15 rounded-md">
+                            <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs mb-1">
+                                {{ food_form.breakfast_included }}
+                                <span>Breakfast Included</span>
+                            </label>
+                            {{ food_form.breakfast_details }}
+                        </div>
+                        <div class="space-y-3 bg-surface-container-low/40 p-4 border border-outline-variant/15 rounded-md">
+                            <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs mb-1">
+                                {{ food_form.lunch_included }}
+                                <span>Lunch Included</span>
+                            </label>
+                            {{ food_form.lunch_details }}
+                        </div>
+                        <div class="space-y-3 bg-surface-container-low/40 p-4 border border-outline-variant/15 rounded-md">
+                            <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs mb-1">
+                                {{ food_form.dinner_included }}
+                                <span>Dinner Included</span>
+                            </label>
+                            {{ food_form.dinner_details }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 py-3">
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs">
+                            {{ food_form.vegetarian }}
+                            <span>Vegetarian Available</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs">
+                            {{ food_form.non_vegetarian }}
+                            <span>Non-Vegetarian Available</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs">
+                            {{ food_form.vegan }}
+                            <span>Vegan Friendly</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs">
+                            {{ food_form.jain }}
+                            <span>Jain Friendly</span>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Cooking Style</label>
+                            {{ food_form.cooking_style }}
+                            {% if food_form.cooking_style.errors %}<div class="ln-error-text">{{ food_form.cooking_style.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Spice Level</label>
+                            {{ food_form.spice_level }}
+                            {% if food_form.spice_level.errors %}<div class="ln-error-text">{{ food_form.spice_level.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Signature Homemade Dishes</label>
+                            {{ food_form.special_dishes }}
+                            {% if food_form.special_dishes.errors %}<div class="ln-error-text">{{ food_form.special_dishes.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Local Desserts Served</label>
+                            {{ food_form.local_desserts }}
+                            {% if food_form.local_desserts.errors %}<div class="ln-error-text">{{ food_form.local_desserts.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Food Gallery Image 1</label>
+                            {{ food_form.food_photo_1 }}
+                            {% if food_form.food_photo_1.errors %}<div class="ln-error-text">{{ food_form.food_photo_1.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Food Gallery Image 2</label>
+                            {{ food_form.food_photo_2 }}
+                            {% if food_form.food_photo_2.errors %}<div class="ln-error-text">{{ food_form.food_photo_2.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="space-y-1.5 md:col-span-2">
+                            <label class="ln-label">Special Dietary / Food Notes</label>
+                            {{ food_form.custom_notes }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Amenities & House Rules -->
+                <div class="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">verified</span> Amenities & House Rules
+                    </h3>
+                    
+                    <div class="space-y-5">
+                        <div class="space-y-3">
+                            <label class="ln-label">Amenities</label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 bg-surface-container-low/40 border border-outline-variant/15 rounded-md">
+                                {% for checkbox in property_form.amenities %}
+                                    <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium text-xs">
+                                        {{ checkbox.tag }}
+                                        <span>{{ checkbox.choice_label }}</span>
                                     </label>
-                                </div>
+                                {% endfor %}
                             </div>
+                        </div>
 
-                            <div class="col-12">
-                                <label class="form-label fw-semibold text-muted">Description</label>
-                                {{ property_form.description }}
-                                {% if property_form.description.errors %}<div class="text-danger small mt-1">{{ property_form.description.errors.0 }}</div>{% endif %}
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">Check-in Time</label>
-                                {{ property_form.check_in_time }}
-                                {% if property_form.check_in_time.errors %}<div class="text-danger small mt-1">{{ property_form.check_in_time.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">Check-out Time</label>
-                                {{ property_form.check_out_time }}
-                                {% if property_form.check_out_time.errors %}<div class="text-danger small mt-1">{{ property_form.check_out_time.errors.0 }}</div>{% endif %}
-                            </div>
-
-                            <!-- Section: Location & Leaflet Map -->
-                            <div class="col-12 mt-5">
-                                <h5 class="fw-bold text-success pb-2 border-bottom"><i class="bi bi-geo-alt-fill me-1"></i> Location & Map Coordinates</h5>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold text-muted">Village / Locality</label>
-                                {{ property_form.village }}
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold text-muted">City / District</label>
-                                {{ property_form.city }}
-                                {% if property_form.city.errors %}<div class="text-danger small mt-1">{{ property_form.city.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold text-muted">State</label>
-                                {{ property_form.state }}
-                                {% if property_form.state.errors %}<div class="text-danger small mt-1">{{ property_form.state.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label fw-semibold text-muted">Full Address</label>
-                                {{ property_form.address }}
-                                {% if property_form.address.errors %}<div class="text-danger small mt-1">{{ property_form.address.errors.0 }}</div>{% endif %}
-                            </div>
-
-                            <div class="col-12">
-                                <p class="small text-muted mb-2">Drag the marker or click on the map to pin your homestay location exactly.</p>
-                                {{ property_form.latitude }}
-                                {{ property_form.longitude }}
-                                <div id="map"></div>
-                            </div>
-
-                            <!-- Section: Food Menu -->
-                            <div class="col-12 mt-5">
-                                <h5 class="fw-bold text-success pb-2 border-bottom"><i class="bi bi-egg-fried me-1"></i> Homemade Food Options</h5>
-                            </div>
-
-                            <div class="col-md-4">
-                                <div class="form-check mb-2">
-                                    {{ food_form.breakfast_included }}
-                                    <label class="form-check-label fw-semibold text-muted" for="id_breakfast_included">Breakfast Included</label>
-                                </div>
-                                {{ food_form.breakfast_details }}
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-check mb-2">
-                                    {{ food_form.lunch_included }}
-                                    <label class="form-check-label fw-semibold text-muted" for="id_lunch_included">Lunch Included</label>
-                                </div>
-                                {{ food_form.lunch_details }}
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-check mb-2">
-                                    {{ food_form.dinner_included }}
-                                    <label class="form-check-label fw-semibold text-muted" for="id_dinner_included">Dinner Included</label>
-                                </div>
-                                {{ food_form.dinner_details }}
-                            </div>
-
-                            <div class="col-md-3 mt-3">
-                                <div class="form-check form-check-inline">
-                                    {{ food_form.vegetarian }}
-                                    <label class="form-check-label fw-semibold text-muted" for="id_vegetarian">Vegetarian Available</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mt-3">
-                                <div class="form-check form-check-inline">
-                                    {{ food_form.non_vegetarian }}
-                                    <label class="form-check-label fw-semibold text-muted" for="id_non_vegetarian">Non-Vegetarian Available</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mt-3">
-                                <div class="form-check form-check-inline">
-                                    {{ food_form.vegan }}
-                                    <label class="form-check-label fw-semibold text-muted" for="id_vegan">Vegan Friendly</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mt-3">
-                                <div class="form-check form-check-inline">
-                                    {{ food_form.jain }}
-                                    <label class="form-check-label fw-semibold text-muted" for="id_jain">Jain Friendly</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <label class="form-label fw-semibold text-muted">Cooking Style</label>
-                                {{ food_form.cooking_style }}
-                                {% if food_form.cooking_style.errors %}<div class="text-danger small mt-1">{{ food_form.cooking_style.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-6 mt-3">
-                                <label class="form-label fw-semibold text-muted">Spice Level</label>
-                                {{ food_form.spice_level }}
-                                {% if food_form.spice_level.errors %}<div class="text-danger small mt-1">{{ food_form.spice_level.errors.0 }}</div>{% endif %}
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <label class="form-label fw-semibold text-muted">Signature Homemade Dishes</label>
-                                {{ food_form.special_dishes }}
-                                {% if food_form.special_dishes.errors %}<div class="text-danger small mt-1">{{ food_form.special_dishes.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-6 mt-3">
-                                <label class="form-label fw-semibold text-muted">Local Desserts Served</label>
-                                {{ food_form.local_desserts }}
-                                {% if food_form.local_desserts.errors %}<div class="text-danger small mt-1">{{ food_form.local_desserts.errors.0 }}</div>{% endif %}
-                            </div>
-
-                            <div class="col-md-6 mt-3">
-                                <label class="form-label fw-semibold text-muted">Food Gallery Image 1</label>
-                                {{ food_form.food_photo_1 }}
-                                {% if food_form.food_photo_1.errors %}<div class="text-danger small mt-1">{{ food_form.food_photo_1.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-6 mt-3">
-                                <label class="form-label fw-semibold text-muted">Food Gallery Image 2</label>
-                                {{ food_form.food_photo_2 }}
-                                {% if food_form.food_photo_2.errors %}<div class="text-danger small mt-1">{{ food_form.food_photo_2.errors.0 }}</div>{% endif %}
-                            </div>
-
-                            <div class="col-12 mt-3">
-                                <label class="form-label fw-semibold text-muted">Special Dietary / Food Notes</label>
-                                {{ food_form.custom_notes }}
-                            </div>
-
-                            <!-- Section: Amenities & Languages -->
-                            <div class="col-12 mt-5">
-                                <h5 class="fw-bold text-success pb-2 border-bottom"><i class="bi bi-stars me-1"></i> Amenities & Details</h5>
-                            </div>
-
-                            <div class="col-12">
-                                <label class="form-label fw-semibold text-muted d-block mb-3">Amenities</label>
-                                <div class="row g-2 px-3">
-                                    {% for checkbox in property_form.amenities %}
-                                        <div class="col-md-4 col-sm-6 form-check">
-                                            {{ checkbox.tag }}
-                                            <label class="form-check-label text-muted" for="{{ checkbox.id_for_label }}">
-                                                {{ checkbox.choice_label }}
-                                            </label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">Languages Spoken</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="space-y-1.5">
+                                <label class="ln-label">Languages Spoken</label>
                                 {{ property_form.languages_spoken }}
-                                {% if property_form.languages_spoken.errors %}<div class="text-danger small mt-1">{{ property_form.languages_spoken.errors.0 }}</div>{% endif %}
+                                {% if property_form.languages_spoken.errors %}<div class="ln-error-text">{{ property_form.languages_spoken.errors.0 }}</div>{% endif %}
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">Nearby Attractions</label>
+                            <div class="space-y-1.5">
+                                <label class="ln-label">Nearby Attractions</label>
                                 {{ property_form.nearby_attractions }}
                             </div>
-
-                            <div class="col-12">
-                                <label class="form-label fw-semibold text-muted">House Rules</label>
-                                {{ property_form.house_rules }}
-                            </div>
-
-                            <!-- Section: Images Upload -->
-                            <div class="col-12 mt-5">
-                                <h5 class="fw-bold text-success pb-2 border-bottom"><i class="bi bi-images me-1"></i> Homestay Images</h5>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label fw-semibold text-muted">Upload Property Images</label>
-                                <input type="file" name="images" class="form-control" multiple {% if not property %}required{% endif %} accept="image/*">
-                                <p class="form-text text-muted small">You can upload multiple high-quality photos of the guest room, common spaces, and family surroundings.</p>
+                            <div class="space-y-1.5 md:col-span-2">
+                                <label class="ln-label">House Rules</label>
+                                <textarea name="house_rules" id="id_house_rules" rows="3" class="ln-input" placeholder="e.g. Quiet hours, smoking policy, pet guidelines...">{{ property_form.house_rules.value|default:'' }}</textarea>
                             </div>
                         </div>
-
-                        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
-                            <a href="{% url 'dashboard:dispatcher' %}" class="btn btn-outline-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn btn-orange px-5">Submit Listing</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Section: Image Uploads -->
+                <div class="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">photo_library</span> Homestay Images
+                    </h3>
+                    
+                    <div class="space-y-1.5">
+                        <label class="ln-label">Upload Property Images</label>
+                        <input type="file" name="images" class="w-full text-xs text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-[10px] file:font-bold file:uppercase file:tracking-wider file:bg-secondary/10 file:text-secondary hover:file:bg-secondary/20 file:cursor-pointer" multiple {% if not property %}required{% endif %} accept="image/*">
+                        <p class="text-[9px] text-on-surface-variant/80 mt-1 leading-relaxed">Upload multiple high-quality photos of the guest room, common spaces, dining experience, and outdoor surroundings.</p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-between items-center pt-6 border-t border-outline-variant/10">
+                    <a href="{% url 'dashboard:dispatcher' %}" class="ln-btn-secondary px-6">Cancel</a>
+                    <button type="submit" class="ln-btn-primary px-8">Submit Listing</button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>
@@ -273,32 +292,32 @@
     document.addEventListener("DOMContentLoaded", function() {
         const latInput = document.getElementById('id_latitude');
         const lngInput = document.getElementById('id_longitude');
-
+ 
         let initialLat = parseFloat(latInput.value) || 20.5937;
         let initialLng = parseFloat(lngInput.value) || 78.9629;
         let initialZoom = latInput.value ? 14 : 5;
-
+ 
         // Initialize Map
         const map = L.map('map').setView([initialLat, initialLng], initialZoom);
-
+ 
         // OpenStreetMap Tile Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-
+ 
         // Add Draggable Marker
         const marker = L.marker([initialLat, initialLng], {
             draggable: true
         }).addTo(map);
-
+ 
         // Update hidden fields on marker dragend
         marker.on('dragend', function(e) {
             const position = marker.getLatLng();
             latInput.value = position.lat.toFixed(6);
             lngInput.value = position.lng.toFixed(6);
         });
-
+ 
         // Update marker & fields on map click
         map.on('click', function(e) {
             const lat = e.latlng.lat;

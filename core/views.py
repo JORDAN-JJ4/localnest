@@ -41,6 +41,20 @@ class HomeView(TemplateView):
         return context
 
 
+class AboutView(TemplateView):
+    template_name = 'core/about.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Real story count for 1000 Stories section
+        published_stories = Story.objects.filter(moderation_status='PUBLISHED').count()
+        context['story_count'] = 142 + published_stories
+        context['story_percentage'] = min(100, int(((142 + published_stories) / 1000) * 100))
+        context['family_count'] = Family.objects.count()
+        context['destination_count'] = Destination.objects.count()
+        return context
+
+
 
 class RobotsView(TemplateView):
     template_name = 'core/robots.txt'

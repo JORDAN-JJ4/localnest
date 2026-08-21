@@ -1,74 +1,108 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Login | LocalNest{% endblock %}
+{% block title %}Welcome Back | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card card-custom glass-card p-4 fade-in-up">
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-nest-fill text-success fs-1"></i>
-                        <h1 class="h3 mt-2 fw-bold text-success">Welcome Back</h1>
-                        <p class="text-muted">Sign in to experience LocalNest</p>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 items-center bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg overflow-hidden">
+            
+            <!-- Left Panel: Immersive Visual Storytelling (Desktop Only) -->
+            <div class="hidden lg:block lg:col-span-6 relative h-[650px] overflow-hidden">
+                <img src="{% static 'img/v2_grandmother.jpg' %}" alt="Grandmother preparing tea" class="w-full h-full object-cover transition-transform duration-1000 hover:scale-101">
+                <!-- Warm Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10"></div>
+                
+                <!-- Stories Overlay Content -->
+                <div class="absolute bottom-12 left-12 right-12 text-white z-10 space-y-4">
+                    <span class="bg-secondary/90 text-white text-[10px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-sm shadow-sm inline-block">1000 Stories of India</span>
+                    <blockquote class="font-serif italic text-2xl leading-normal text-white/95 drop-shadow-sm">
+                        "The best journeys in India are the ones that introduce you to the people, not just the monuments. Sharing tea with our host family was unforgettable."
+                    </blockquote>
+                    <cite class="text-xs uppercase tracking-wider text-white/70 block not-italic font-bold font-sans">
+                        — Sarah & David, stayed in Munnar
+                    </cite>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Elegant Login Form -->
+            <div class="col-span-1 lg:col-span-6 p-8 md:p-16 flex flex-col justify-center">
+                <div class="max-w-md w-full mx-auto space-y-8">
+                    <!-- Header -->
+                    <div class="space-y-2.5">
+                        <div class="flex items-center gap-2 text-secondary">
+                            <span class="material-symbols-outlined text-3xl font-bold">nest_egg</span>
+                            <span class="font-serif text-xl font-bold tracking-tight text-primary">LocalNest</span>
+                        </div>
+                        <h1 class="font-serif text-3xl md:text-4xl text-primary font-bold tracking-tight leading-tight">Welcome back.</h1>
+                        <p class="text-sm text-on-surface-variant font-medium leading-relaxed">Your next story is waiting. Sign in to continue your journey through India.</p>
                     </div>
 
-                    <form method="post" novalidate>
+                    <!-- Form -->
+                    <form method="post" class="space-y-6" novalidate>
                         {% csrf_token %}
                         
                         {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
+                            <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold space-y-1">
                                 {% for error in form.non_field_errors %}
-                                    {{ error }}
+                                    <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
                                 {% endfor %}
                             </div>
                         {% endif %}
 
                         {% for field in form %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-muted">{{ field.label }}</label>
+                            <div class="space-y-1.5">
+                                <label for="{{ field.id_for_label }}" class="ln-label flex justify-between items-center">
+                                    <span>{{ field.label }}</span>
+                                    {% if field.field.required %}<span class="text-secondary/70 text-[9px] uppercase tracking-normal">* Required</span>{% endif %}
+                                </label>
                                 <input type="{{ field.field.widget.input_type|default:'text' }}" 
                                        name="{{ field.html_name }}" 
                                        id="{{ field.id_for_label }}" 
-                                       class="form-control {% if field.errors %}is-invalid{% endif %}"
+                                       class="ln-input {% if field.errors %}is-invalid{% endif %}"
                                        value="{{ field.value|default:'' }}"
+                                       placeholder="Enter your {{ field.label|lower }}"
                                        required
                                        aria-describedby="{{ field.id_for_label }}-feedback">
+                                
                                 {% if field.errors %}
-                                    <div id="{{ field.id_for_label }}-feedback" class="invalid-feedback">
+                                    <div id="{{ field.id_for_label }}-feedback" class="ln-error-text">
                                         {% for error in field.errors %}
-                                            {{ error }}
+                                            <span class="material-symbols-outlined text-xs">error</span> {{ error }}
                                         {% endfor %}
                                     </div>
+                                {% endif %}
+                                
+                                {% if field.help_text %}
+                                    <p class="ln-help-text">{{ field.help_text|safe }}</p>
                                 {% endif %}
                             </div>
                         {% endfor %}
 
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="rememberMe">
-                                <label class="form-check-label text-muted small" for="rememberMe">
-                                    Remember me
-                                </label>
-                            </div>
-                            <a href="{% url 'accounts:password_reset' %}" class="text-decoration-none text-success small fw-semibold">Forgot Password?</a>
+                        <div class="flex items-center justify-between text-xs">
+                            <label class="flex items-center gap-2 cursor-pointer select-none text-on-surface-variant font-medium">
+                                <input class="w-4 h-4 rounded border-outline-variant/35 text-secondary focus:ring-secondary/30 accent-secondary cursor-pointer" type="checkbox" id="rememberMe">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="{% url 'accounts:password_reset' %}" class="text-secondary hover:text-primary transition-colors font-bold uppercase tracking-wider text-[10px]">Forgot Password?</a>
                         </div>
 
-                        <button type="submit" class="btn btn-orange w-100 py-2.5 mb-3">Sign In</button>
+                        <button type="submit" class="ln-btn-primary w-full">Sign In</button>
                     </form>
 
-                    <div class="text-center mt-3">
-                        <p class="text-muted small mb-0">Don't have an account?</p>
-                        <div class="mt-2">
-                            <span class="small text-muted me-1">Join as a</span>
-                            <a href="{% url 'accounts:register_tourist' %}" class="text-success fw-bold text-decoration-none small">Tourist</a>
-                            <span class="text-muted mx-1">|</span>
-                            <a href="{% url 'accounts:register_host' %}" class="text-success fw-bold text-decoration-none small">Local Host</a>
+                    <!-- Footer Link -->
+                    <div class="border-t border-outline-variant/10 pt-6 text-center">
+                        <span class="text-xs text-on-surface-variant font-medium">New to LocalNest?</span>
+                        <div class="mt-2.5 flex items-center justify-center gap-4 text-xs font-bold uppercase tracking-wider text-[10px]">
+                            <a href="{% url 'accounts:register_tourist' %}" class="text-secondary hover:text-primary transition-colors">Join as Traveler</a>
+                            <span class="text-outline-variant/60">&bull;</span>
+                            <a href="{% url 'accounts:register_host' %}" class="text-secondary hover:text-primary transition-colors">Become a Host</a>
                         </div>
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>

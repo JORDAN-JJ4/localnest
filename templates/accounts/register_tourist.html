@@ -1,61 +1,113 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Tourist Signup | LocalNest{% endblock %}
+{% block title %}Begin Your Journey | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card card-custom glass-card p-4 fade-in-up">
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-airplane-fill text-success fs-1"></i>
-                        <h1 class="h3 mt-2 fw-bold text-success">Join as a Tourist</h1>
-                        <p class="text-muted">Explore authentic destinations & live like a local</p>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 items-center bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg overflow-hidden">
+            
+            <!-- Left Panel: Immersive Visual Storytelling (Desktop Only) -->
+            <div class="hidden lg:block lg:col-span-6 relative h-[800px] overflow-hidden">
+                <img src="{% static 'img/v2_boat_villagers.jpg' %}" alt="Travelers sharing space in India" class="w-full h-full object-cover transition-transform duration-1000 hover:scale-101">
+                <!-- Warm Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10"></div>
+                
+                <!-- Stories Overlay Content -->
+                <div class="absolute bottom-12 left-12 right-12 text-white z-10 space-y-4">
+                    <span class="bg-secondary/90 text-white text-[10px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-sm shadow-sm inline-block">The Journey Begins</span>
+                    <blockquote class="font-serif italic text-2xl leading-normal text-white/95 drop-shadow-sm">
+                        "Find a home. Meet a family. Experience India differently. Our platform bridges the gap between travelers and authentic Indian communities."
+                    </blockquote>
+                    <p class="text-xs uppercase tracking-wider text-white/70 block font-bold font-sans">
+                        Live Like a Local with LocalNest
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Elegant Sign-up Form -->
+            <div class="col-span-1 lg:col-span-6 p-8 md:p-12 flex flex-col justify-center">
+                <div class="max-w-md w-full mx-auto space-y-6">
+                    <!-- Header -->
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-secondary">
+                            <span class="material-symbols-outlined text-3xl font-bold">nest_egg</span>
+                            <span class="font-serif text-xl font-bold tracking-tight text-primary">LocalNest</span>
+                        </div>
+                        <h1 class="font-serif text-2xl md:text-3xl text-primary font-bold tracking-tight leading-tight">Begin your LocalNest journey.</h1>
+                        <p class="text-xs text-on-surface-variant font-medium leading-relaxed">Create a Traveler account to discover verified homesteads, shared table meals, and ancient local rhythms.</p>
                     </div>
 
-                    <form method="post" enctype="multipart/form-data" novalidate>
+                    <!-- Role Switcher Tabs -->
+                    <div class="grid grid-cols-2 gap-2 border-b border-outline-variant/20 pb-4">
+                        <a href="{% url 'accounts:register_tourist' %}" class="ln-btn-primary py-2 text-center text-[10px] font-bold uppercase tracking-widest hover:no-underline">
+                            Traveler Account
+                        </a>
+                        <a href="{% url 'accounts:register_host' %}" class="ln-btn-secondary py-2 text-center text-[10px] font-bold uppercase tracking-widest hover:no-underline">
+                            Become a Host
+                        </a>
+                    </div>
+
+                    <!-- Form -->
+                    <form method="post" enctype="multipart/form-data" class="space-y-4" novalidate>
                         {% csrf_token %}
                         
                         {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
+                            <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold space-y-1">
                                 {% for error in form.non_field_errors %}
-                                    {{ error }}
+                                    <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
                                 {% endfor %}
                             </div>
                         {% endif %}
 
-                        <div class="row">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {% for field in form %}
-                                <div class="col-12 {% if field.name == 'first_name' or field.name == 'last_name' %}col-md-6{% endif %} mb-3">
-                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-muted">
-                                        {{ field.label }}
-                                        {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                <div class="space-y-1.5 {% if field.name != 'first_name' and field.name != 'last_name' %}md:col-span-2{% endif %}">
+                                    <label for="{{ field.id_for_label }}" class="ln-label flex justify-between items-center">
+                                        <span>{{ field.label }}</span>
+                                        {% if field.field.required %}<span class="text-secondary/70 text-[9px] uppercase tracking-normal">* Required</span>{% endif %}
                                     </label>
+                                    
                                     {{ field }}
-                                    {% if field.help_text %}
-                                        <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
-                                    {% endif %}
+                                    
                                     {% if field.errors %}
-                                        <div class="text-danger small mt-1">
+                                        <div id="{{ field.id_for_label }}-feedback" class="ln-error-text">
                                             {% for error in field.errors %}
-                                                {{ error }}
+                                                <span class="material-symbols-outlined text-xs">error</span> {{ error }}
                                             {% endfor %}
                                         </div>
+                                    {% endif %}
+                                    
+                                    {% if field.name == 'password' or field.name == 'password_confirmation' or 'password' in field.name %}
+                                        {% if field.help_text %}
+                                            <div class="mt-1.5 p-3 bg-surface-container-low border border-outline-variant/20 rounded text-[10px] text-on-surface-variant leading-relaxed">
+                                                <strong class="text-secondary uppercase tracking-widest block mb-1">Password Requirements</strong>
+                                                <ul class="list-disc pl-3.5 space-y-0.5">
+                                                    <li>At least 8 characters long</li>
+                                                    <li>Avoid common or easily guessable passwords</li>
+                                                    <li>Must not be entirely numeric</li>
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    {% elif field.help_text %}
+                                        <p class="ln-help-text">{{ field.help_text|safe }}</p>
                                     {% endif %}
                                 </div>
                             {% endfor %}
                         </div>
 
-                        <button type="submit" class="btn btn-orange w-100 py-2.5 mt-3 mb-2">Create Account</button>
+                        <button type="submit" class="ln-btn-primary w-full mt-4">Create Traveler Account</button>
                     </form>
 
-                    <div class="text-center mt-3">
-                        <p class="text-muted small mb-0">Already have an account? <a href="{% url 'accounts:login' %}" class="text-success fw-bold text-decoration-none">Sign In</a></p>
-                        <p class="text-muted small mt-1">Want to host instead? <a href="{% url 'accounts:register_host' %}" class="text-success fw-bold text-decoration-none">Register as Host</a></p>
+                    <!-- Footer Link -->
+                    <div class="border-t border-outline-variant/10 pt-4 text-center">
+                        <span class="text-xs text-on-surface-variant font-medium">Already have an account?</span>
+                        <a href="{% url 'accounts:login' %}" class="text-secondary hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider ml-1 hover:no-underline">Sign In</a>
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>

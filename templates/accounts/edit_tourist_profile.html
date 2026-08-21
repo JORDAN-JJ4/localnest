@@ -1,106 +1,134 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Edit Profile | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card card-custom glass-card p-4 fade-in-up">
-                <div class="card-body">
-                    <h2 class="h3 fw-bold text-success mb-4 text-center">Edit Tourist Profile</h2>
-                    
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="id_first_name" class="form-label fw-semibold text-muted">First Name</label>
-                                {{ form.first_name }}
-                                {% if form.first_name.errors %}
-                                    <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="id_last_name" class="form-label fw-semibold text-muted">Last Name</label>
-                                {{ form.last_name }}
-                                {% if form.last_name.errors %}
-                                    <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label for="id_email" class="form-label fw-semibold text-muted">Email Address</label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label for="id_phone_number" class="form-label fw-semibold text-muted">Phone Number</label>
-                                {{ form.phone_number }}
-                                {% if form.phone_number.errors %}
-                                    <div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label for="id_address" class="form-label fw-semibold text-muted">Address</label>
-                                {{ form.address }}
-                                {% if form.address.errors %}
-                                    <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label for="id_bio" class="form-label fw-semibold text-muted">Bio</label>
-                                {{ form.bio }}
-                                {% if form.bio.errors %}
-                                    <div class="text-danger small mt-1">{{ form.bio.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label for="id_profile_photo" class="form-label fw-semibold text-muted">Profile Photo</label>
-                                {% if profile.profile_photo %}
-                                    <div class="mb-2">
-                                        <img src="{{ profile.profile_photo.url }}" alt="Profile Photo" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
-                                    </div>
-                                {% endif %}
-                                {{ form.profile_photo }}
-                                {% if form.profile_photo.errors %}
-                                    <div class="text-danger small mt-1">{{ form.profile_photo.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <h5 class="fw-bold text-success mt-4 mb-3 pb-2 border-bottom">Emergency Contact</h5>
-                            <div class="col-md-6 mb-3">
-                                <label for="id_emergency_contact_name" class="form-label fw-semibold text-muted">Contact Name</label>
-                                {{ form.emergency_contact_name }}
-                                {% if form.emergency_contact_name.errors %}
-                                    <div class="text-danger small mt-1">{{ form.emergency_contact_name.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="id_emergency_contact_phone" class="form-label fw-semibold text-muted">Contact Phone</label>
-                                {{ form.emergency_contact_phone }}
-                                {% if form.emergency_contact_phone.errors %}
-                                    <div class="text-danger small mt-1">{{ form.emergency_contact_phone.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <a href="{% url 'dashboard:dispatcher' %}" class="btn btn-outline-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn btn-orange px-4">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background py-12">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="max-w-2xl mx-auto bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg p-8 md:p-12 space-y-8">
+            
+            <!-- Header -->
+            <div class="text-center space-y-2">
+                <span class="text-secondary font-label-caps text-xs uppercase tracking-widest block font-bold">Manage Account</span>
+                <h1 class="font-serif text-3xl text-primary font-bold tracking-tight">Edit Tourist Profile</h1>
+                <p class="text-xs text-on-surface-variant max-w-md mx-auto">Update your personal details, emergency contacts, and profile photo for stays.</p>
             </div>
+
+            <!-- Form -->
+            <form method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold space-y-1">
+                        {% for error in form.non_field_errors %}
+                            <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Personal Info Details Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-1.5">
+                        <label for="id_first_name" class="ln-label">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label for="id_last_name" class="ln-label">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label for="id_email" class="ln-label">Email Address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label for="id_phone_number" class="ln-label">Phone Number</label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.phone_number.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label for="id_address" class="ln-label">Full Address</label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.address.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label for="id_bio" class="ln-label">Bio / Journey Goals</label>
+                        <textarea name="bio" id="id_bio" rows="3" class="ln-input" placeholder="Share a little bit about yourself for hosts...">{{ form.bio.value|default:'' }}</textarea>
+                        {% if form.bio.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.bio.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label for="id_profile_photo" class="ln-label">Profile Photo</label>
+                        <div class="flex items-center gap-4 bg-surface-container-low/40 p-4 border border-outline-variant/15 rounded-md">
+                            {% if profile.profile_photo %}
+                                <img src="{{ profile.profile_photo.url }}" alt="Profile Photo" class="rounded-full w-14 h-14 object-cover shadow-sm">
+                            {% else %}
+                                <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+                                    <span class="material-symbols-outlined text-2xl font-bold">person</span>
+                                </div>
+                            {% endif %}
+                            <div class="flex-grow">
+                                {{ form.profile_photo }}
+                                <p class="text-[10px] text-on-surface-variant/80 mt-1">Upload a clear photo of yourself for homestay check-ins.</p>
+                            </div>
+                        </div>
+                        {% if form.profile_photo.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.profile_photo.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Emergency Contact Section -->
+                <div class="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h3 class="font-serif text-lg font-bold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">contact_emergency</span> Emergency Contact
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label for="id_emergency_contact_name" class="ln-label">Contact Name</label>
+                            {{ form.emergency_contact_name }}
+                            {% if form.emergency_contact_name.errors %}
+                                <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.emergency_contact_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label for="id_emergency_contact_phone" class="ln-label">Contact Phone Number</label>
+                            {{ form.emergency_contact_phone }}
+                            {% if form.emergency_contact_phone.errors %}
+                                <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.emergency_contact_phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-between items-center pt-6 border-t border-outline-variant/10">
+                    <a href="{% url 'dashboard:dispatcher' %}" class="ln-btn-secondary px-6">Cancel</a>
+                    <button type="submit" class="ln-btn-primary px-8">Save Changes</button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>

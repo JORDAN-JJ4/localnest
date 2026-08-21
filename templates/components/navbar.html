@@ -28,7 +28,7 @@
             <a class="{% if request.resolver_match.view_name == 'properties:search' and request.GET.type == 'experiences' %}text-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} hover:no-underline transition-colors duration-300" href="{% url 'properties:search' %}?type=experiences">Experiences</a>
             <a class="{% if 'stories_list' in request.resolver_match.view_name or 'story_detail' in request.resolver_match.view_name %}text-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} hover:no-underline transition-colors duration-300" href="{% url 'core:stories_list' %}">1000 Stories</a>
             <a class="{% if 'secrets_list' in request.resolver_match.view_name or 'secret_detail' in request.resolver_match.view_name %}text-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} hover:no-underline transition-colors duration-300" href="{% url 'core:secrets_list' %}">Local Secrets</a>
-            <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors duration-300" href="#about-us">About Us</a>
+            <a class="{% if request.resolver_match.view_name == 'core:about' %}text-secondary font-bold{% else %}text-on-surface-variant hover:text-secondary{% endif %} hover:no-underline transition-colors duration-300" href="{% url 'core:about' %}">About</a>
         </nav>
 
         <!-- Right Side Icons & CTAs -->
@@ -94,7 +94,7 @@
         <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'properties:search' %}?type=experiences">Experiences</a>
         <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'core:stories_list' %}">1000 Stories</a>
         <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'core:secrets_list' %}">Local Secrets</a>
-        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="#about-us">About Us</a>
+        <a class="text-on-surface-variant hover:text-secondary hover:no-underline transition-colors" href="{% url 'core:about' %}">About Us</a>
     </div>
     
     <div class="pt-6 border-t border-outline-variant/20 flex flex-col space-y-4">

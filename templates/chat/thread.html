@@ -1,230 +1,453 @@
 {% extends 'base.html' %}
 
-{% block title %}Chat with {{ partner.username }} | LocalNest{% endblock %}
+{% block title %}Chat with {{ partner.get_full_name|default:partner.username }} | LocalNest{% endblock %}
 
 {% block extra_css %}
 <style>
-    .chat-container {
+    .chat-window {
         height: 480px;
         overflow-y: auto;
-        padding-right: 8px;
-    }
-    /* Smooth scroll behavior inside chat log */
-    .chat-container {
         scroll-behavior: smooth;
+    }
+    .composer-sticky {
+        position: sticky;
+        bottom: 0;
+        background: #ffffff;
+        z-index: 10;
+    }
+    .suggestion-chip {
+        background-color: #f4f0e8;
+        border: 1px solid rgba(42, 72, 53, 0.12);
+        color: #2a4835;
+        border-radius: 16px;
+        padding: 0.35rem 0.85rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .suggestion-chip:hover {
+        background-color: rgba(42, 72, 53, 0.08);
+        border-color: #2a4835;
+    }
+    .msg-bubble {
+        max-width: 75%;
+        border-radius: 16px;
+        padding: 0.75rem 1rem;
+        line-height: 1.5;
+        font-size: 0.825rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .msg-sent {
+        background-color: #2a4835;
+        color: #ffffff;
+        border-bottom-right-radius: 4px;
+        margin-left: auto;
+    }
+    .msg-received {
+        background-color: #f4f0e8;
+        color: #1e1f22;
+        border-bottom-left-radius: 4px;
+        margin-right: auto;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 py-8 mb-24 animate-fade-in-up">
-    <div class="glass-premium rounded-xl overflow-hidden shadow-lg border border-outline-variant/25">
+<div class="max-w-4xl mx-auto px-4 py-6 mb-12">
+    <!-- Chat Header Panel -->
+    <div class="bg-white border border-[#eae6df] rounded-xl shadow-lg overflow-hidden flex flex-col" style="border-color: rgba(42, 72, 53, 0.12) !important;">
         <!-- Header -->
-        <div class="bg-primary text-white py-4 px-6 flex items-center justify-between">
+        <div class="bg-[#2a4835] text-white p-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <a href="{% url 'chat:chat_inbox' %}" class="text-white hover:text-secondary transition-colors" aria-label="Back">
+                <a href="{% url 'chat:chat_inbox' %}" class="text-white hover:text-white/80 transition-colors" aria-label="Back to Inbox">
                     <span class="material-symbols-outlined text-2xl">arrow_back</span>
                 </a>
+                
+                <!-- Photo -->
+                <div class="relative">
+                    {% if partner.profile.profile_photo %}
+                        <img src="{{ partner.profile.profile_photo.url }}" class="rounded-full object-cover w-11 h-11 border border-white/20" alt="{{ partner.username }}">
+                    {% elif partner.host_profile.profile_photo %}
+                        <img src="{{ partner.host_profile.profile_photo.url }}" class="rounded-full object-cover w-11 h-11 border border-white/20" alt="{{ partner.username }}">
+                    {% else %}
+                        <div class="rounded-full flex items-center justify-center text-[#2a4835] bg-white font-serif w-11 h-11 text-base font-bold">
+                            {{ partner.first_name|slice:":1" }}{{ partner.last_name|slice:":1" }}
+                        </div>
+                    {% endif %}
+                    <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 border-2 border-[#2a4835]"></span>
+                </div>
+
                 <div>
-                    <h2 class="font-serif text-lg md:text-xl font-bold text-white leading-tight">{{ partner.get_full_name|default:partner.username }}</h2>
-                    <span class="text-[10px] font-label-caps tracking-wider text-secondary uppercase font-bold">{% if partner.is_host %}Host Custodian{% else %}Welcomed Guest{% endif %}</span>
+                    <h3 class="font-serif-headline text-base font-bold text-white mb-0 leading-tight">
+                        {{ partner.get_full_name|default:partner.username }}
+                    </h3>
+                    <p class="text-[10px] text-white/80 font-sans mb-0 flex items-center gap-1 mt-0.5">
+                        <i class="bi bi-clock"></i> Usually responds within 1 hour
+                    </p>
                 </div>
             </div>
+
+            <!-- Block / Report Header Dropdown Actions -->
             <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-                <span class="text-[10px] font-label-caps text-white/80 uppercase">Secure Chat</span>
+                <!-- Block User Form -->
+                <form action="{% url 'chat:chat_block' partner.id %}" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="text-xs font-semibold px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-white transition-colors" title="Toggle Block User">
+                        {% if user_blocked_partner %}<i class="bi bi-unlock mr-1"></i>Unblock{% else %}<i class="bi bi-slash-circle mr-1"></i>Block{% endif %}
+                    </button>
+                </form>
+
+                <!-- Report Toggle Button -->
+                <button type="button" class="text-xs font-semibold px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-white transition-colors" onclick="document.getElementById('reportModal').classList.toggle('hidden')">
+                    <i class="bi bi-flag mr-1"></i>Report
+                </button>
             </div>
         </div>
 
-        <!-- Chat Box -->
-        <div class="p-6 bg-background">
-            <div class="chat-container mb-4 space-y-4" id="chatBox">
-                {% if messages_list %}
-                    {% for message in messages_list %}
-                        <div class="flex flex-col mb-2">
-                            <div class="msg max-w-[75%] p-3.5 rounded-2xl shadow-sm leading-relaxed {% if message.sender == user %}msg-sent bg-secondary text-white rounded-br-none ml-auto{% else %}msg-received bg-surface-container-low text-primary rounded-bl-none mr-auto{% endif %}">
-                                <p class="text-xs font-medium">{{ message.content }}</p>
-                                <div class="text-right text-[8px] opacity-80 mt-1 flex justify-end items-center gap-1 font-semibold">
-                                    {{ message.timestamp|date:"g:i A" }}
-                                    {% if message.sender == user %}
-                                        <span>
-                                            {% if message.is_read %}
-                                                <span class="material-symbols-outlined text-[10px] text-accent fill">done_all</span>
-                                            {% else %}
-                                                <span class="material-symbols-outlined text-[10px]">done</span>
-                                            {% endif %}
-                                        </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="text-center py-16 text-on-surface-variant/60" id="noMessagesPlaceholder">
-                        <span class="material-symbols-outlined text-4xl text-secondary mb-2">chat_bubble</span>
-                        <h4 class="font-serif text-base font-bold text-primary mb-1">Start the Conversation</h4>
-                        <p class="text-xs max-w-xs mx-auto leading-relaxed">Say hello to coordinate details about homemade food, rules, or key times!</p>
+        <!-- 8. BOOKING CONTEXT (Link to active stays) -->
+        {% if booking %}
+            <div class="bg-[#f4f0e8] border-b border-[#eae6df] px-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-2" style="border-color: rgba(42, 72, 53, 0.12) !important;">
+                <div class="flex items-center gap-2">
+                    <div class="text-[#2a4835] text-lg"><i class="bi bi-calendar-check-fill"></i></div>
+                    <div>
+                        <span class="block text-xs text-gray-500 font-semibold uppercase tracking-wider">YOUR STAY WITH THE {{ partner.last_name|upper|default:"HOST" }} FAMILY</span>
+                        <strong class="text-sm text-[#1a2b25]">{{ booking.property.name }}</strong>
                     </div>
-                {% endif %}
-                
-                <!-- Typing Indicator Element -->
-                <div id="typingIndicator" class="hidden text-on-surface-variant/80 text-xs mt-2 pl-2">
-                    <span class="animate-pulse inline-block w-1.5 h-1.5 rounded-full bg-secondary mr-0.5"></span>
-                    <span class="animate-pulse inline-block w-1.5 h-1.5 rounded-full bg-secondary mr-0.5" style="animation-delay: 0.2s;"></span>
-                    <span class="animate-pulse inline-block w-1.5 h-1.5 rounded-full bg-secondary" style="animation-delay: 0.4s;"></span>
-                    <em class="ml-1 text-[10px] font-semibold">{{ partner.username }} is typing...</em>
+                </div>
+                <div class="flex gap-4 text-xs font-sans text-gray-700">
+                    <div>
+                        <span class="text-gray-400">Check-in:</span> <strong class="text-gray-900 font-semibold">{{ booking.start_date|date:"j N, Y" }}</strong>
+                    </div>
+                    <div>
+                        <span class="text-gray-400">Check-out:</span> <strong class="text-gray-900 font-semibold">{{ booking.end_date|date:"j N, Y" }}</strong>
+                    </div>
                 </div>
             </div>
+        {% endif %}
 
-            <!-- Input Form -->
-            <form method="post" id="chatForm" class="flex gap-3 pt-4 border-t border-outline-variant/15">
+        <!-- Safety Blocking warning overlay -->
+        {% if partner_blocked_user %}
+            <div class="bg-red-50 text-red-800 px-4 py-2 text-xs font-semibold border-b border-red-100 flex items-center gap-1.5">
+                <i class="bi bi-exclamation-triangle-fill"></i> This user has blocked communication. You cannot send messages.
+            </div>
+        {% elif user_blocked_partner %}
+            <div class="bg-amber-50 text-amber-800 px-4 py-2 text-xs font-semibold border-b border-amber-100 flex items-center gap-1.5">
+                <i class="bi bi-slash-circle-fill"></i> You have blocked this user. Unblock them above to resume messaging.
+            </div>
+        {% endif %}
+
+        <!-- Message logs container -->
+        <div class="chat-window bg-[#faf8f5] p-4 flex flex-col gap-3" id="chatBox">
+            {% if messages_list %}
+                {% for message in messages_list %}
+                    <div class="flex flex-col">
+                        <div class="msg-bubble {% if message.sender == user %}msg-sent{% else %}msg-received{% endif %}">
+                            
+                            <!-- Image Attachment inside chat bubble -->
+                            {% if message.attachment %}
+                                <div class="mb-2 max-w-sm rounded overflow-hidden shadow-sm border bg-white">
+                                    <img src="{{ message.attachment.url }}" class="w-full object-cover" style="max-height: 200px;" alt="Chat Photo attachment">
+                                </div>
+                            {% endif %}
+                            
+                            <p class="mb-0 text-sm leading-relaxed">{{ message.content }}</p>
+                            
+                            <div class="text-right text-[9px] opacity-80 mt-1 flex justify-end items-center gap-1 font-semibold">
+                                {{ message.timestamp|date:"g:i A" }}
+                                {% if message.sender == user %}
+                                    <span>
+                                        {% if message.is_read %}
+                                            <i class="bi bi-check2-all text-blue-400 font-bold" style="font-size: 0.85rem;"></i>
+                                        {% else %}
+                                            <i class="bi bi-check2 text-gray-300" style="font-size: 0.85rem;"></i>
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-16 text-gray-400" id="noMessagesPlaceholder">
+                    <span class="material-symbols-outlined text-4xl text-[#c96a3d] mb-2">chat_bubble</span>
+                    <h4 class="font-serif-headline text-[#1a2b25] font-bold text-base mb-1">Your Conversation Starts Here</h4>
+                    <p class="text-xs max-w-xs mx-auto text-gray-500">Ask questions directly about homemade food, rules, late arrival logistics, or local recommendations.</p>
+                </div>
+            {% endif %}
+
+            <!-- Typing indicator -->
+            <div id="typingIndicator" class="hidden text-gray-500 text-xs mt-2 pl-2 flex items-center gap-1 font-semibold">
+                <span class="animate-pulse inline-block w-1.5 h-1.5 rounded-full bg-[#c96a3d]"></span>
+                <span class="animate-pulse inline-block w-1.5 h-1.5 rounded-full bg-[#c96a3d]" style="animation-delay: 0.2s;"></span>
+                <span class="animate-pulse inline-block w-1.5 h-1.5 rounded-full bg-[#c96a3d]" style="animation-delay: 0.4s;"></span>
+                <em class="ml-1 text-[10px]">{{ partner.get_full_name|default:partner.username }} is typing...</em>
+            </div>
+        </div>
+
+        <!-- Suggestion Chips composer area (visible if traveler) -->
+        {% if user.is_tourist %}
+            <div class="bg-white px-4 py-2 border-t border-[#eae6df] overflow-x-auto hide-scrollbar flex gap-2" style="border-color: rgba(42, 72, 53, 0.08) !important;">
+                <button type="button" class="suggestion-chip">Is homemade vegetarian food available?</button>
+                <button type="button" class="suggestion-chip">What is the best way to reach you?</button>
+                <button type="button" class="suggestion-chip">Is the room suitable for children?</button>
+                <button type="button" class="suggestion-chip">What local experiences do you recommend?</button>
+                <button type="button" class="suggestion-chip">Can I join the family for dinner?</button>
+                <button type="button" class="suggestion-chip">Can you tell me a little about your home?</button>
+            </div>
+        {% endif %}
+
+        <!-- Composer Form -->
+        <div class="composer-sticky bg-white p-4 border-t border-[#eae6df]" style="border-color: rgba(42, 72, 53, 0.12) !important;">
+            <form method="post" id="chatForm" enctype="multipart/form-data" class="flex flex-col gap-2">
                 {% csrf_token %}
-                <input type="text" name="content" id="messageInput" class="flex-grow bg-surface border border-outline-variant/45 rounded-lg py-3 px-4 text-xs font-semibold text-primary focus:outline-none focus:border-secondary focus:ring-0 transition-colors" placeholder="Write an editorial message..." required autocomplete="off">
-                <button type="submit" class="bg-secondary hover:bg-secondary/90 text-white font-label-caps text-xs px-6 py-3 rounded-lg hover:no-underline transition-colors flex items-center justify-center gap-1 shadow-md">
-                    <span class="material-symbols-outlined text-base">send</span> Send
-                </button>
+                <div class="flex items-center gap-3">
+                    <!-- Photo attachment file button -->
+                    <label for="attachmentInput" class="flex-shrink-0 flex items-center justify-center border border-[#eae6df] hover:border-[#c96a3d] text-gray-500 rounded-lg cursor-pointer w-11 h-11 transition-colors duration-200" title="Attach Photo">
+                        <i class="bi bi-camera" style="font-size: 1.25rem;"></i>
+                        <input type="file" name="attachment" id="attachmentInput" class="hidden" accept="image/*">
+                    </label>
+
+                    <!-- Text Composer -->
+                    <input type="text" name="content" id="messageInput" class="flex-grow border border-[#eae6df] rounded-lg py-3 px-4 text-sm text-[#1a2b25] focus:outline-none focus:border-[#c96a3d] transition-colors" placeholder="Type your message..." required autocomplete="off" {% if user_blocked_partner or partner_blocked_user %}disabled{% endif %}>
+                    
+                    <!-- Send Button -->
+                    <button type="submit" class="bg-[#c96a3d] hover:bg-[#b55d32] text-white px-5 py-3 rounded-lg font-semibold text-xs tracking-wider uppercase transition-colors flex items-center justify-center gap-1.5 shadow-md" {% if user_blocked_partner or partner_blocked_user %}disabled{% endif %}>
+                        <i class="bi bi-send-fill" style="font-size: 0.9rem;"></i> Send
+                    </button>
+                </div>
+
+                <!-- Attachment Name Indicator -->
+                <div id="attachmentIndicator" class="hidden text-xs text-[#2a4835] font-semibold mt-1 flex items-center gap-1">
+                    <i class="bi bi-file-image"></i> Photo selected: <span id="attachmentName" class="font-normal text-gray-600"></span>
+                    <button type="button" class="text-[#ef4444] ml-2 font-bold" id="clearAttachment" title="Remove attachment"><i class="bi bi-x-circle"></i></button>
+                </div>
             </form>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const chatBox = document.getElementById('chatBox');
-        const chatForm = document.getElementById('chatForm');
-        const messageInput = document.getElementById('messageInput');
-        const placeholder = document.getElementById('noMessagesPlaceholder');
-        const typingIndicator = document.getElementById('typingIndicator');
-
-        // Scroll chat box to bottom initially
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        // CSRF Token helper for AJAX
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-        // Post typing status
-        let typingTimeout;
-        messageInput.addEventListener('input', function() {
-            if (!typingTimeout) {
-                fetch('{% url "chat:api_typing" partner.id %}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                }).catch(err => console.error("Error sending typing status:", err));
-            }
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                typingTimeout = null;
-            }, 2000);
-        });
-
-        // Check typing status of partner
-        function checkTyping() {
-            fetch('{% url "chat:api_typing" partner.id %}')
-            .then(res => res.json())
-            .then(data => {
-                if (data.is_typing) {
-                    typingIndicator.classList.remove('hidden');
-                    chatBox.appendChild(typingIndicator);
-                } else {
-                    typingIndicator.classList.add('hidden');
-                }
-            }).catch(err => console.log(err));
-        }
-
-        // Poll for new messages & read statuses
-        function pollMessages() {
-            fetch('{% url "chat:api_messages" partner.id %}')
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    if (data.messages.length > 0 && placeholder) {
-                        placeholder.remove();
-                    }
-                    
-                    const isAtBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 60;
-                    
-                    // Clear existing messages except typing indicator
-                    const messageDivs = chatBox.querySelectorAll('.flex.flex-col.mb-2');
-                    messageDivs.forEach(div => div.remove());
-
-                    data.messages.forEach(msg => {
-                        const msgDiv = document.createElement('div');
-                        msgDiv.className = "flex flex-col mb-2";
-                        
-                        const isSent = msg.sender_id === "{{ user.id }}";
-                        const checkmarkHtml = isSent 
-                            ? (msg.is_read 
-                                ? '<span class="material-symbols-outlined text-[10px] text-accent fill">done_all</span>'
-                                : '<span class="material-symbols-outlined text-[10px]">done</span>')
-                            : '';
-                            
-                        msgDiv.innerHTML = `
-                            <div class="msg max-w-[75%] p-3.5 rounded-2xl shadow-sm leading-relaxed ${isSent ? 'msg-sent bg-secondary text-white rounded-br-none ml-auto' : 'msg-received bg-surface-container-low text-primary rounded-bl-none mr-auto'}">
-                                <p class="text-xs font-medium">${msg.content}</p>
-                                <div class="text-right text-[8px] opacity-80 mt-1 flex justify-end items-center gap-1 font-semibold">
-                                    ${msg.timestamp}
-                                    ${checkmarkHtml}
-                                </div>
-                            </div>
-                        `;
-                        chatBox.insertBefore(msgDiv, typingIndicator);
-                    });
-
-                    if (isAtBottom) {
-                        chatBox.scrollTop = chatBox.scrollHeight;
-                    }
-                }
-            }).catch(err => console.log(err));
-        }
-
-        // Run polling intervals
-        setInterval(pollMessages, 3000);
-        setInterval(checkTyping, 2500);
-
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const text = messageInput.value.trim();
-            if (!text) return;
-
-            const formData = new FormData(chatForm);
+<!-- Report Modal Overlay -->
+<div id="reportModal" class="fixed inset-0 bg-black/55 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full border border-[#eae6df]" style="border-color: rgba(42, 72, 53, 0.12) !important;">
+        <h3 class="font-serif-headline text-[#1a2b25] font-bold text-lg mb-3">Report Conversation</h3>
+        <p class="text-xs text-gray-500 mb-4">Please describe the reason for escalating this conversation. Administration will review messages for safety and moderation under the platform guidelines.</p>
+        
+        <form action="{% url 'chat:chat_report' conversation.id %}" method="post">
+            {% csrf_token %}
+            <textarea name="reason" class="w-full border border-[#eae6df] rounded-lg p-3 text-sm text-[#1a2b25] focus:outline-none focus:border-[#c96a3d] mb-4" rows="4" placeholder="Describe the concern (e.g. spam, abuse, harassment)..." required></textarea>
             
-            fetch(chatForm.action, {
+            <div class="flex justify-end gap-3">
+                <button type="button" class="btn-localnest-secondary py-1.5 px-4" onclick="document.getElementById('reportModal').classList.add('hidden')">Cancel</button>
+                <button type="submit" class="btn-localnest-primary py-1.5 px-4 bg-[#ef4444] hover:bg-[#dc2626]">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const chatBox = document.getElementById('chatBox');
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const placeholder = document.getElementById('noMessagesPlaceholder');
+    const typingIndicator = document.getElementById('typingIndicator');
+    
+    // Attachment uploads validation & indicators
+    const attachmentInput = document.getElementById('attachmentInput');
+    const attachmentIndicator = document.getElementById('attachmentIndicator');
+    const attachmentName = document.getElementById('attachmentName');
+    const clearAttachmentBtn = document.getElementById('clearAttachment');
+
+    attachmentInput.addEventListener('change', function () {
+        if (this.files && this.files.length > 0) {
+            const file = this.files[0];
+            // Safe Photo checks
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Photo size must be under 5MB.");
+                this.value = "";
+                return;
+            }
+            attachmentName.textContent = file.name;
+            attachmentIndicator.classList.remove('hidden');
+            attachmentIndicator.classList.add('flex');
+            // Allow sending if input has no text but has attachment
+            messageInput.removeAttribute('required');
+        }
+    });
+
+    clearAttachmentBtn.addEventListener('click', function () {
+        attachmentInput.value = "";
+        attachmentIndicator.classList.remove('flex');
+        attachmentIndicator.classList.add('hidden');
+        messageInput.setAttribute('required', 'required');
+    });
+
+    // Suggestion chips composer mapping
+    const chips = document.querySelectorAll('.suggestion-chip');
+    chips.forEach(chip => {
+        chip.addEventListener('click', function () {
+            messageInput.value = this.textContent;
+            messageInput.focus();
+        });
+    });
+
+    // Scroll chat box to bottom initially
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Post typing status
+    let typingTimeout;
+    messageInput.addEventListener('input', function() {
+        if (!typingTimeout) {
+            fetch('{% url "chat:api_typing" partner.id %}', {
                 method: 'POST',
-                body: formData,
                 headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    if (placeholder) placeholder.remove();
+            }).catch(err => console.error("Error sending typing status:", err));
+        }
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            typingTimeout = null;
+        }, 2000);
+    });
 
+    // Check typing status of partner
+    function checkTyping() {
+        fetch('{% url "chat:api_typing" partner.id %}')
+        .then(res => res.json())
+        .then(data => {
+            if (data.is_typing) {
+                typingIndicator.classList.remove('hidden');
+                chatBox.appendChild(typingIndicator);
+            } else {
+                typingIndicator.classList.add('hidden');
+            }
+        }).catch(err => console.log(err));
+    }
+
+    // Poll for new messages
+    function pollMessages() {
+        fetch('{% url "chat:api_messages" partner.id %}')
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.messages.length > 0 && placeholder) {
+                    placeholder.remove();
+                }
+                
+                const isAtBottom = chatBox.scrollHeight - chatBox.clientHeight <= chatBox.scrollTop + 80;
+                
+                // Clear and recreate message divs
+                const messageDivs = chatBox.querySelectorAll('.flex.flex-col');
+                messageDivs.forEach(div => div.remove());
+
+                data.messages.forEach(msg => {
                     const msgDiv = document.createElement('div');
-                    msgDiv.className = "flex flex-col mb-2";
+                    msgDiv.className = "flex flex-col";
+                    
+                    const isSent = msg.sender_id === "{{ user.id }}";
+                    const checkmarkHtml = isSent 
+                        ? (msg.is_read 
+                            ? '<i class="bi bi-check2-all text-blue-400 font-bold" style="font-size: 0.85rem;"></i>'
+                            : '<i class="bi bi-check2 text-gray-300" style="font-size: 0.85rem;"></i>')
+                        : '';
+
+                    let attachmentHtml = '';
+                    if (msg.attachment_url) {
+                        attachmentHtml = `
+                            <div class="mb-2 max-w-sm rounded overflow-hidden shadow-sm border bg-white">
+                                <img src="${msg.attachment_url}" class="w-full object-cover" style="max-height: 200px;" alt="Chat Photo attachment">
+                            </div>
+                        `;
+                    }
+                        
                     msgDiv.innerHTML = `
-                        <div class="msg max-w-[75%] p-3.5 rounded-2xl shadow-sm leading-relaxed msg-sent bg-secondary text-white rounded-br-none ml-auto">
-                            <p class="text-xs font-medium">${data.content}</p>
-                            <div class="text-right text-[8px] opacity-80 mt-1 flex justify-end items-center gap-1 font-semibold">
-                                ${data.timestamp}
-                                <span class="material-symbols-outlined text-[10px]">done</span>
+                        <div class="msg-bubble ${isSent ? 'msg-sent' : 'msg-received'}">
+                            ${attachmentHtml}
+                            <p class="mb-0 text-sm leading-relaxed">${msg.content}</p>
+                            <div class="text-right text-[9px] opacity-80 mt-1 flex justify-end items-center gap-1 font-semibold">
+                                ${msg.timestamp}
+                                ${checkmarkHtml}
                             </div>
                         </div>
                     `;
                     chatBox.insertBefore(msgDiv, typingIndicator);
-                    
-                    messageInput.value = "";
+                });
+
+                if (isAtBottom) {
                     chatBox.scrollTop = chatBox.scrollHeight;
                 }
-            })
-            .catch(err => console.error("Error sending message:", err));
-        });
+            }
+        }).catch(err => console.log(err));
+    }
+
+    // Run polling intervals
+    setInterval(pollMessages, 3000);
+    setInterval(checkTyping, 2500);
+
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const text = messageInput.value.trim();
+        const files = attachmentInput.files;
+        if (!text && files.length === 0) return;
+
+        const formData = new FormData(chatForm);
+        
+        fetch(chatForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (placeholder) placeholder.remove();
+
+                const msgDiv = document.createElement('div');
+                msgDiv.className = "flex flex-col";
+                
+                let attachmentHtml = '';
+                if (data.attachment_url) {
+                    attachmentHtml = `
+                        <div class="mb-2 max-w-sm rounded overflow-hidden shadow-sm border bg-white">
+                            <img src="${data.attachment_url}" class="w-full object-cover" style="max-height: 200px;" alt="Chat Photo attachment">
+                        </div>
+                    `;
+                }
+
+                msgDiv.innerHTML = `
+                    <div class="msg-bubble msg-sent">
+                        ${attachmentHtml}
+                        <p class="mb-0 text-sm leading-relaxed">${data.content}</p>
+                        <div class="text-right text-[9px] opacity-80 mt-1 flex justify-end items-center gap-1 font-semibold">
+                            ${data.timestamp}
+                            <i class="bi bi-check2 text-gray-300" style="font-size: 0.85rem;"></i>
+                        </div>
+                    </div>
+                `;
+                chatBox.insertBefore(msgDiv, typingIndicator);
+                
+                messageInput.value = "";
+                attachmentInput.value = "";
+                attachmentIndicator.classList.remove('flex');
+                attachmentIndicator.classList.add('hidden');
+                messageInput.setAttribute('required', 'required');
+                
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } else {
+                alert(data.message || "Failed to send message.");
+            }
+        })
+        .catch(err => console.error("Error sending message:", err));
     });
+});
 </script>
 {% endblock %}

@@ -5,9 +5,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Sum, Avg, Count
 
 from bookings.models import Booking, PassportBadge
-from properties.models import Property, Wishlist
+from properties.models import Property, Wishlist, Experience
 from accounts.models import HostProfile, User, TripMemory
 from payments.models import Payment
+from core.models import Story
 
 class DispatcherDashboardView(LoginRequiredMixin, View):
     """Dispatcher view redirecting users to the dashboard that fits their role"""
@@ -31,6 +32,35 @@ class TouristDashboardView(LoginRequiredMixin, View):
         passport_badges = PassportBadge.objects.filter(user=request.user)
         memories = TripMemory.objects.filter(user=request.user).select_related('booking__property').prefetch_related('saved_recipes')
         
+        # Count of stories written by this user as a contributor
+        stories_count = Story.objects.filter(contributor__email=request.user.email).count()
+        # Count of experiences booked by this user
+        experiences_count = Experience.objects.filter(bookings__guest=request.user).distinct().count()
+
+        # Mask email and phone for traveler privacy
+        email = request.user.email
+        if email and '@' in email:
+            parts = email.split('@')
+            masked_email = parts[0][:2] + '***@' + parts[1]
+        else:
+            masked_email = email or "No email configured"
+
+        phone = request.user.profile.phone_number
+        if phone:
+            # Clean and mask phone number
+            clean_phone = phone.strip()
+            if len(clean_phone) >= 10:
+                masked_phone = clean_phone[:4] + ' •••• ••' + clean_phone[-3:]
+            else:
+                masked_phone = clean_phone[:3] + '***'
+        else:
+            masked_phone = "No phone configured"
+
+        import datetime
+        today = datetime.date.today()
+        upcoming_bookings = [b for b in bookings if b.end_date >= today]
+        past_bookings = [b for b in bookings if b.end_date < today]
+
         # Bookings eligible for logging a new memory
         completed_bookings = Booking.objects.filter(
             guest=request.user, 
@@ -40,10 +70,16 @@ class TouristDashboardView(LoginRequiredMixin, View):
         
         return render(request, 'dashboard/tourist.html', {
             'bookings': bookings,
+            'upcoming_bookings': upcoming_bookings,
+            'past_bookings': past_bookings,
             'wishlist': wishlist,
             'passport_badges': passport_badges,
             'memories': memories,
-            'completed_bookings': completed_bookings
+            'completed_bookings': completed_bookings,
+            'stories_count': stories_count,
+            'experiences_count': experiences_count,
+            'masked_email': masked_email,
+            'masked_phone': masked_phone
         })
 
 

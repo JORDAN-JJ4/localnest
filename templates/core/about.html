@@ -1,0 +1,808 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us — Why LocalNest Exists | LocalNest{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── About Page Specific Styles ── */
+@keyframes slowZoom {
+  from { transform: scale(1.04); }
+  to   { transform: scale(1.10); }
+}
+
+.about-hero-img {
+  animation: slowZoom 18s ease-in-out infinite alternate;
+}
+
+.about-fade {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(.22,1,.36,1), transform 0.9s cubic-bezier(.22,1,.36,1);
+}
+.about-fade.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.chapter-label {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9f4026;
+  margin-bottom: 1.25rem;
+}
+
+.chapter-label.light {
+  color: #d4956e;
+}
+
+.principle-card {
+  border-left: 2px solid #e5e0d8;
+  padding-left: 1.5rem;
+  transition: border-color 0.3s ease;
+}
+.principle-card:hover {
+  border-left-color: #9f4026;
+}
+
+.value-tile {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.value-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(44,22,14,0.09);
+}
+
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom img {
+  transition: transform 10s ease;
+  transform: scale(1.04);
+}
+.img-zoom.is-visible img {
+  transform: scale(1);
+}
+
+.arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9f4026;
+  text-decoration: none;
+  transition: gap 0.25s ease, color 0.2s ease;
+}
+.arrow-link:hover { gap: 0.7rem; color: #7f3320; }
+.arrow-link.on-dark { color: #e8a080; }
+.arrow-link.on-dark:hover { color: #fff; }
+
+.compare-col {
+  border-top: 3px solid transparent;
+}
+.compare-col.trad { border-top-color: rgba(255,255,255,0.15); }
+.compare-col.ln   { border-top-color: #9f4026; }
+
+.mosaic {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  height: 480px;
+}
+.mosaic > .mosaic-main { grid-row: span 2; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<article class="bg-[#FAF8F5] text-[#2c160e] overflow-x-hidden">
+
+  <!-- ════════════════ HERO ════════════════ -->
+  <section class="relative min-h-[92vh] flex items-end -mt-20 overflow-hidden" aria-label="Hero">
+    <div class="absolute inset-0 z-0 overflow-hidden">
+      <img src="{% static 'img/about_hero_eye.jpg' %}"
+         alt="A dramatic black and white close-up of a human eye"
+         class="about-hero-img w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10 z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-black/35 to-transparent z-10"></div>
+    </div>
+
+    <div class="relative z-20 w-full max-w-7xl mx-auto px-6 md:px-16 pb-20 md:pb-32 pt-36">
+      <div class="max-w-2xl">
+        <span class="chapter-label light">About LocalNest</span>
+        <h1 class="font-['Playfair_Display'] text-white text-5xl md:text-[5.5rem] font-bold leading-[1.06] mb-6 tracking-tight"
+            style="text-shadow:0 4px 24px rgba(0,0,0,0.55);">
+          India is not a destination.<br>
+          <em class="not-italic text-[#e8a080]">It is someone's home.</em>
+        </h1>
+        <p class="text-white/82 text-base md:text-lg leading-relaxed mb-10 max-w-lg font-['Inter']"
+           style="text-shadow:0 2px 8px rgba(0,0,0,0.4);">
+          LocalNest exists to help travelers experience India through the families,
+          homes, food, stories and traditions that make every place feel different.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="{% url 'properties:search' %}"
+             class="bg-[#9f4026] text-white text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 hover:bg-[#7f3320] transition-colors inline-flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">explore</span>Explore LocalNest
+          </a>
+          <a href="{% url 'properties:search' %}?type=hosts"
+             class="text-white border border-white/35 hover:border-white text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 transition-colors inline-flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">groups</span>Meet the Families
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Scroll nudge -->
+    <div class="absolute bottom-6 right-8 z-20 hidden md:flex flex-col items-center gap-2 text-white/40">
+      <span class="text-[9px] font-bold tracking-[0.22em] uppercase">Scroll</span>
+      <div class="w-px h-10 bg-white/25 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full bg-white/60 h-4"
+             style="animation: scrollLine 2s ease infinite;">
+        </div>
+      </div>
+    </div>
+  </section>
+  <style>
+    @keyframes scrollLine {
+      0%   { transform: translateY(-100%); }
+      100% { transform: translateY(260%); }
+    }
+  </style>
+
+
+  <!-- ════════════════ WHY WE EXIST ════════════════ -->
+  <section class="py-24 md:py-40" aria-labelledby="why-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="about-fade">
+          <span class="chapter-label">Why We Exist</span>
+          <h2 id="why-heading"
+              class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#04162e] leading-tight mb-8">
+            We were tired of seeing India<br>
+            <em class="italic text-[#9f4026]">from the outside.</em>
+          </h2>
+          <div class="space-y-4 text-[#44474d] text-base leading-relaxed font-['Inter']">
+            <p>Traditional travel often shows us monuments, hotels and curated attractions. A beautiful surface — but still an outside view.</p>
+            <p>There is another India. Family kitchens where recipes are passed by touch, not text. Old courtyards still echoing with laughter. Grandparents who remember India through stories no guidebook has captured. Neighborhood streets where life moves at its own unhurried pace.</p>
+            <p class="text-[#2c160e] font-semibold text-xl font-['Playfair_Display'] italic">
+              "You can visit India without ever being welcomed into it."
+            </p>
+            <p>LocalNest exists to change that — to build bridges between travelers who want to go deeper and families who are proud to share what they live every day.</p>
+          </div>
+        </div>
+        <div class="about-fade img-zoom rounded-sm overflow-hidden" style="aspect-ratio:4/5; transition-delay:150ms">
+          <img src="{% static 'img/about_street_alley.jpg' %}"
+               alt="Children walking through a vibrant yellow Indian street alley with local shops"
+               class="w-full h-full object-cover" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ BELIEFS / DARK SECTION ════════════════ -->
+  <section class="bg-[#04162e] py-24 md:py-40" aria-labelledby="beliefs-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="max-w-xl mb-16 about-fade">
+        <span class="chapter-label light">What We Believe</span>
+        <h2 id="beliefs-heading"
+            class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-white leading-tight">
+          Travel should feel <em class="italic text-[#e8a080]">human.</em>
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+
+        <div class="principle-card about-fade">
+          <p class="text-[#d4956e] text-[9px] font-bold tracking-[0.22em] uppercase mb-3 font-['Inter']">01</p>
+          <h3 class="font-['Playfair_Display'] text-white text-2xl font-semibold mb-4">People Before Properties</h3>
+          <p class="text-white/60 text-sm leading-relaxed font-['Inter']">Stories before statistics. The family you stay with matters more than the thread count of the sheets.</p>
+        </div>
+
+        <div class="principle-card about-fade" style="transition-delay:80ms">
+          <p class="text-[#d4956e] text-[9px] font-bold tracking-[0.22em] uppercase mb-3 font-['Inter']">02</p>
+          <h3 class="font-['Playfair_Display'] text-white text-2xl font-semibold mb-4">Experience Before Checklists</h3>
+          <p class="text-white/60 text-sm leading-relaxed font-['Inter']">Food, traditions and conversations matter. A stay should leave you with something real to carry home.</p>
+        </div>
+
+        <div class="principle-card about-fade" style="transition-delay:160ms">
+          <p class="text-[#d4956e] text-[9px] font-bold tracking-[0.22em] uppercase mb-3 font-['Inter']">03</p>
+          <h3 class="font-['Playfair_Display'] text-white text-2xl font-semibold mb-4">Connection Before Transaction</h3>
+          <p class="text-white/60 text-sm leading-relaxed font-['Inter']">A booking can become a relationship. We are building a platform designed around trust, not just payments.</p>
+        </div>
+
+        <div class="principle-card about-fade" style="transition-delay:240ms">
+          <p class="text-[#d4956e] text-[9px] font-bold tracking-[0.22em] uppercase mb-3 font-['Inter']">04</p>
+          <h3 class="font-['Playfair_Display'] text-white text-2xl font-semibold mb-4">Local Knowledge Matters</h3>
+          <p class="text-white/60 text-sm leading-relaxed font-['Inter']">The people who live somewhere understand it differently. They know the lane worth walking slowly and the chai stall worth sitting at.</p>
+        </div>
+
+        <div class="principle-card about-fade" style="transition-delay:320ms">
+          <p class="text-[#d4956e] text-[9px] font-bold tracking-[0.22em] uppercase mb-3 font-['Inter']">05</p>
+          <h3 class="font-['Playfair_Display'] text-white text-2xl font-semibold mb-4">Memories Last Longer</h3>
+          <p class="text-white/60 text-sm leading-relaxed font-['Inter']">Itineraries are forgotten. A grandmother's recipe, a rooftop conversation at dusk — those stay with you for years.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ JOURNEY SEQUENCE ════════════════ -->
+  <section class="py-24 md:py-40" aria-labelledby="journey-heading">
+    <div class="max-w-5xl mx-auto px-6 md:px-16">
+      <div class="text-center max-w-2xl mx-auto mb-20 about-fade">
+        <span class="chapter-label">The LocalNest Journey</span>
+        <h2 id="journey-heading"
+            class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#04162e] leading-tight">
+          What LocalNest actually does
+        </h2>
+      </div>
+
+      <!-- Steps -->
+      <div class="relative">
+        <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-px"
+             style="background: linear-gradient(to bottom, transparent, #e5e0d8 10%, #e5e0d8 90%, transparent); transform: translateX(-50%); z-index:0;">
+        </div>
+
+        <!-- Step: STAY -->
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center border-b border-[#eae6df] py-10 md:py-16 about-fade relative z-10">
+          <div class="flex justify-center order-2 md:order-1">
+            <div class="w-14 h-14 rounded-full border-2 border-[#04162e]/20 bg-[#FAF8F5] flex items-center justify-center shadow-sm">
+              <span class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold">S</span>
+            </div>
+          </div>
+          <div class="order-1 md:order-2">
+            <p class="text-[#9f4026] text-[9px] font-bold tracking-[0.25em] uppercase mb-2 font-['Inter']">Step 01</p>
+            <h3 class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold mb-4">Stay</h3>
+            <p class="text-[#44474d] text-base leading-relaxed font-['Inter'] max-w-xs">Stay in a real local home. Not a hotel. A family's actual home — with their photos on the walls, their cooking smells, their morning routines.</p>
+          </div>
+        </div>
+
+        <!-- Step: MEET -->
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center border-b border-[#eae6df] py-10 md:py-16 about-fade relative z-10" style="transition-delay:60ms">
+          <div class="md:text-right">
+            <p class="text-[#9f4026] text-[9px] font-bold tracking-[0.25em] uppercase mb-2 font-['Inter']">Step 02</p>
+            <h3 class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold mb-4">Meet</h3>
+            <p class="text-[#44474d] text-base leading-relaxed font-['Inter'] md:ml-auto max-w-xs">Meet the family who calls it home. Learn their names. Hear how long they have lived there and what the walls remember.</p>
+          </div>
+          <div class="flex justify-center">
+            <div class="w-14 h-14 rounded-full border-2 border-[#9f4026]/25 bg-[#fff1ed] flex items-center justify-center shadow-sm">
+              <span class="font-['Playfair_Display'] text-[#9f4026] text-xl font-bold">M</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step: EAT -->
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center border-b border-[#eae6df] py-10 md:py-16 about-fade relative z-10" style="transition-delay:120ms">
+          <div class="flex justify-center order-2 md:order-1">
+            <div class="w-14 h-14 rounded-full border-2 border-[#04162e]/20 bg-[#FAF8F5] flex items-center justify-center shadow-sm">
+              <span class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold">E</span>
+            </div>
+          </div>
+          <div class="order-1 md:order-2">
+            <p class="text-[#9f4026] text-[9px] font-bold tracking-[0.25em] uppercase mb-2 font-['Inter']">Step 03</p>
+            <h3 class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold mb-4">Eat</h3>
+            <p class="text-[#44474d] text-base leading-relaxed font-['Inter'] max-w-xs">Share authentic homemade food. Prepared in their kitchen. Cooked with recipes that belong to this family — not a restaurant menu.</p>
+          </div>
+        </div>
+
+        <!-- Step: LISTEN -->
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center border-b border-[#eae6df] py-10 md:py-16 about-fade relative z-10" style="transition-delay:180ms">
+          <div class="md:text-right">
+            <p class="text-[#9f4026] text-[9px] font-bold tracking-[0.25em] uppercase mb-2 font-['Inter']">Step 04</p>
+            <h3 class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold mb-4">Listen</h3>
+            <p class="text-[#44474d] text-base leading-relaxed font-['Inter'] md:ml-auto max-w-xs">Hear stories passed through generations. The ones that never made it to the internet. The ones that only exist when someone sits still long enough to ask.</p>
+          </div>
+          <div class="flex justify-center">
+            <div class="w-14 h-14 rounded-full border-2 border-[#9f4026]/25 bg-[#fff1ed] flex items-center justify-center shadow-sm">
+              <span class="font-['Playfair_Display'] text-[#9f4026] text-xl font-bold">L</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step: EXPERIENCE -->
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center border-b border-[#eae6df] py-10 md:py-16 about-fade relative z-10" style="transition-delay:240ms">
+          <div class="flex justify-center order-2 md:order-1">
+            <div class="w-14 h-14 rounded-full border-2 border-[#04162e]/20 bg-[#FAF8F5] flex items-center justify-center shadow-sm">
+              <span class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold">X</span>
+            </div>
+          </div>
+          <div class="order-1 md:order-2">
+            <p class="text-[#9f4026] text-[9px] font-bold tracking-[0.25em] uppercase mb-2 font-['Inter']">Step 05</p>
+            <h3 class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold mb-4">Experience</h3>
+            <p class="text-[#44474d] text-base leading-relaxed font-['Inter'] max-w-xs">Cook, walk, learn, create, celebrate. Join them in the things they do every day. A morning puja. An afternoon at the market. An evening around a chulha.</p>
+          </div>
+        </div>
+
+        <!-- Step: DISCOVER -->
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center border-b border-[#eae6df] py-10 md:py-16 about-fade relative z-10" style="transition-delay:300ms">
+          <div class="md:text-right">
+            <p class="text-[#9f4026] text-[9px] font-bold tracking-[0.25em] uppercase mb-2 font-['Inter']">Step 06</p>
+            <h3 class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold mb-4">Discover</h3>
+            <p class="text-[#44474d] text-base leading-relaxed font-['Inter'] md:ml-auto max-w-xs">See the place through local eyes. The quieter streets. The older traditions. The meanings behind the festivals.</p>
+          </div>
+          <div class="flex justify-center">
+            <div class="w-14 h-14 rounded-full border-2 border-[#9f4026]/25 bg-[#fff1ed] flex items-center justify-center shadow-sm">
+              <span class="font-['Playfair_Display'] text-[#9f4026] text-xl font-bold">D</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step: REMEMBER -->
+        <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center py-10 md:py-16 about-fade relative z-10" style="transition-delay:360ms">
+          <div class="flex justify-center order-2 md:order-1">
+            <div class="w-14 h-14 rounded-full border-2 border-[#04162e]/20 bg-[#FAF8F5] flex items-center justify-center shadow-sm">
+              <span class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold">R</span>
+            </div>
+          </div>
+          <div class="order-1 md:order-2">
+            <p class="text-[#9f4026] text-[9px] font-bold tracking-[0.25em] uppercase mb-2 font-['Inter']">Step 07</p>
+            <h3 class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold mb-4">Remember</h3>
+            <p class="text-[#44474d] text-base leading-relaxed font-['Inter'] max-w-xs">Leave with a story of your own. One that belongs to you, shaped by the people who welcomed you into their home.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ PEOPLE FIRST — FULL BLEED PHOTO ════════════════ -->
+  <section class="relative min-h-[70vh] md:min-h-[85vh] flex items-center img-zoom overflow-hidden about-fade"
+           aria-label="People First">
+    <img src="{% static 'img/about_holi_festival.jpg' %}"
+         alt="Holi festival celebration with vibrant colors and joyful people"
+         class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+    <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-16 py-20 text-white">
+      <div class="max-w-xl">
+        <span class="chapter-label light">People First</span>
+        <h2 class="font-['Playfair_Display'] text-5xl md:text-7xl font-bold leading-tight mb-6"
+            style="text-shadow:0 4px 16px rgba(0,0,0,0.5);">
+          The people<br>
+          <em class="italic text-[#e8a080]">are the destination.</em>
+        </h2>
+        <p class="text-white/78 text-base leading-relaxed mb-8 font-['Inter']">
+          Behind every door is a story. LocalNest puts families and their wisdom at the center of every journey.
+        </p>
+        <a href="{% url 'properties:search' %}?type=hosts" class="arrow-link on-dark">
+          Meet the Families
+          <span class="material-symbols-outlined text-base">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ 1000 STORIES ════════════════ -->
+  <section class="bg-[#fff1ed] py-24 md:py-40" aria-labelledby="stories-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="about-fade">
+          <span class="chapter-label">The Campaign</span>
+          <h2 id="stories-heading"
+              class="font-['Playfair_Display'] text-5xl md:text-6xl font-bold text-[#04162e] leading-tight mb-6">
+            1000 Stories<br>
+            <em class="italic text-[#9f4026]">of India</em>
+          </h2>
+          <p class="text-[#2c160e] font-['Playfair_Display'] text-xl font-semibold mb-4">
+            1,000 families. 1,000 homes.<br>1,000 stories. 1,000 recipes. 1,000 voices.
+          </p>
+          <div class="space-y-4 text-[#44474d] font-['Inter'] text-base leading-relaxed mb-8">
+            <p>India is not one story. It is millions of lives, traditions, recipes, memories and relationships. We want to document and celebrate them — one family at a time.</p>
+            <p>This is not a marketing campaign. It is an archive — a living record of the India that exists in kitchens, not just in castles.</p>
+          </div>
+
+          <!-- Mission progress bar -->
+          <div class="mb-8">
+            <div class="flex justify-between items-baseline mb-2">
+              <span class="font-['Inter'] text-xs font-bold tracking-[0.12em] uppercase text-[#9f4026]">Stories Collected</span>
+              <span class="font-['Playfair_Display'] text-2xl font-bold text-[#04162e]">{{ story_count }} / 1,000</span>
+            </div>
+            <div class="h-1.5 bg-[#e5e0d8] rounded-full overflow-hidden">
+              <div class="h-full bg-[#9f4026] rounded-full" style="width: {{ story_percentage }}%"></div>
+            </div>
+            <p class="text-[#7E786E] text-xs mt-2 font-['Inter'] italic">A mission in progress. Every family's story matters.</p>
+          </div>
+
+          <a href="{% url 'core:stories_list' %}" class="arrow-link">
+            Explore 1000 Stories
+            <span class="material-symbols-outlined text-base">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- Mosaic of images -->
+        <div class="about-fade" style="transition-delay:150ms">
+          <div class="mosaic">
+            <div class="mosaic-main img-zoom rounded-sm overflow-hidden">
+              <img src="{% static 'img/about_train.jpg' %}" alt="Indian train winding through misty mountain forests" class="w-full h-full object-cover" loading="lazy"/>
+            </div>
+            <div class="img-zoom rounded-sm overflow-hidden">
+              <img src="{% static 'img/localnest_family_reunion.jpg' %}" alt="Indian family warmly greeting guests at their doorstep" class="w-full h-full object-cover" loading="lazy"/>
+            </div>
+            <div class="img-zoom rounded-sm overflow-hidden">
+              <img src="{% static 'img/kulkarni_family.jpg' %}" alt="Indian grandfather celebrating Diwali with grandchildren" class="w-full h-full object-cover" loading="lazy"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ LOCAL SECRETS ════════════════ -->
+  <section class="py-24 md:py-40" aria-labelledby="secrets-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="about-fade img-zoom rounded-sm overflow-hidden order-2 lg:order-1" style="aspect-ratio:4/3">
+          <img src="{% static 'img/about_rickshaw.jpg' %}"
+               alt="Auto-rickshaw with Indian tricolour flag flying through a city street"
+               class="w-full h-full object-cover" loading="lazy" />
+        </div>
+        <div class="about-fade order-1 lg:order-2" style="transition-delay:120ms">
+          <span class="chapter-label">Local Secrets</span>
+          <h2 id="secrets-heading"
+              class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#04162e] leading-tight mb-6">
+            India, according to<br>
+            <em class="italic text-[#9f4026]">the people who live here.</em>
+          </h2>
+          <div class="space-y-4 text-[#44474d] font-['Inter'] text-base leading-relaxed mb-8">
+            <p>A breakfast shop a family has visited for decades. A quiet place locals love and tourists walk past. A workshop not in any guidebook. A neighbourhood tradition that happens once a year.</p>
+            <p>LocalNest collects these. Not to publish them to millions, but to share them thoughtfully with travelers who want to go beyond the surface.</p>
+            <blockquote class="border-l-2 border-[#e5e0d8] pl-4 text-sm italic text-[#7E786E]">
+              We respect community wishes. Some places are listed without precise locations, because not everything that is beautiful needs to become popular.
+            </blockquote>
+          </div>
+          <a href="{% url 'core:secrets_list' %}" class="arrow-link">
+            Discover Local Secrets
+            <span class="material-symbols-outlined text-base">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ THE DIFFERENCE ════════════════ -->
+  <section class="bg-[#04162e] py-24 md:py-40" aria-labelledby="difference-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="text-center max-w-2xl mx-auto mb-16 about-fade">
+        <span class="chapter-label light">The Difference</span>
+        <h2 id="difference-heading"
+            class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-white leading-tight">
+          Accommodation is where the journey <em class="italic text-[#e8a080]">begins.</em>
+        </h2>
+        <p class="text-white/55 mt-4 font-['Inter'] text-base">People are where the journey becomes meaningful.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <div class="compare-col trad bg-white/5 p-8 rounded-sm about-fade">
+          <h3 class="font-['Inter'] text-white/40 text-[9px] font-bold tracking-[0.22em] uppercase mb-6">Traditional Travel</h3>
+          <ul class="space-y-3">
+            <li class="flex gap-3 text-white/45 font-['Inter'] text-sm"><span class="mt-1.5 w-1 h-1 rounded-full bg-white/20 flex-shrink-0"></span>Hotel</li>
+            <li class="flex gap-3 text-white/45 font-['Inter'] text-sm"><span class="mt-1.5 w-1 h-1 rounded-full bg-white/20 flex-shrink-0"></span>Room</li>
+            <li class="flex gap-3 text-white/45 font-['Inter'] text-sm"><span class="mt-1.5 w-1 h-1 rounded-full bg-white/20 flex-shrink-0"></span>Price</li>
+            <li class="flex gap-3 text-white/45 font-['Inter'] text-sm"><span class="mt-1.5 w-1 h-1 rounded-full bg-white/20 flex-shrink-0"></span>Amenities</li>
+            <li class="flex gap-3 text-white/45 font-['Inter'] text-sm"><span class="mt-1.5 w-1 h-1 rounded-full bg-white/20 flex-shrink-0"></span>Tourist checklist</li>
+          </ul>
+        </div>
+
+        <div class="compare-col ln bg-[#9f4026]/15 p-8 rounded-sm about-fade" style="transition-delay:120ms">
+          <h3 class="font-['Inter'] text-[#e8a080] text-[9px] font-bold tracking-[0.22em] uppercase mb-6">LocalNest</h3>
+          <ul class="space-y-3">
+            <li class="flex gap-3 text-white font-['Inter'] text-sm font-medium"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e8a080] flex-shrink-0"></span>Family</li>
+            <li class="flex gap-3 text-white font-['Inter'] text-sm font-medium"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e8a080] flex-shrink-0"></span>Home</li>
+            <li class="flex gap-3 text-white font-['Inter'] text-sm font-medium"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e8a080] flex-shrink-0"></span>Food</li>
+            <li class="flex gap-3 text-white font-['Inter'] text-sm font-medium"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e8a080] flex-shrink-0"></span>Story</li>
+            <li class="flex gap-3 text-white font-['Inter'] text-sm font-medium"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e8a080] flex-shrink-0"></span>Tradition</li>
+            <li class="flex gap-3 text-white font-['Inter'] text-sm font-medium"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e8a080] flex-shrink-0"></span>Experience</li>
+            <li class="flex gap-3 text-white font-['Inter'] text-sm font-medium"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e8a080] flex-shrink-0"></span>Memory</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ OUR VALUES ════════════════ -->
+  <section class="py-24 md:py-40" aria-labelledby="values-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="max-w-xl mb-16 about-fade">
+        <span class="chapter-label">Our Values</span>
+        <h2 id="values-heading"
+            class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#04162e] leading-tight">
+          What guides everything we do
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#e5e0d8]">
+
+        <div class="value-tile bg-[#FAF8F5] p-8 about-fade">
+          <div class="w-8 h-px bg-[#9f4026] mb-5"></div>
+          <h3 class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold mb-3">Authenticity</h3>
+          <p class="text-[#44474d] text-sm leading-relaxed font-['Inter']">We want real people and real stories — not curated performances of culture for a tourist audience.</p>
+        </div>
+
+        <div class="value-tile bg-[#FAF8F5] p-8 about-fade" style="transition-delay:50ms">
+          <div class="w-8 h-px bg-[#9f4026] mb-5"></div>
+          <h3 class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold mb-3">Hospitality</h3>
+          <p class="text-[#44474d] text-sm leading-relaxed font-['Inter']">Every guest should feel welcomed into a home — not processed through a transaction.</p>
+        </div>
+
+        <div class="value-tile bg-[#FAF8F5] p-8 about-fade" style="transition-delay:100ms">
+          <div class="w-8 h-px bg-[#9f4026] mb-5"></div>
+          <h3 class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold mb-3">Respect</h3>
+          <p class="text-[#44474d] text-sm leading-relaxed font-['Inter']">Culture should be experienced thoughtfully and respectfully. We guide travelers to engage with sensitivity.</p>
+        </div>
+
+        <div class="value-tile bg-[#FAF8F5] p-8 about-fade" style="transition-delay:150ms">
+          <div class="w-8 h-px bg-[#9f4026] mb-5"></div>
+          <h3 class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold mb-3">Trust</h3>
+          <p class="text-[#44474d] text-sm leading-relaxed font-['Inter']">Travelers and hosts deserve honest information, verified homes, real reviews, and clear systems.</p>
+        </div>
+
+        <div class="value-tile bg-[#FAF8F5] p-8 about-fade" style="transition-delay:200ms">
+          <div class="w-8 h-px bg-[#9f4026] mb-5"></div>
+          <h3 class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold mb-3">Community</h3>
+          <p class="text-[#44474d] text-sm leading-relaxed font-['Inter']">Local communities are partners, not backdrops. Their participation shapes everything we build.</p>
+        </div>
+
+        <div class="value-tile bg-[#FAF8F5] p-8 about-fade" style="transition-delay:250ms">
+          <div class="w-8 h-px bg-[#9f4026] mb-5"></div>
+          <h3 class="font-['Playfair_Display'] text-[#04162e] text-xl font-bold mb-3">Preservation</h3>
+          <p class="text-[#44474d] text-sm leading-relaxed font-['Inter']">Recipes, stories and traditions deserve to be remembered. That is why we document them before they disappear.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ TRUST & RESPONSIBILITY ════════════════ -->
+  <section class="bg-[#fff1ed] py-24 md:py-40" aria-labelledby="trust-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="about-fade">
+          <span class="chapter-label">Trust & Responsibility</span>
+          <h2 id="trust-heading"
+              class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#04162e] leading-tight mb-10">
+            A platform built<br>on <em class="italic text-[#9f4026]">transparency.</em>
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="about-fade flex gap-3">
+              <span class="material-symbols-outlined text-[#9f4026] text-xl flex-shrink-0 mt-0.5">check_circle</span>
+              <div>
+                <h4 class="font-['Inter'] text-[#04162e] font-bold text-sm mb-1">Verified Hosts</h4>
+                <p class="text-[#44474d] text-xs leading-relaxed font-['Inter']">Every host goes through a verification process before their home appears on LocalNest.</p>
+              </div>
+            </div>
+            <div class="about-fade flex gap-3" style="transition-delay:50ms">
+              <span class="material-symbols-outlined text-[#9f4026] text-xl flex-shrink-0 mt-0.5">check_circle</span>
+              <div>
+                <h4 class="font-['Inter'] text-[#04162e] font-bold text-sm mb-1">Real Reviews</h4>
+                <p class="text-[#44474d] text-xs leading-relaxed font-['Inter']">Reviews are tied to real bookings — not anonymous opinion.</p>
+              </div>
+            </div>
+            <div class="about-fade flex gap-3" style="transition-delay:100ms">
+              <span class="material-symbols-outlined text-[#9f4026] text-xl flex-shrink-0 mt-0.5">check_circle</span>
+              <div>
+                <h4 class="font-['Inter'] text-[#04162e] font-bold text-sm mb-1">Clear House Rules</h4>
+                <p class="text-[#44474d] text-xs leading-relaxed font-['Inter']">Families set their own rules. Travelers know exactly what to expect before booking.</p>
+              </div>
+            </div>
+            <div class="about-fade flex gap-3" style="transition-delay:150ms">
+              <span class="material-symbols-outlined text-[#9f4026] text-xl flex-shrink-0 mt-0.5">check_circle</span>
+              <div>
+                <h4 class="font-['Inter'] text-[#04162e] font-bold text-sm mb-1">Secure Booking</h4>
+                <p class="text-[#44474d] text-xs leading-relaxed font-['Inter']">All payments are handled securely through our booking system.</p>
+              </div>
+            </div>
+            <div class="about-fade flex gap-3" style="transition-delay:200ms">
+              <span class="material-symbols-outlined text-[#9f4026] text-xl flex-shrink-0 mt-0.5">check_circle</span>
+              <div>
+                <h4 class="font-['Inter'] text-[#04162e] font-bold text-sm mb-1">Community Control</h4>
+                <p class="text-[#44474d] text-xs leading-relaxed font-['Inter']">Families control their listings, availability and story — always.</p>
+              </div>
+            </div>
+            <div class="about-fade flex gap-3" style="transition-delay:250ms">
+              <span class="material-symbols-outlined text-[#9f4026] text-xl flex-shrink-0 mt-0.5">check_circle</span>
+              <div>
+                <h4 class="font-['Inter'] text-[#04162e] font-bold text-sm mb-1">Thoughtful Discovery</h4>
+                <p class="text-[#44474d] text-xs leading-relaxed font-['Inter']">We do not publish sensitive local places without community consent.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-fade img-zoom rounded-sm overflow-hidden" style="aspect-ratio:3/4; transition-delay:120ms">
+          <img src="{% static 'img/about_ganesh.jpg' %}"
+               alt="Beautifully decorated Ganesh idol with ornate golden crown"
+               class="w-full h-full object-cover" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ FOUNDER STORY ════════════════ -->
+  <section class="py-24 md:py-40" aria-labelledby="founder-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="max-w-3xl mx-auto">
+        <div class="about-fade text-center mb-16">
+          <span class="chapter-label">The Team</span>
+          <h2 id="founder-heading"
+              class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-[#04162e] leading-tight">
+            The people building <em class="italic text-[#9f4026]">LocalNest</em>
+          </h2>
+        </div>
+
+        <div class="about-fade border border-[#e5e0d8] p-10 md:p-16 relative">
+          <!-- Decorative mark -->
+          <div class="font-['Playfair_Display'] text-[#f4e8d8] leading-none absolute -top-2 left-8 select-none pointer-events-none"
+               style="font-size: 7rem; line-height:1">"</div>
+
+          <div class="relative z-10">
+            <div class="flex items-center gap-5 mb-8">
+              <div class="w-16 h-16 rounded-full bg-[#04162e] flex items-center justify-center text-white font-['Playfair_Display'] text-2xl font-bold flex-shrink-0">J</div>
+              <div>
+                <h3 class="font-['Playfair_Display'] text-[#04162e] text-2xl font-bold">Jenish Jethava</h3>
+                <p class="text-[#9f4026] text-[9px] font-bold tracking-[0.18em] uppercase font-['Inter'] mt-0.5">Founder & Creator</p>
+              </div>
+            </div>
+
+            <h4 class="font-['Playfair_Display'] text-[#04162e] text-2xl font-semibold mb-6 leading-snug">
+              Why I started LocalNest.
+            </h4>
+
+            <div class="space-y-4 text-[#44474d] font-['Inter'] text-base leading-relaxed">
+              <p>I grew up noticing the difference between how India looks from the outside and how it feels from the inside. As someone who loves this country — not just its monuments, but its people — I kept feeling like something was missing in the way people were experiencing it.</p>
+              <p>Tourism often shows you the shape of a place but not its soul. You see the Taj Mahal but miss the family cooking <em>dal baati churma</em> an hour away. You stay in a hotel but never sit in a courtyard and hear a story that has been told for three generations.</p>
+              <p>LocalNest exists to change that. To connect travelers with real families. To help people experience India the way I have been lucky enough to — through the hospitality of ordinary people with extraordinary lives.</p>
+              <p class="font-semibold text-[#2c160e] font-['Playfair_Display'] text-lg italic">
+                "This is not a product. It is a belief. That the best way to know a place is to know its people."
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ RESPONSIBLE DISCOVERY ════════════════ -->
+  <section class="bg-[#04162e] py-24 md:py-40" aria-labelledby="responsible-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="about-fade">
+          <span class="chapter-label light">Responsible Discovery</span>
+          <h2 id="responsible-heading"
+              class="font-['Playfair_Display'] text-4xl md:text-5xl font-bold text-white leading-tight mb-8">
+            We do not want to turn<br>every hidden place into<br>
+            <em class="italic text-[#e8a080]">a hotspot.</em>
+          </h2>
+          <div class="space-y-4 text-white/60 font-['Inter'] text-base leading-relaxed">
+            <p>Discovery should be thoughtful. Some places are beautiful precisely because they have not been overwhelmed. We believe in sharing local knowledge with care — never publishing sensitive coordinates without community agreement.</p>
+            <p>LocalNest gives local families and community leaders control over how their spaces and traditions appear on our platform. This is their culture. We are only here to amplify it on their terms.</p>
+            <p class="text-white/80 font-semibold">When a community says no, we say no.</p>
+          </div>
+        </div>
+        <div class="about-fade img-zoom rounded-sm overflow-hidden" style="aspect-ratio:16/9; transition-delay:120ms">
+          <img src="{% static 'img/hero_slideshow_3.jpg' %}"
+               alt="Varanasi ghats seen from the River Ganges — a sacred living city"
+               class="w-full h-full object-cover" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ THE FUTURE ════════════════ -->
+  <section class="py-24 md:py-40" aria-labelledby="future-heading">
+    <div class="max-w-7xl mx-auto px-6 md:px-16">
+      <div class="max-w-3xl mx-auto text-center about-fade">
+        <span class="chapter-label">Looking Forward</span>
+        <h2 id="future-heading"
+            class="font-['Playfair_Display'] text-4xl md:text-6xl font-bold text-[#04162e] leading-tight mb-8">
+          One day, we hope every part of India has
+          <em class="italic text-[#9f4026]"> a story waiting<br>to be discovered.</em>
+        </h2>
+        <div class="space-y-4 text-[#44474d] font-['Inter'] text-base leading-relaxed max-w-2xl mx-auto mb-16">
+          <p>More families. More homes. More experiences. More local voices. More recipes. More traditions. More stories. We are at the beginning of something we believe matters.</p>
+          <p>We are not promising a timeline. We are describing a direction — a platform where every district of India has a family worth staying with, and a story worth hearing.</p>
+        </div>
+
+        <!-- Live stats from DB -->
+        <div class="grid grid-cols-3 gap-8 border-t border-[#e5e0d8] pt-12">
+          <div>
+            <p class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold">{{ family_count|default:"5" }}+</p>
+            <p class="text-[#7E786E] text-[10px] font-bold tracking-[0.12em] uppercase font-['Inter'] mt-2">Host Families</p>
+          </div>
+          <div>
+            <p class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold">{{ destination_count|default:"8" }}+</p>
+            <p class="text-[#7E786E] text-[10px] font-bold tracking-[0.12em] uppercase font-['Inter'] mt-2">Destinations</p>
+          </div>
+          <div>
+            <p class="font-['Playfair_Display'] text-[#04162e] text-4xl md:text-5xl font-bold">{{ story_count }}+</p>
+            <p class="text-[#7E786E] text-[10px] font-bold tracking-[0.12em] uppercase font-['Inter'] mt-2">Stories Collected</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════ FINAL EMOTIONAL CTA ════════════════ -->
+  <section class="relative min-h-[80vh] flex items-center img-zoom overflow-hidden about-fade"
+           aria-label="Final call to action">
+    <img src="{% static 'img/family_playing_cards.jpg' %}"
+         alt="An Indian joint family gathered joyfully in their decorated home"
+         class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/15 via-black/60 to-black/85"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/55 to-transparent"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-16 py-24 text-white">
+      <div class="max-w-2xl">
+        <h2 class="font-['Playfair_Display'] text-5xl md:text-7xl font-bold leading-tight mb-6"
+            style="text-shadow:0 4px 24px rgba(0,0,0,0.55);">
+          Come as a traveler.<br>
+          <em class="italic text-[#e8a080]">Leave with a story.</em>
+        </h2>
+        <p class="text-white/80 text-lg leading-relaxed mb-10 font-['Inter']">
+          Find a family. Share a meal. Hear a story.<br>
+          Experience India differently.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="{% url 'properties:search' %}"
+             class="bg-[#9f4026] text-white text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 hover:bg-[#7f3320] transition-colors inline-flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">explore</span>Explore India
+          </a>
+          <a href="{% url 'accounts:register_host' %}"
+             class="text-white border border-white/38 hover:border-white text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 hover:bg-white/10 transition-colors inline-flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">home</span>Become a Host
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</article>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+(function () {
+  'use strict';
+  const targets = document.querySelectorAll('.about-fade, .img-zoom');
+
+  if (!('IntersectionObserver' in window)) {
+    targets.forEach(el => el.classList.add('is-visible'));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+  );
+
+  targets.forEach(el => observer.observe(el));
+}());
+</script>
+{% endblock %}

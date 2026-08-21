@@ -151,6 +151,9 @@ class PropertyImage(models.Model):
     )
     image = models.ImageField(upload_to='property_images/')
 
+    class Meta:
+        ordering = ['image']
+
     def __str__(self):
         return f"Image for {self.property.name}"
 

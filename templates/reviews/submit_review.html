@@ -1,94 +1,113 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Write a Review | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card card-custom glass-card p-4 fade-in-up shadow-sm">
-                <div class="card-body">
-                    <h2 class="h3 fw-bold text-success text-center mb-2"><i class="bi bi-star-fill text-warning me-2"></i>Write a Review</h2>
-                    <p class="text-muted text-center mb-4 small">Share your experience staying with <strong>{{ booking.property.host.username }}</strong> at <strong>{{ booking.property.name }}</strong>.</p>
-                    
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <div class="d-flex flex-column gap-3 mb-4">
-                            <!-- Rating Fields Grid -->
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Overall Experience</label>
-                                    {{ form.overall_rating }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Homemade Food Rating</label>
-                                    {{ form.food_rating }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Cleanliness Rating</label>
-                                    {{ form.cleanliness_rating }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Host Behaviour Rating</label>
-                                    {{ form.host_behaviour_rating }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Cultural Experience Rating</label>
-                                    {{ form.cultural_experience_rating }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Room Comfort Rating</label>
-                                    {{ form.room_rating }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Signature Experience Rating</label>
-                                    {{ form.experience_rating }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Value for Money Rating</label>
-                                    {{ form.value_rating }}
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mt-1">
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Upload Photo</label>
-                                    {{ form.photo }}
-                                    {% if form.photo.errors %}<div class="text-danger small mt-1">{{ form.photo.errors.0 }}</div>{% endif %}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-semibold text-muted">Upload Video Clip</label>
-                                    {{ form.video }}
-                                    {% if form.video.errors %}<div class="text-danger small mt-1">{{ form.video.errors.0 }}</div>{% endif %}
-                                </div>
-                            </div>
-                            
-                            <!-- Comments Textarea -->
-                            <div class="mt-2">
-                                <label class="form-label small fw-semibold text-muted">Comments</label>
-                                {{ form.comments }}
-                                {% if form.comments.errors %}
-                                    <div class="text-danger small mt-1">{{ form.comments.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center">
-                            <a href="{% url 'dashboard:dispatcher' %}" class="btn btn-outline-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn btn-orange px-4">Submit Review</button>
-                        </div>
-                    </form>
-                </div>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background py-12">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="max-w-2xl mx-auto bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg p-8 md:p-12 space-y-8">
+            
+            <!-- Header -->
+            <div class="text-center space-y-2">
+                <span class="text-secondary font-label-caps text-xs uppercase tracking-widest block font-bold flex items-center justify-center gap-1.5"><span class="material-symbols-outlined text-sm font-bold text-secondary">star</span> Write a Review</span>
+                <h1 class="font-serif text-3xl text-primary font-bold tracking-tight">Share Your Experience</h1>
+                <p class="text-xs text-on-surface-variant max-w-md mx-auto">Tell others about your stay with <strong>{{ booking.property.host.get_full_name|default:booking.property.host.username }}</strong> at <strong>{{ booking.property.name }}</strong>.</p>
             </div>
+
+            <!-- Form -->
+            <form method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold space-y-1">
+                        {% for error in form.non_field_errors %}
+                            <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Rating Fields Grid -->
+                <div class="space-y-6">
+                    <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">star_half</span> Star Ratings
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Overall Experience</label>
+                            {{ form.overall_rating }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Homemade Food Rating</label>
+                            {{ form.food_rating }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Cleanliness Rating</label>
+                            {{ form.cleanliness_rating }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Host Behaviour Rating</label>
+                            {{ form.host_behaviour_rating }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Cultural Experience Rating</label>
+                            {{ form.cultural_experience_rating }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Room Comfort Rating</label>
+                            {{ form.room_rating }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Signature Experience Rating</label>
+                            {{ form.experience_rating }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Value for Money Rating</label>
+                            {{ form.value_rating }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Uploads -->
+                <div class="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">photo_camera</span> Share Memories (Media)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Upload Photo</label>
+                            {{ form.photo }}
+                            {% if form.photo.errors %}<div class="ln-error-text">{{ form.photo.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Upload Video Clip</label>
+                            {{ form.video }}
+                            {% if form.video.errors %}<div class="ln-error-text">{{ form.video.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="space-y-4 pt-4 border-t border-outline-variant/10">
+                    <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-secondary">rate_review</span> Narrative & Comments
+                    </h3>
+                    <div class="space-y-1.5">
+                        <label class="ln-label">Comments</label>
+                        <textarea name="comments" id="id_comments" rows="4" class="ln-input" placeholder="Share your experience staying here (family stories, cultural moments, local secrets)..." required>{{ form.comments.value|default:'' }}</textarea>
+                        {% if form.comments.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.comments.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-between items-center pt-6 border-t border-outline-variant/10">
+                    <a href="{% url 'dashboard:dispatcher' %}" class="ln-btn-secondary px-6">Cancel</a>
+                    <button type="submit" class="ln-btn-primary px-8">Submit Review</button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>

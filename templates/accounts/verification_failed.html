@@ -1,22 +1,29 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Verification Failed | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card card-custom glass-card p-5 text-center fade-in-up">
-                <div class="card-body">
-                    <div class="mb-4">
-                        <i class="bi bi-shield-fill-x text-danger" style="font-size: 5rem;"></i>
-                    </div>
-                    <h1 class="h3 fw-bold text-danger mb-3">Verification Link Failed</h1>
-                    <p class="text-muted mb-4">The verification link is invalid, has expired, or has already been used. Please request a new verification link or contact administrator support.</p>
-                    
-                    <a href="{% url 'core:home' %}" class="btn btn-orange w-100 py-2.5">Back to Home</a>
-                </div>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background py-12">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="max-w-md w-full mx-auto bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg p-8 md:p-10 space-y-6 text-center">
+            
+            <!-- Error Icon -->
+            <div class="inline-flex w-16 h-16 rounded-full bg-error/10 items-center justify-center text-error mb-2 animate-bounce">
+                <span class="material-symbols-outlined text-3xl font-bold">gpp_bad</span>
             </div>
+            
+            <!-- Header -->
+            <div class="space-y-2">
+                <h1 class="font-serif text-2xl md:text-3xl text-error font-bold tracking-tight">Verification Failed.</h1>
+                <p class="text-xs text-on-surface-variant leading-relaxed">The verification link is invalid, has expired, or has already been used. Please request a new verification link or contact administrator support.</p>
+            </div>
+
+            <!-- CTA -->
+            <div class="pt-4 border-t border-outline-variant/10">
+                <a href="{% url 'core:home' %}" class="ln-btn-primary w-full hover:no-underline">Back to Home</a>
+            </div>
+
         </div>
     </div>
 </div>

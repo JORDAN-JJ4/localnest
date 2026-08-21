@@ -1,0 +1,64 @@
+<a href="{% url 'chat:chat_thread' item.partner.id %}" class="flex items-center gap-4 p-4 rounded-xl border border-[#eae6df] bg-white hover:border-[#c96a3d] hover:shadow-md transition-all duration-300 relative text-decoration-none {% if item.unread_count %}border-l-4 border-l-[#ef4444] bg-[#fffcfb]{% endif %}" style="border-color: rgba(42, 72, 53, 0.12) !important;">
+    
+    <!-- User Photo / Icon -->
+    <div class="flex-shrink-0 relative">
+        {% if item.partner.profile.profile_photo %}
+            <img src="{{ item.partner.profile.profile_photo.url }}" class="rounded-full object-cover w-12 h-12 border border-[#eae6df]" alt="{{ item.partner.username }}">
+        {% elif item.partner.host_profile.profile_photo %}
+            <img src="{{ item.partner.host_profile.profile_photo.url }}" class="rounded-full object-cover w-12 h-12 border border-[#eae6df]" alt="{{ item.partner.username }}">
+        {% else %}
+            <div class="rounded-full flex items-center justify-center text-white bg-[#2a4835] font-serif w-12 h-12 text-sm font-bold shadow-sm">
+                {{ item.partner.first_name|slice:":1" }}{{ item.partner.last_name|slice:":1" }}
+            </div>
+        {% endif %}
+        
+        <!-- Online Dot / Active Indicator -->
+        <span class="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white"></span>
+    </div>
+
+    <!-- Details -->
+    <div class="flex-grow min-w-0">
+        <div class="flex justify-between items-center mb-1">
+            <h6 class="font-bold text-[#1a2b25] mb-0 truncate text-sm flex items-center gap-1.5">
+                {{ item.partner.get_full_name|default:item.partner.username }}
+                {% if item.partner.is_host %}
+                    <span class="text-[9px] tracking-wider font-semibold uppercase px-2 py-0.5 rounded-full bg-[#f4f0e8] text-[#2a4835]">Host</span>
+                {% else %}
+                    <span class="text-[9px] tracking-wider font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Guest</span>
+                {% endif %}
+            </h6>
+            <span class="text-xs text-gray-400 font-sans">
+                {% if item.last_message %}
+                    {{ item.last_message.timestamp|timesince }} ago
+                {% else %}
+                    New conversation
+                {% endif %}
+            </span>
+        </div>
+
+        <!-- Last Message / Text -->
+        <p class="text-xs text-gray-500 mb-1 truncate {% if item.unread_count %}font-semibold text-gray-800{% endif %}">
+            {% if item.last_message %}
+                {% if item.last_message.sender == user %}You: {% endif %}{{ item.last_message.content|default:"[Image Photo Attachment]" }}
+            {% else %}
+                No messages yet. Say hello!
+            {% endif %}
+        </p>
+
+        <!-- Booking Context Indicator -->
+        {% if item.booking %}
+            <div class="flex items-center gap-1.5 text-[10px] text-[#2a4835] font-semibold mt-1">
+                <i class="bi bi-calendar-check" style="font-size: 0.75rem;"></i>
+                <span>Stay: {{ item.booking.property.name }} ({{ item.booking.start_date|date:"j M" }} – {{ item.booking.end_date|date:"j M, Y" }})</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Side Badges / Indicators -->
+    <div class="flex-shrink-0 flex items-center gap-2">
+        {% if item.unread_count %}
+            <span class="h-5 min-w-5 rounded-full bg-[#ef4444] text-white text-[10px] font-bold flex items-center justify-center px-1.5 shadow-sm">{{ item.unread_count }}</span>
+        {% endif %}
+        <i class="bi bi-chevron-right text-gray-300" style="font-size: 1rem;"></i>
+    </div>
+</a>

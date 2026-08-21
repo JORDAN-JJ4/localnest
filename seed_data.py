@@ -219,7 +219,8 @@ def seed():
             'img_url': 'https://images.unsplash.com/photo-1566616213894-2d4e1baee5d8?auto=format&fit=crop&w=150&q=80',
             'color': (201, 106, 61),
             'family_intro': 'Our cardamom valleys have been cared for by our hands for eighty years. Every morning, the mountain mist teaches us patience.',
-            'profile_filename': 'profile_host_ramesh.jpg'
+            'profile_filename': 'profile_host_ramesh.jpg',
+            'src_profile_filename': 'localnest_family_reunion.jpg'
         },
         {
             'username': 'host_harish',
@@ -232,7 +233,8 @@ def seed():
             'img_url': 'https://images.unsplash.com/photo-1618083707368-b3823daa2726?auto=format&fit=crop&w=150&q=80',
             'color': (180, 83, 9),
             'family_intro': 'In Kashi, we do not welcome a traveler; we welcome the divine. Our courtyard doors have been open since the late 19th century.',
-            'profile_filename': 'profile_host_harish.jpg'
+            'profile_filename': 'profile_host_harish.jpg',
+            'src_profile_filename': 'v2_grandmother.jpg'
         },
         {
             'username': 'host_tsering',
@@ -245,7 +247,8 @@ def seed():
             'img_url': 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=150&q=80',
             'color': (140, 154, 91),
             'family_intro': 'Under the shadow of the pines, our wooden hearth has warmed travelers for generations. Taste the wild sweetness of our valley.',
-            'profile_filename': 'profile_host_tsering.jpg'
+            'profile_filename': 'profile_host_tsering.jpg',
+            'src_profile_filename': 'family_watching_tv.jpg'
         },
         {
             'username': 'host_vikram',
@@ -258,7 +261,8 @@ def seed():
             'img_url': 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80',
             'color': (217, 119, 6),
             'family_intro': 'We believe that the story of Jaipur is written in quartz clay and limestone. Let us show you the rhythms of our workshop.',
-            'profile_filename': 'profile_host_vikram.jpg'
+            'profile_filename': 'profile_host_vikram.jpg',
+            'src_profile_filename': 'family_playing_cards.jpg'
         },
         {
             'username': 'host_anil',
@@ -271,7 +275,8 @@ def seed():
             'img_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
             'color': (74, 20, 140),
             'family_intro': 'Mumbai is a city of millions, but in our home, every guest is family. Let us show you the warm side of this bustling city.',
-            'profile_filename': 'host_host_anil.jpg'
+            'profile_filename': 'host_host_anil.jpg',
+            'src_profile_filename': 'kulkarni_family.jpg'
         }
     ]
 
@@ -300,9 +305,9 @@ def seed():
         hp.years_hosting = 4
         hp.response_rate = 98
         
-        profile_filename = h['profile_filename']
-        profile_img = download_image(h['img_url'], profile_filename, h['color'])
-        hp.profile_photo.save(profile_filename, profile_img, save=False)
+        src_profile = h.get('src_profile_filename', h['profile_filename'])
+        profile_img = download_image(h['img_url'], src_profile, h['color'])
+        hp.profile_photo.save(h['profile_filename'], profile_img, save=False)
         hp.save()
 
     # 5. Create Experiences for Hosts
@@ -492,7 +497,7 @@ def seed():
                 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=80',
                 'https://images.unsplash.com/photo-1604881990409-b9f246db39da?auto=format&fit=crop&w=1200&q=80'
             ],
-            'local_filenames': ['v2_varanasi_boat.jpg'],
+            'local_filenames': ['v2_varanasi_boat.jpg', 'v3_ganga_aarti.jpg', 'v3_local_market.jpg'],
             'color': (180, 83, 9),
             'food': {
                 'breakfast_included': True,
@@ -526,9 +531,10 @@ def seed():
             'amenity_list': ['Wi-Fi', 'Hot Water', 'Organic Meals', 'Parking', 'Guided Village Walk'],
             'image_urls': [
                 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80',
-                'https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&w=1200&q=80',
+                'https://images.unsplash.com/photo-1542718610-a1d656d1884c?auto=format&fit=crop&w=1200&q=80',
                 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80'
             ],
+            'local_filenames': ['localnest_hero_hillside.jpg'],
             'color': (140, 154, 91),
             'food': {
                 'breakfast_included': True,
@@ -562,9 +568,10 @@ def seed():
             'amenity_list': ['Wi-Fi', 'Air Conditioning', 'Washing Machine', 'Parking', 'Organic Meals'],
             'image_urls': [
                 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80',
-                'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=1200&q=80',
+                'https://images.unsplash.com/photo-1603262110263-fb0112e7cc33?auto=format&fit=crop&w=1200&q=80',
                 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80'
             ],
+            'local_filenames': ['localnest_hero_full_haveli.jpg'],
             'color': (217, 119, 6),
             'food': {
                 'breakfast_included': True,
@@ -657,13 +664,14 @@ def seed():
         
         for idx, url in enumerate(p['image_urls']):
             local_filenames = p.get('local_filenames', [])
+            target_filename = f"{prop.name.replace(' ', '_').lower()}_{idx}.jpg"
             if idx < len(local_filenames):
-                img_filename = local_filenames[idx]
+                src_filename = local_filenames[idx]
             else:
-                img_filename = f"{prop.name.replace(' ', '_').lower()}_{idx}.jpg"
-            img_file = download_image(url, img_filename, p['color'])
+                src_filename = target_filename
+            img_file = download_image(url, src_filename, p['color'])
             p_img = PropertyImage(property=prop)
-            p_img.image.save(img_filename, img_file, save=True)
+            p_img.image.save(target_filename, img_file, save=True)
                 
         # 8. Create Booking & Review
         from datetime import date, timedelta
@@ -797,6 +805,7 @@ def seed():
             'photo_url': 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=800&q=80',
             'home_photo_url': 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80',
             'photo_file': 'pillai_family.jpg',
+            'src_photo_file': 'localnest_family_reunion.jpg',
             'home_photo_file': 'munnar_tea_hills_sanctuary_0.jpg'
         },
         {
@@ -812,6 +821,7 @@ def seed():
             'photo_url': 'https://images.unsplash.com/photo-1604881990409-b9f246db39da?auto=format&fit=crop&w=800&q=80',
             'home_photo_url': 'https://images.unsplash.com/photo-1561361058-c24cecae35ca?auto=format&fit=crop&w=1200&q=80',
             'photo_file': 'sharma_family.jpg',
+            'src_photo_file': 'v2_grandmother.jpg',
             'home_photo_file': 'v2_varanasi_boat.jpg'
         },
         {
@@ -827,6 +837,7 @@ def seed():
             'photo_url': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
             'home_photo_url': 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80',
             'photo_file': 'dorjee_family.jpg',
+            'src_photo_file': 'family_watching_tv.jpg',
             'home_photo_file': 'solang_valley_pine_cottage_0.jpg'
         },
         {
@@ -842,6 +853,7 @@ def seed():
             'photo_url': 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=800&q=80',
             'home_photo_url': 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80',
             'photo_file': 'singh_family.jpg',
+            'src_photo_file': 'family_playing_cards.jpg',
             'home_photo_file': 'amer_palace_courtyard_haveli_0.jpg'
         },
         {
@@ -857,6 +869,7 @@ def seed():
             'photo_url': 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=800&q=80',
             'home_photo_url': 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=80',
             'photo_file': 'kulkarni_family.jpg',
+            'src_photo_file': 'kulkarni_family.jpg',
             'home_photo_file': 'v2_cstm_station.jpg'
         }
     ]
@@ -874,7 +887,8 @@ def seed():
             home_history=fd['home_history'],
             home_architecture=fd['home_architecture']
         )
-        photo_file = download_image(fd['photo_url'], fd['photo_file'], (201, 106, 61))
+        src_photo = fd.get('src_photo_file', fd['photo_file'])
+        photo_file = download_image(fd['photo_url'], src_photo, (201, 106, 61))
         fam.photo.save(fd['photo_file'], photo_file, save=False)
         home_photo_file = download_image(fd['home_photo_url'], fd['home_photo_file'], (201, 106, 61))
         fam.home_photo.save(fd['home_photo_file'], home_photo_file, save=False)
@@ -964,8 +978,8 @@ def seed():
             'slug': 'kathkuni-weaving',
             'description': 'Weaving traditional wool blankets and caps using sheep wool on an old wooden handloom in our family basement during winter.',
             'family': families['dorjee-family'],
-            'image_url': 'https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&w=1200&q=80',
-            'image_file': 'solang_valley_pine_cottage_2.jpg'
+            'image_url': 'https://images.unsplash.com/photo-1574786198875-49f5d09fe2d2?auto=format&fit=crop&w=1200&q=80',
+            'image_file': 'tradition_kathkuni_weaving.jpg'
         },
         {
             'name': 'Amer Hand-Block Printing',

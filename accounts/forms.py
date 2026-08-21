@@ -6,16 +6,16 @@ from .models import Profile, HostProfile
 User = get_user_model()
 
 class BootstrapFormMixin:
-    """Helper mixin to automatically apply Bootstrap 5 form classes to all widgets"""
+    """Helper mixin to automatically apply LocalNest Tailwind form classes to all widgets"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             if isinstance(field.widget, (forms.CheckboxInput, forms.NullBooleanSelect)):
-                field.widget.attrs['class'] = 'form-check-input'
+                field.widget.attrs['class'] = 'w-4 h-4 rounded border-outline-variant/35 text-secondary focus:ring-secondary/30 accent-secondary cursor-pointer'
             elif isinstance(field.widget, (forms.FileInput, forms.ClearableFileInput)):
-                field.widget.attrs['class'] = 'form-control-file'
+                field.widget.attrs['class'] = 'w-full text-xs text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-[10px] file:font-bold file:uppercase file:tracking-wider file:bg-secondary/10 file:text-secondary hover:file:bg-secondary/20 file:cursor-pointer'
             else:
-                field.widget.attrs['class'] = 'form-control'
+                field.widget.attrs['class'] = 'ln-input'
 
 
 class TouristRegistrationForm(BootstrapFormMixin, UserCreationForm):

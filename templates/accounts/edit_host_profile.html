@@ -1,264 +1,358 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Edit Host Profile | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-9 col-lg-7">
-            <div class="card card-custom glass-card p-4 fade-in-up">
-                <div class="card-body">
-                    <h2 class="h3 fw-bold text-success mb-4 text-center">Edit Host Profile</h2>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background py-12">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="max-w-3xl mx-auto bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg p-8 md:p-12 space-y-8">
+            
+            <!-- Header -->
+            <div class="text-center space-y-2">
+                <span class="text-secondary font-label-caps text-xs uppercase tracking-widest block font-bold">Host Administration</span>
+                <h1 class="font-serif text-3xl text-primary font-bold tracking-tight">Edit Host Profile</h1>
+                <p class="text-xs text-on-surface-variant max-w-md mx-auto">Update your identity, family narrative, emergency details, and verification files.</p>
+            </div>
+
+            <!-- Verification Status Banner -->
+            <div class="border rounded-md p-4 flex items-start justify-between gap-3
+                {% if profile.verification_status == 'APPROVED' %}bg-secondary/5 border-secondary/25 text-primary
+                {% elif profile.verification_status == 'REJECTED' %}bg-error/5 border-error/25 text-error
+                {% else %}bg-secondary/5 border-outline-variant/25 text-primary{% endif %}">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-2xl font-bold">
+                        {% if profile.verification_status == 'APPROVED' %}verified_user
+                        {% elif profile.verification_status == 'REJECTED' %}gpp_bad
+                        {% else %}hourglass_empty{% endif %}
+                    </span>
+                    <div class="text-[11px] leading-relaxed">
+                        <strong class="block font-bold uppercase tracking-wider mb-0.5">Verification Status: {{ profile.get_verification_status_display }}</strong>
+                        <span class="text-on-surface-variant font-medium">
+                            {% if profile.verification_status == 'APPROVED' %}
+                                Your profile is verified. You can actively manage and publish homestay listings.
+                            {% elif profile.verification_status == 'REJECTED' %}
+                                Verification rejected: {{ profile.verification_notes|default:"Please upload valid documents for verification." }}
+                            {% else %}
+                                Our administrators are currently reviewing your uploaded verification documents.
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Wizard Tabs Navigation -->
+            <div class="grid grid-cols-4 gap-2 border-b border-outline-variant/10 pb-4" role="tablist" id="onboardingTabs">
+                <button type="button" role="tab" data-tab-target="personal-pane" aria-selected="true" class="py-2.5 text-center text-[10px] font-bold uppercase tracking-wider rounded-sm border border-secondary bg-secondary text-white transition-all">
+                    1. Identity
+                </button>
+                <button type="button" role="tab" data-tab-target="experience-pane" aria-selected="false" class="py-2.5 text-center text-[10px] font-bold uppercase tracking-wider rounded-sm border border-outline-variant/30 bg-transparent text-primary transition-all">
+                    2. Story
+                </button>
+                <button type="button" role="tab" data-tab-target="emergency-pane" aria-selected="false" class="py-2.5 text-center text-[10px] font-bold uppercase tracking-wider rounded-sm border border-outline-variant/30 bg-transparent text-primary transition-all">
+                    3. Contact
+                </button>
+                <button type="button" role="tab" data-tab-target="verification-pane" aria-selected="false" class="py-2.5 text-center text-[10px] font-bold uppercase tracking-wider rounded-sm border border-outline-variant/30 bg-transparent text-primary transition-all">
+                    4. Verify
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold space-y-1">
+                        {% for error in form.non_field_errors %}
+                            <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="tab-content pt-2" id="onboardingTabContent">
                     
-                    <!-- Verification Status Banner -->
-                    <div class="card mb-4 border-0">
-                        <div class="card-body rounded d-flex align-items-center justify-content-between p-3
-                            {% if profile.verification_status == 'APPROVED' %}bg-success-subtle text-success
-                            {% elif profile.verification_status == 'REJECTED' %}bg-danger-subtle text-danger
-                            {% else %}bg-warning-subtle text-warning-emphasis{% endif %}">
-                            <div class="d-flex align-items-center">
-                                <i class="bi {% if profile.verification_status == 'APPROVED' %}bi-patch-check-fill
-                                             {% elif profile.verification_status == 'REJECTED' %}bi-shield-x-fill
-                                             {% else %}bi-clock-history{% endif %} fs-3 me-3"></i>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Verification Status: {{ profile.get_verification_status_display }}</h6>
-                                    <p class="small mb-0 opacity-75">
-                                        {% if profile.verification_status == 'APPROVED' %}
-                                            Your profile is verified. You can publish property listings.
-                                        {% elif profile.verification_status == 'REJECTED' %}
-                                            Verification rejected: {{ profile.verification_notes|default:"Please upload valid documents." }}
-                                        {% else %}
-                                            Our administrators are reviewing your verification documents.
-                                        {% endif %}
-                                    </p>
+                    <!-- Step 1: Personal Details -->
+                    <div role="tabpanel" id="personal-pane" class="space-y-6">
+                        <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg text-secondary">person</span> Personal Information
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="space-y-1.5">
+                                <label for="id_first_name" class="ln-label">First Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="space-y-1.5">
+                                <label for="id_last_name" class="ln-label">Last Name</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="space-y-1.5 md:col-span-2">
+                                <label for="id_email" class="ln-label">Email Address</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="space-y-1.5 md:col-span-2">
+                                <label for="id_phone_number" class="ln-label">Phone Number</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.phone_number.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="space-y-1.5 md:col-span-2">
+                                <label for="id_address" class="ln-label">Homestay Address</label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.address.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="space-y-1.5 md:col-span-2">
+                                <label for="id_bio" class="ln-label">Bio / Family Story</label>
+                                <textarea name="bio" id="id_bio" rows="4" class="ln-input" placeholder="Tell travelers about yourself and your family (languages spoken, hobbies, host values)...">{{ form.bio.value|default:'' }}</textarea>
+                                {% if form.bio.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.bio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="space-y-1.5 md:col-span-2">
+                                <label for="id_profile_photo" class="ln-label">Host Profile Photo</label>
+                                <div class="flex items-center gap-4 bg-surface-container-low/40 p-4 border border-outline-variant/15 rounded-md">
+                                    {% if profile.profile_photo %}
+                                        <img src="{{ profile.profile_photo.url }}" alt="Profile Photo" class="rounded-full w-14 h-14 object-cover shadow-sm">
+                                    {% else %}
+                                        <div class="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+                                            <span class="material-symbols-outlined text-2xl font-bold">person</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="flex-grow">
+                                        {{ form.profile_photo }}
+                                        <p class="text-[10px] text-on-surface-variant/80 mt-1">Upload a clear photo of yourself for your host listing.</p>
+                                    </div>
                                 </div>
+                                {% if form.profile_photo.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.profile_photo.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-4">
+                            <button type="button" class="ln-btn-primary px-8" onclick="navigateToTab('experience-pane')">Continue to Story</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Host Experience -->
+                    <div role="tabpanel" id="experience-pane" class="space-y-6 hidden">
+                        <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg text-secondary">forum</span> Host Story & Experience
+                        </h3>
+                        
+                        <div class="space-y-5">
+                            <div class="space-y-1.5">
+                                <label for="id_family_intro" class="ln-label">Family Introduction</label>
+                                <textarea name="family_intro" id="id_family_intro" rows="3" class="ln-input" placeholder="Introduce the members of your family who live at the homestead...">{{ form.family_intro.value|default:'' }}</textarea>
+                                {% if form.family_intro.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.family_intro.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="space-y-1.5">
+                                    <label for="id_occupation" class="ln-label">Occupation</label>
+                                    {{ form.occupation }}
+                                    {% if form.occupation.errors %}
+                                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.occupation.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label for="id_years_hosting" class="ln-label">Years Hosting</label>
+                                    {{ form.years_hosting }}
+                                    {% if form.years_hosting.errors %}
+                                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.years_hosting.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label for="id_response_time" class="ln-label">Average Response Time</label>
+                                    {{ form.response_time }}
+                                    {% if form.response_time.errors %}
+                                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.response_time.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label for="id_response_rate" class="ln-label">Response Rate (%)</label>
+                                    {{ form.response_rate }}
+                                    {% if form.response_rate.errors %}
+                                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.response_rate.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label for="id_fav_local_place" class="ln-label">Favorite Local Spot / Secret</label>
+                                    {{ form.fav_local_place }}
+                                    {% if form.fav_local_place.errors %}
+                                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.fav_local_place.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label for="id_fav_homemade_dish" class="ln-label">Signature Homemade Dish</label>
+                                    {{ form.fav_homemade_dish }}
+                                    {% if form.fav_homemade_dish.errors %}
+                                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.fav_homemade_dish.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" class="ln-btn-secondary px-6" onclick="navigateToTab('personal-pane')">Back</button>
+                            <button type="button" class="ln-btn-primary px-6" onclick="navigateToTab('emergency-pane')">Continue to Contact</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Emergency Contact -->
+                    <div role="tabpanel" id="emergency-pane" class="space-y-6 hidden">
+                        <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg text-secondary">contact_emergency</span> Emergency Contact
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="space-y-1.5">
+                                <label for="id_emergency_contact_name" class="ln-label">Contact Name</label>
+                                {{ form.emergency_contact_name }}
+                                {% if form.emergency_contact_name.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.emergency_contact_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label for="id_emergency_contact_phone" class="ln-label">Contact Phone Number</label>
+                                {{ form.emergency_contact_phone }}
+                                {% if form.emergency_contact_phone.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.emergency_contact_phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" class="ln-btn-secondary px-6" onclick="navigateToTab('experience-pane')">Back</button>
+                            <button type="button" class="ln-btn-primary px-6" onclick="navigateToTab('verification-pane')">Continue to Verification</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Verification -->
+                    <div role="tabpanel" id="verification-pane" class="space-y-6 hidden">
+                        <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg text-secondary">verified_user</span> Documents & Verification
+                        </h3>
+
+                        <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg font-bold">warning</span>
+                            <span>Uploading new documents will reset your verification status to <strong>Pending Approval</strong> and lock listing publications until admin review.</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-surface-container-low/40 p-6 border border-outline-variant/15 rounded-md">
+                            <div class="space-y-3">
+                                <label for="id_government_id" class="ln-label">Government ID Document</label>
+                                {% if profile.government_id %}
+                                    <div class="bg-surface-container-lowest border border-outline-variant/15 p-3 rounded flex items-center justify-between text-xs">
+                                        <span class="text-primary font-medium flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-secondary font-bold">description</span> ID Uploaded</span>
+                                        <a href="{{ profile.government_id.url }}" target="_blank" class="text-secondary hover:text-primary font-bold uppercase tracking-wider text-[9px] hover:no-underline">View ID</a>
+                                    </div>
+                                {% endif %}
+                                {{ form.government_id }}
+                                {% if form.government_id.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.government_id.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="space-y-3">
+                                <label for="id_selfie_photo" class="ln-label">Identity Selfie Photo</label>
+                                {% if profile.selfie_photo %}
+                                    <div class="flex items-center gap-3 bg-surface-container-lowest border border-outline-variant/15 p-3 rounded">
+                                        <img src="{{ profile.selfie_photo.url }}" alt="Selfie Photo" class="w-12 h-9 object-cover rounded shadow-sm">
+                                        <div class="text-[9px] leading-tight">
+                                            <span class="text-primary block font-bold">Selfie Photo</span>
+                                            <a href="{{ profile.selfie_photo.url }}" target="_blank" class="text-secondary hover:text-primary font-bold uppercase tracking-wider hover:no-underline">View Selfie</a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {{ form.selfie_photo }}
+                                {% if form.selfie_photo.errors %}
+                                    <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.selfie_photo.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-6 border-t border-outline-variant/10">
+                            <button type="button" class="ln-btn-secondary px-6" onclick="navigateToTab('emergency-pane')">Back</button>
+                            <div class="flex gap-3">
+                                <a href="{% url 'dashboard:dispatcher' %}" class="ln-btn-secondary px-6">Cancel</a>
+                                <button type="submit" class="ln-btn-primary px-8">Save Changes</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step Wizard Tabs -->
-                    <ul class="nav nav-tabs mb-4 justify-content-center border-bottom-0 gap-1" id="onboardingTabs" role="tablist">
-                        <li class="nav-item text-center" style="flex: 1;" role="presentation">
-                            <button class="nav-link active text-success fw-bold border w-100 py-2.5" style="border-radius: 8px;" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal-pane" type="button" role="tab" aria-controls="personal-pane" aria-selected="true">1. Identity</button>
-                        </li>
-                        <li class="nav-item text-center" style="flex: 1;" role="presentation">
-                            <button class="nav-link text-success fw-bold border w-100 py-2.5" style="border-radius: 8px;" id="experience-tab" data-bs-toggle="tab" data-bs-target="#experience-pane" type="button" role="tab" aria-controls="experience-pane" aria-selected="false">2. Host Story</button>
-                        </li>
-                        <li class="nav-item text-center" style="flex: 1;" role="presentation">
-                            <button class="nav-link text-success fw-bold border w-100 py-2.5" style="border-radius: 8px;" id="emergency-tab" data-bs-toggle="tab" data-bs-target="#emergency-pane" type="button" role="tab" aria-controls="emergency-pane" aria-selected="false">3. Contact</button>
-                        </li>
-                        <li class="nav-item text-center" style="flex: 1;" role="presentation">
-                            <button class="nav-link text-success fw-bold border w-100 py-2.5" style="border-radius: 8px;" id="verification-tab" data-bs-toggle="tab" data-bs-target="#verification-pane" type="button" role="tab" aria-controls="verification-pane" aria-selected="false">4. Verification</button>
-                        </li>
-                    </ul>
-
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <div class="tab-content pt-2" id="onboardingTabContent">
-                            <!-- Step 1: Personal Details -->
-                            <div class="tab-pane fade show active" id="personal-pane" role="tabpanel" aria-labelledby="personal-tab">
-                                <h5 class="fw-bold text-success mb-3 pb-2 border-bottom">Personal Details</h5>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_first_name" class="form-label fw-semibold text-muted">First Name</label>
-                                        {{ form.first_name }}
-                                        {% if form.first_name.errors %}
-                                            <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_last_name" class="form-label fw-semibold text-muted">Last Name</label>
-                                        {{ form.last_name }}
-                                        {% if form.last_name.errors %}
-                                            <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <label for="id_email" class="form-label fw-semibold text-muted">Email Address</label>
-                                        {{ form.email }}
-                                        {% if form.email.errors %}
-                                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <label for="id_phone_number" class="form-label fw-semibold text-muted">Phone Number</label>
-                                        {{ form.phone_number }}
-                                        {% if form.phone_number.errors %}
-                                            <div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <label for="id_address" class="form-label fw-semibold text-muted">Homestay Address</label>
-                                        {{ form.address }}
-                                        {% if form.address.errors %}
-                                            <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <label for="id_bio" class="form-label fw-semibold text-muted">Bio / About Your Family</label>
-                                        {{ form.bio }}
-                                        {% if form.bio.errors %}
-                                            <div class="text-danger small mt-1">{{ form.bio.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <label for="id_profile_photo" class="form-label fw-semibold text-muted">Profile Photo</label>
-                                        {% if profile.profile_photo %}
-                                            <div class="mb-2">
-                                                <img src="{{ profile.profile_photo.url }}" alt="Profile Photo" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
-                                            </div>
-                                        {% endif %}
-                                        {{ form.profile_photo }}
-                                        {% if form.profile_photo.errors %}
-                                            <div class="text-danger small mt-1">{{ form.profile_photo.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="text-end mt-4">
-                                    <button type="button" class="btn btn-orange px-4" onclick="document.getElementById('experience-tab').click()">Continue to Story</button>
-                                </div>
-                            </div>
-
-                            <!-- Step 2: Host Experience -->
-                            <div class="tab-pane fade" id="experience-pane" role="tabpanel" aria-labelledby="experience-tab">
-                                <h5 class="fw-bold text-success mb-3 pb-2 border-bottom">Host Experience & Details</h5>
-                                <div class="row">
-                                    <div class="col-12 mb-3">
-                                        <label for="id_family_intro" class="form-label fw-semibold text-muted">Family Introduction</label>
-                                        {{ form.family_intro }}
-                                        {% if form.family_intro.errors %}
-                                            <div class="text-danger small mt-1">{{ form.family_intro.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_occupation" class="form-label fw-semibold text-muted">Occupation</label>
-                                        {{ form.occupation }}
-                                        {% if form.occupation.errors %}
-                                            <div class="text-danger small mt-1">{{ form.occupation.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_years_hosting" class="form-label fw-semibold text-muted">Years Hosting</label>
-                                        {{ form.years_hosting }}
-                                        {% if form.years_hosting.errors %}
-                                            <div class="text-danger small mt-1">{{ form.years_hosting.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_response_time" class="form-label fw-semibold text-muted">Average Response Time</label>
-                                        {{ form.response_time }}
-                                        {% if form.response_time.errors %}
-                                            <div class="text-danger small mt-1">{{ form.response_time.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_response_rate" class="form-label fw-semibold text-muted">Response Rate (%)</label>
-                                        {{ form.response_rate }}
-                                        {% if form.response_rate.errors %}
-                                            <div class="text-danger small mt-1">{{ form.response_rate.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_fav_local_place" class="form-label fw-semibold text-muted">Favorite Local Attraction</label>
-                                        {{ form.fav_local_place }}
-                                        {% if form.fav_local_place.errors %}
-                                            <div class="text-danger small mt-1">{{ form.fav_local_place.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_fav_homemade_dish" class="form-label fw-semibold text-muted">Signature Homemade Dish</label>
-                                        {{ form.fav_homemade_dish }}
-                                        {% if form.fav_homemade_dish.errors %}
-                                            <div class="text-danger small mt-1">{{ form.fav_homemade_dish.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between mt-4">
-                                    <button type="button" class="btn btn-outline-secondary px-4" onclick="document.getElementById('personal-tab').click()">Back</button>
-                                    <button type="button" class="btn btn-orange px-4" onclick="document.getElementById('emergency-tab').click()">Continue to Contact</button>
-                                </div>
-                            </div>
-
-                            <!-- Step 3: Emergency Contact -->
-                            <div class="tab-pane fade" id="emergency-pane" role="tabpanel" aria-labelledby="emergency-tab">
-                                <h5 class="fw-bold text-success mb-3 pb-2 border-bottom">Emergency Contact</h5>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_emergency_contact_name" class="form-label fw-semibold text-muted">Contact Name</label>
-                                        {{ form.emergency_contact_name }}
-                                        {% if form.emergency_contact_name.errors %}
-                                            <div class="text-danger small mt-1">{{ form.emergency_contact_name.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_emergency_contact_phone" class="form-label fw-semibold text-muted">Contact Phone Number</label>
-                                        {{ form.emergency_contact_phone }}
-                                        {% if form.emergency_contact_phone.errors %}
-                                            <div class="text-danger small mt-1">{{ form.emergency_contact_phone.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between mt-4">
-                                    <button type="button" class="btn btn-outline-secondary px-4" onclick="document.getElementById('experience-tab').click()">Back</button>
-                                    <button type="button" class="btn btn-orange px-4" onclick="document.getElementById('verification-tab').click()">Continue to Verification</button>
-                                </div>
-                            </div>
-
-                            <!-- Step 4: Verification -->
-                            <div class="tab-pane fade" id="verification-pane" role="tabpanel" aria-labelledby="verification-tab">
-                                <h5 class="fw-bold text-success mb-3 pb-2 border-bottom">Documents & Verification</h5>
-                                <div class="alert alert-warning mb-3 py-2 px-3 small" role="alert">
-                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                    Uploading new documents will reset your verification status to <strong>Pending Approval</strong>.
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_government_id" class="form-label fw-semibold text-muted">Government ID Document</label>
-                                        {% if profile.government_id %}
-                                            <div class="mb-2 small">
-                                                <a href="{{ profile.government_id.url }}" target="_blank" class="text-success"><i class="bi bi-file-earmark-pdf-fill me-1"></i>View Current Document</a>
-                                            </div>
-                                        {% endif %}
-                                        {{ form.government_id }}
-                                        {% if form.government_id.errors %}
-                                            <div class="text-danger small mt-1">{{ form.government_id.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="id_selfie_photo" class="form-label fw-semibold text-muted">Identity Selfie Photo</label>
-                                        {% if profile.selfie_photo %}
-                                            <div class="mb-2">
-                                                <img src="{{ profile.selfie_photo.url }}" alt="Selfie Photo" class="rounded" style="width: 100px; height: 75px; object-fit: cover;">
-                                            </div>
-                                        {% endif %}
-                                        {{ form.selfie_photo }}
-                                        {% if form.selfie_photo.errors %}
-                                            <div class="text-danger small mt-1">{{ form.selfie_photo.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mt-4">
-                                    <button type="button" class="btn btn-outline-secondary px-4" onclick="document.getElementById('emergency-tab').click()">Back</button>
-                                    <div class="d-flex gap-2">
-                                        <a href="{% url 'dashboard:dispatcher' %}" class="btn btn-outline-secondary px-4">Cancel</a>
-                                        <button type="submit" class="btn btn-orange px-4">Save Changes</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
                 </div>
-            </div>
+            </form>
+
         </div>
     </div>
 </div>
+
+<script>
+    function navigateToTab(targetPaneId) {
+        // Find corresponding tab button
+        const targetBtn = document.querySelector(`[data-tab-target="${targetPaneId}"]`);
+        if (targetBtn) {
+            targetBtn.click();
+            // Scroll form wrapper to top
+            window.scrollTo({ top: 150, behavior: 'smooth' });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabButtons = document.querySelectorAll('#onboardingTabs button');
+        const tabPanels = document.querySelectorAll('.tab-content [role="tabpanel"]');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-tab-target');
+
+                // Toggle tabs
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('bg-secondary', 'text-white', 'border-secondary');
+                    btn.classList.add('bg-transparent', 'text-primary', 'border-outline-variant/30');
+                    btn.setAttribute('aria-selected', 'false');
+                });
+                button.classList.add('bg-secondary', 'text-white', 'border-secondary');
+                button.classList.remove('bg-transparent', 'text-primary', 'border-outline-variant/30');
+                button.setAttribute('aria-selected', 'true');
+
+                // Toggle panels
+                tabPanels.forEach(panel => {
+                    if (panel.id === targetId) {
+                        panel.classList.remove('hidden');
+                    } else {
+                        panel.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}

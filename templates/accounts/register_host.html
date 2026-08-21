@@ -1,121 +1,200 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Local Host Signup | LocalNest{% endblock %}
+{% block title %}Become a Host | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-7">
-            <div class="card card-custom glass-card p-4 fade-in-up">
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-house-heart-fill text-success fs-1"></i>
-                        <h1 class="h3 mt-2 fw-bold text-success">Register as a Local Host</h1>
-                        <p class="text-muted">Open your home to travelers, share your culture, and earn extra income</p>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg overflow-hidden">
+            
+            <!-- Left Panel: Immersive Visual Storytelling (Desktop Only) -->
+            <div class="hidden lg:block lg:col-span-5 relative overflow-hidden min-h-[900px] h-full">
+                <img src="{% static 'img/v2_hero_welcoming.png' %}" alt="Smiling Indian host family welcoming guests" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 hover:scale-101">
+                <!-- Warm Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10"></div>
+                
+                <!-- Stories Overlay Content -->
+                <div class="absolute bottom-12 left-12 right-12 text-white z-10 space-y-4">
+                    <span class="bg-secondary/90 text-white text-[10px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-sm shadow-sm inline-block">Host Community</span>
+                    <blockquote class="font-serif italic text-2xl leading-normal text-white/95 drop-shadow-sm">
+                        "Open your door to the world. Tell your story, share your home, and welcome travelers into your world. Every home has a history."
+                    </blockquote>
+                    <p class="text-xs uppercase tracking-wider text-white/70 block font-bold font-sans">
+                        Become a LocalNest Custodian
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Host Registration Form -->
+            <div class="col-span-1 lg:col-span-7 p-8 md:p-12 flex flex-col justify-center bg-surface-container-lowest">
+                <div class="max-w-xl w-full mx-auto space-y-8">
+                    <!-- Header -->
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-secondary">
+                            <span class="material-symbols-outlined text-3xl font-bold">nest_egg</span>
+                            <span class="font-serif text-xl font-bold tracking-tight text-primary">LocalNest</span>
+                        </div>
+                        <h1 class="font-serif text-2xl md:text-3xl text-primary font-bold tracking-tight leading-tight">Open your door to the world.</h1>
+                        <p class="text-xs text-on-surface-variant font-medium leading-relaxed">Tell your story. Share your home. Welcome travelers into your world. Let's get your account set up.</p>
                     </div>
 
-                    <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
-                        <i class="bi bi-shield-lock-fill fs-4 me-3 text-info"></i>
-                        <div class="small">
-                            <strong>Identity Verification Required:</strong> To maintain community safety, hosts must upload a government-issued ID and a selfie. Documents are stored securely and reviewed manually by our administrators.
+                    <!-- Role Switcher Tabs -->
+                    <div class="grid grid-cols-2 gap-2 border-b border-outline-variant/20 pb-4">
+                        <a href="{% url 'accounts:register_tourist' %}" class="ln-btn-secondary py-2 text-center text-[10px] font-bold uppercase tracking-widest hover:no-underline">
+                            Traveler Account
+                        </a>
+                        <a href="{% url 'accounts:register_host' %}" class="ln-btn-primary py-2 text-center text-[10px] font-bold uppercase tracking-widest hover:no-underline">
+                            Become a Host
+                        </a>
+                    </div>
+
+                    <!-- Trust info banner -->
+                    <div class="bg-primary/5 border border-outline-variant/25 rounded-md p-4 flex items-start gap-3">
+                        <span class="material-symbols-outlined text-xl text-secondary font-bold">verified_user</span>
+                        <div class="text-[11px] leading-relaxed">
+                            <strong class="text-primary block font-bold uppercase tracking-wider mb-0.5">Identity Verification Required</strong>
+                            <span class="text-on-surface-variant font-medium">To maintain community safety, hosts must upload a government-issued ID and a selfie. Documents are reviewed manually by administrators before listings are published.</span>
                         </div>
                     </div>
 
-                    <form method="post" enctype="multipart/form-data" novalidate>
+                    <!-- Form -->
+                    <form method="post" enctype="multipart/form-data" class="space-y-8" novalidate>
                         {% csrf_token %}
                         
                         {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
+                            <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold space-y-1">
                                 {% for error in form.non_field_errors %}
-                                    {{ error }}
+                                    <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
                                 {% endfor %}
                             </div>
                         {% endif %}
 
-                        <h5 class="fw-bold text-success mb-3 pb-2 border-bottom"><i class="bi bi-person-fill me-1"></i> Personal Information</h5>
-                        <div class="row">
-                            {% for field in form %}
-                                {% if field.name == 'username' or field.name == 'first_name' or field.name == 'last_name' or field.name == 'email' or field.name == 'password' or field.name == 'password1' or field.name == 'password2' or field.name == 'phone_number' %}
-                                    <div class="col-12 {% if field.name == 'first_name' or field.name == 'last_name' %}col-md-6{% endif %} mb-3">
-                                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-muted">
-                                            {{ field.label }}
-                                            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                                        </label>
-                                        {{ field }}
-                                        {% if field.help_text %}
-                                            <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
-                                        {% endif %}
-                                        {% if field.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in field.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
+                        <!-- Section 1: Personal Details -->
+                        <div class="space-y-4">
+                            <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-secondary">person</span> Personal Information
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {% for field in form %}
+                                    {% if field.name == 'username' or field.name == 'first_name' or field.name == 'last_name' or field.name == 'email' or field.name == 'password' or field.name == 'password1' or field.name == 'password2' or field.name == 'phone_number' %}
+                                        <div class="space-y-1.5 {% if field.name != 'first_name' and field.name != 'last_name' %}md:col-span-2{% endif %}">
+                                            <label for="{{ field.id_for_label }}" class="ln-label flex justify-between items-center">
+                                                <span>{{ field.label }}</span>
+                                                {% if field.field.required %}<span class="text-secondary/70 text-[9px] uppercase tracking-normal">* Required</span>{% endif %}
+                                            </label>
+                                            
+                                            {{ field }}
+                                            
+                                            {% if field.errors %}
+                                                <div id="{{ field.id_for_label }}-feedback" class="ln-error-text">
+                                                    {% for error in field.errors %}
+                                                        <span class="material-symbols-outlined text-xs">error</span> {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if 'password' in field.name %}
+                                                {% if field.help_text %}
+                                                    <div class="mt-1.5 p-3 bg-surface-container-low border border-outline-variant/20 rounded text-[10px] text-on-surface-variant leading-relaxed">
+                                                        <strong class="text-secondary uppercase tracking-widest block mb-1">Password Requirements</strong>
+                                                        <ul class="list-disc pl-3.5 space-y-0.5">
+                                                            <li>At least 8 characters long</li>
+                                                            <li>Avoid common or easily guessable passwords</li>
+                                                            <li>Must not be entirely numeric</li>
+                                                        </ul>
+                                                    </div>
+                                                {% endif %}
+                                            {% elif field.help_text %}
+                                                <p class="ln-help-text">{{ field.help_text|safe }}</p>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
 
-                        <h5 class="fw-bold text-success mt-4 mb-3 pb-2 border-bottom"><i class="bi bi-geo-alt-fill me-1"></i> Homestay details</h5>
-                        <div class="row">
-                            {% for field in form %}
-                                {% if field.name == 'address' or field.name == 'bio' or field.name == 'profile_photo' %}
-                                    <div class="col-12 mb-3">
-                                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-muted">
-                                            {{ field.label }}
-                                            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                                        </label>
-                                        {{ field }}
-                                        {% if field.help_text %}
-                                            <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
-                                        {% endif %}
-                                        {% if field.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in field.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
+                        <!-- Section 2: Homestay details -->
+                        <div class="space-y-4">
+                            <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-secondary">home</span> Homestay Details
+                            </h3>
+                            <div class="space-y-4">
+                                {% for field in form %}
+                                    {% if field.name == 'address' or field.name == 'bio' or field.name == 'profile_photo' %}
+                                        <div class="space-y-1.5">
+                                            <label for="{{ field.id_for_label }}" class="ln-label flex justify-between items-center">
+                                                <span>{{ field.label }}</span>
+                                                {% if field.field.required %}<span class="text-secondary/70 text-[9px] uppercase tracking-normal">* Required</span>{% endif %}
+                                            </label>
+                                            
+                                            {% if field.name == 'bio' %}
+                                                <textarea name="{{ field.html_name }}" id="{{ field.id_for_label }}" rows="4" class="ln-input {% if field.errors %}is-invalid{% endif %}" placeholder="Tell guests about yourself and your family (languages, recipes, favorite local secrets)..." required>{{ field.value|default:'' }}</textarea>
+                                            {% else %}
+                                                {{ field }}
+                                            {% endif %}
+                                            
+                                            {% if field.errors %}
+                                                <div id="{{ field.id_for_label }}-feedback" class="ln-error-text">
+                                                    {% for error in field.errors %}
+                                                        <span class="material-symbols-outlined text-xs">error</span> {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if field.help_text %}
+                                                <p class="ln-help-text">{{ field.help_text|safe }}</p>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
 
-                        <h5 class="fw-bold text-success mt-4 mb-3 pb-2 border-bottom"><i class="bi bi-shield-check-fill me-1"></i> Trust & Verification</h5>
-                        <div class="row">
-                            {% for field in form %}
-                                {% if field.name == 'government_id' or field.name == 'selfie_photo' %}
-                                    <div class="col-12 col-md-6 mb-3">
-                                        <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-muted">
-                                            {{ field.label }}
-                                            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                                        </label>
-                                        {{ field }}
-                                        {% if field.help_text %}
-                                            <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
-                                        {% endif %}
-                                        {% if field.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in field.errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
+                        <!-- Section 3: Trust & Verification -->
+                        <div class="space-y-4">
+                            <h3 class="font-serif text-lg font-bold text-primary border-b border-outline-variant/10 pb-1.5 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-secondary">verified_user</span> Trust & Verification
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {% for field in form %}
+                                    {% if field.name == 'government_id' or field.name == 'selfie_photo' %}
+                                        <div class="space-y-1.5">
+                                            <label for="{{ field.id_for_label }}" class="ln-label flex justify-between items-center">
+                                                <span>{{ field.label }}</span>
+                                                {% if field.field.required %}<span class="text-secondary/70 text-[9px] uppercase tracking-normal">* Required</span>{% endif %}
+                                            </label>
+                                            
+                                            {{ field }}
+                                            
+                                            {% if field.errors %}
+                                                <div id="{{ field.id_for_label }}-feedback" class="ln-error-text">
+                                                    {% for error in field.errors %}
+                                                        <span class="material-symbols-outlined text-xs">error</span> {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if field.help_text %}
+                                                <p class="ln-help-text">{{ field.help_text|safe }}</p>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-orange w-100 py-2.5 mt-4 mb-2">Submit Host Registration</button>
+                        <button type="submit" class="ln-btn-primary w-full mt-4">Submit Host Registration</button>
                     </form>
 
-                    <div class="text-center mt-3">
-                        <p class="text-muted small mb-0">Already have an account? <a href="{% url 'accounts:login' %}" class="text-success fw-bold text-decoration-none">Sign In</a></p>
-                        <p class="text-muted small mt-1">Looking for a place to stay instead? <a href="{% url 'accounts:register_tourist' %}" class="text-success fw-bold text-decoration-none">Register as Tourist</a></p>
+                    <!-- Footer Link -->
+                    <div class="border-t border-outline-variant/10 pt-4 text-center">
+                        <span class="text-xs text-on-surface-variant font-medium">Already have an account?</span>
+                        <a href="{% url 'accounts:login' %}" class="text-secondary hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider ml-1 hover:no-underline">Sign In</a>
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>

@@ -1,58 +1,69 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Simulated Gateway Checkout | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-5">
-            <!-- Simulated Payment Gateway Window -->
-            <div class="card shadow border-info fade-in-up">
-                <div class="card-header bg-info text-white py-3 d-flex align-items-center justify-content-between">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-shield-fill-check me-2"></i>Razorpay Gateway Simulator</h5>
-                    <span class="badge bg-light text-info fw-bold">Test Mode</span>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background py-12">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="max-w-md w-full mx-auto bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg overflow-hidden">
+            
+            <!-- Simulated Gateway Header -->
+            <div class="bg-indigo-950 text-white p-6 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-xl text-secondary font-bold">shield_with_heart</span>
+                    <h3 class="font-serif text-base font-bold tracking-tight">Razorpay Gateway Simulator</h3>
+                </div>
+                <span class="bg-white/10 text-white/90 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm">Test Mode</span>
+            </div>
+            
+            <div class="p-6 md:p-8 space-y-6">
+                <!-- Merchant info and Price -->
+                <div class="text-center space-y-1.5">
+                    <span class="text-[9px] font-label-caps text-on-surface-variant uppercase tracking-widest">Merchant: mid_localnest_test_901</span>
+                    <h4 class="font-serif text-lg font-bold text-primary">{{ booking.property.name }}</h4>
+                    <div class="font-serif text-3xl font-bold text-secondary">INR {{ booking.total_price }}</div>
                 </div>
                 
-                <div class="card-body p-4 bg-body-tertiary">
-                    <div class="text-center mb-4">
-                        <span class="text-muted small">Merchant ID: <strong>mid_localnest_test_901</strong></span>
-                        <h4 class="fw-bold text-success-emphasis mt-2">{{ booking.property.name }}</h4>
-                        <div class="fs-2 fw-bold text-dark">INR {{ booking.total_price }}</div>
+                <!-- Gateway Alert banner -->
+                <div class="bg-secondary/5 border border-outline-variant/20 rounded p-4 text-[10px] leading-relaxed flex items-start gap-2.5">
+                    <span class="material-symbols-outlined text-lg text-secondary font-bold">info</span>
+                    <span class="text-on-surface-variant font-medium">This is a simulated secure check-out screen. Clicking "Authorize Payment" will register a successful transaction in the database.</span>
+                </div>
+
+                <!-- Form -->
+                <form method="post" class="space-y-5" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="space-y-1.5">
+                        <label class="ln-label">Card Number (Simulated)</label>
+                        <input type="text" class="ln-input text-center tracking-widest bg-surface-container-low/40 border-outline-variant/20 font-mono text-sm" value="4111 2222 3333 4444" disabled>
                     </div>
                     
-                    <div class="alert alert-warning py-2 px-3 small mb-4" role="alert">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        This is a simulated secure check-out screen. Clicking "Authorize Payment" will register a successful transaction in the database.
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="ln-label">Expiry Date</label>
+                            <input type="text" class="ln-input text-center bg-surface-container-low/40 border-outline-variant/20 font-mono text-sm" value="12 / 29" disabled>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="ln-label">CVV</label>
+                            <input type="text" class="ln-input text-center bg-surface-container-low/40 border-outline-variant/20 font-mono text-sm" value="***" disabled>
+                        </div>
                     </div>
 
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label small text-muted">Card Number (Simulated)</label>
-                            <input type="text" class="form-control form-control-sm text-center" value="4111 2222 3333 4444" disabled>
-                        </div>
-                        <div class="row g-2 mb-4">
-                            <div class="col-6">
-                                <label class="form-label small text-muted">Expiry Date</label>
-                                <input type="text" class="form-control form-control-sm text-center" value="12 / 29" disabled>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label small text-muted">CVV</label>
-                                <input type="text" class="form-control form-control-sm text-center" value="***" disabled>
-                            </div>
-                        </div>
-
-                        <div class="d-flex gap-3">
-                            <a href="{% url 'bookings:select_payment' booking.id %}" class="btn btn-sm btn-outline-secondary w-50 py-2">Cancel</a>
-                            <button type="submit" class="btn btn-sm btn-info w-50 py-2 text-white fw-semibold">Authorize Payment</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card-footer bg-white text-center py-2.5 text-muted small">
-                    <i class="bi bi-lock-fill text-success"></i> Secured 256-bit encryption connection.
-                </div>
+                    <!-- Actions -->
+                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-outline-variant/10">
+                        <a href="{% url 'bookings:select_payment' booking.id %}" class="ln-btn-secondary py-2.5 text-[10px] text-center hover:no-underline">Cancel</a>
+                        <button type="submit" class="ln-btn-primary py-2.5 text-[10px] text-center bg-indigo-900 hover:bg-indigo-950 shadow-none">Authorize Payment</button>
+                    </div>
+                </form>
             </div>
+            
+            <!-- Footer -->
+            <div class="bg-surface-container-low/30 border-t border-outline-variant/10 py-3 text-center text-[10px] text-on-surface-variant/80 font-medium flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-secondary font-bold">lock</span> Secured 256-bit SSL encrypted connection
+            </div>
+            
         </div>
     </div>
 </div>

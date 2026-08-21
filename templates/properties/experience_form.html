@@ -1,91 +1,101 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{% if form.instance.pk %}Edit Experience{% else %}Add Experience{% endif %} | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card card-custom glass-card p-4 fade-in-up">
-                <div class="card-body">
-                    <h2 class="h3 fw-bold text-success mb-4 text-center">
-                        {% if form.instance.pk %}Edit Host Experience{% else %}Create Local Experience{% endif %}
-                    </h2>
-                    <p class="text-muted small text-center mb-4">Share signature village walks, private spice kitchen classes, or sunrise treks with travelers.</p>
-                    
-                    <form method="post" enctype="multipart/form-data" novalidate>
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger" role="alert">
-                                {% for error in form.non_field_errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-3">
-                            <label for="id_title" class="form-label fw-semibold text-muted">Experience Title</label>
-                            {{ form.title }}
-                            {% if form.title.errors %}
-                                <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="id_price" class="form-label fw-semibold text-muted">Price per traveler (₹)</label>
-                                {{ form.price }}
-                                {% if form.price.errors %}
-                                    <div class="text-danger small mt-1">{{ form.price.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="id_duration" class="form-label fw-semibold text-muted">Duration (e.g. 3 hours)</label>
-                                {{ form.duration }}
-                                {% if form.duration.errors %}
-                                    <div class="text-danger small mt-1">{{ form.duration.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_category" class="form-label fw-semibold text-muted">Activity Category</label>
-                            {{ form.category }}
-                            <div class="form-text text-muted small" style="font-size: 0.72rem;">e.g., Cooking Class, Village Walk, Spice Plantation Tour</div>
-                            {% if form.category.errors %}
-                                <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_description" class="form-label fw-semibold text-muted">Experience Description</label>
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                                <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="id_image" class="form-label fw-semibold text-muted">Experience Showcase Photo</label>
-                            {% if form.instance.image %}
-                                <div class="mb-2">
-                                    <img src="{{ form.instance.image.url }}" class="rounded shadow-sm" style="width: 120px; height: 90px; object-fit: cover;">
-                                </div>
-                            {% endif %}
-                            {{ form.image }}
-                            {% if form.image.errors %}
-                                <div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mt-4 pt-2 border-top">
-                            <a href="{% url 'dashboard:dispatcher' %}" class="btn btn-outline-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn btn-orange px-4">{% if form.instance.pk %}Save Changes{% else %}Publish Experience{% endif %}</button>
-                        </div>
-                    </form>
-                </div>
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background py-12">
+    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="max-w-2xl mx-auto bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg p-8 md:p-12 space-y-8">
+            
+            <!-- Header -->
+            <div class="text-center space-y-2">
+                <span class="text-secondary font-label-caps text-xs uppercase tracking-widest block font-bold">Experience Manager</span>
+                <h1 class="font-serif text-3xl text-primary font-bold tracking-tight">
+                    {% if form.instance.pk %}Edit Host Experience{% else %}Create Local Experience{% endif %}
+                </h1>
+                <p class="text-xs text-on-surface-variant max-w-md mx-auto">Share signature village walks, private spice kitchen classes, or sunrise treks with travelers.</p>
             </div>
+
+            <!-- Form -->
+            <form method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="bg-error-container/10 border border-error/20 text-error rounded p-4 text-xs font-semibold space-y-1">
+                        {% for error in form.non_field_errors %}
+                            <p class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">warning</span> {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="space-y-1.5">
+                    <label for="id_title" class="ln-label">Experience Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.title.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-1.5">
+                        <label for="id_price" class="ln-label">Price per traveler (₹)</label>
+                        {{ form.price }}
+                        {% if form.price.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.price.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="space-y-1.5">
+                        <label for="id_duration" class="ln-label">Duration (e.g. 3 hours)</label>
+                        {{ form.duration }}
+                        {% if form.duration.errors %}
+                            <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.duration.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="id_category" class="ln-label">Activity Category</label>
+                    {{ form.category }}
+                    <p class="ln-help-text">e.g., Cooking Class, Village Walk, Spice Plantation Tour</p>
+                    {% if form.category.errors %}
+                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.category.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="id_description" class="ln-label">Experience Description</label>
+                    <textarea name="description" id="id_description" rows="4" class="ln-input" placeholder="Provide a vibrant description of the activity details, inclusions, and difficulty level..." required>{{ form.description.value|default:'' }}</textarea>
+                    {% if form.description.errors %}
+                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="id_image" class="ln-label">Experience Showcase Photo</label>
+                    <div class="flex items-center gap-4 bg-surface-container-low/40 p-4 border border-outline-variant/15 rounded-md">
+                        {% if form.instance.image %}
+                            <img src="{{ form.instance.image.url }}" alt="Experience Showcase" class="rounded w-16 h-12 object-cover shadow-sm">
+                        {% endif %}
+                        <div class="flex-grow">
+                            {{ form.image }}
+                            <p class="text-[10px] text-on-surface-variant/80 mt-1">Upload a high-quality landscape photo of this activity.</p>
+                        </div>
+                    </div>
+                    {% if form.image.errors %}
+                        <div class="ln-error-text"><span class="material-symbols-outlined text-xs">error</span> {{ form.image.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="flex justify-between items-center pt-6 border-t border-outline-variant/10">
+                    <a href="{% url 'dashboard:dispatcher' %}" class="ln-btn-secondary px-6">Cancel</a>
+                    <button type="submit" class="ln-btn-primary px-8">
+                        {% if form.instance.pk %}Save Changes{% else %}Publish Experience{% endif %}
+                    </button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>

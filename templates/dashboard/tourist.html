@@ -3,144 +3,482 @@
 {% block title %}Tourist Dashboard | LocalNest{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row g-4">
-        <!-- Sidebar profile info -->
-        <div class="col-lg-4">
-            <div class="card card-custom glass-card p-4 text-center shadow-sm">
-                <div class="card-body">
-                    {% if user.profile.profile_photo %}
-                        <img src="{{ user.profile.profile_photo.url }}" class="rounded-circle object-fit-cover shadow-sm mb-3" style="width: 120px; height: 120px;" alt="{{ user.username }}">
-                    {% else %}
-                        <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center shadow-sm mx-auto mb-3" style="width: 120px; height: 120px;">
-                            <i class="bi bi-person-fill text-success" style="font-size: 4rem;"></i>
-                        </div>
-                    {% endif %}
-                    
-                    <h3 class="fw-bold text-success-emphasis mb-1">{{ user.get_full_name|default:user.username }}</h3>
-                    <span class="badge bg-success-subtle text-success mb-3">Tourist Member</span>
-                    
-                    <p class="text-muted small px-2"><em>{{ user.profile.bio|default:"No bio added yet." }}</em></p>
-                    
-                    <hr class="my-3">
-                    
-                    <div class="text-start small text-muted">
-                        <div class="mb-2"><i class="bi bi-envelope-fill me-2 text-success"></i>{{ user.email }}</div>
-                        <div class="mb-2"><i class="bi bi-telephone-fill me-2 text-success"></i>{{ user.profile.phone_number|default:"No phone configured" }}</div>
-                        <div class="mb-2"><i class="bi bi-geo-alt-fill me-2 text-success"></i>{{ user.profile.address|default:"No address configured" }}</div>
+<style>
+    .font-serif-headline {
+        font-family: var(--heading-font), Georgia, serif;
+    }
+    .text-olive {
+        color: #606c38 !important;
+    }
+    .text-terracotta {
+        color: #c96a3d !important;
+    }
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.35em 0.8em;
+        border-radius: 12px;
+    }
+    .journey-card {
+        border: 1px solid rgba(42, 72, 53, 0.12);
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: #ffffff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-bottom: 24px;
+    }
+    .journey-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.05);
+    }
+    .profile-photo-container img {
+        border: 3px solid #ffffff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .btn-localnest-primary {
+        background-color: #c96a3d;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border: none;
+        padding: 0.6rem 1.5rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+    .btn-localnest-primary:hover {
+        background-color: #b55d32;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+    .btn-localnest-secondary {
+        background-color: transparent;
+        color: #2a4835;
+        border: 1px solid rgba(42, 72, 53, 0.25);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.6rem 1.5rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+    .btn-localnest-secondary:hover {
+        background-color: rgba(42, 72, 53, 0.04);
+        color: #2a4835;
+    }
+    .active-card {
+        background-color: rgba(42, 72, 53, 0.04) !important;
+        border-color: #2a4835 !important;
+        box-shadow: 0 4px 15px rgba(42, 72, 53, 0.08) !important;
+    }
+</style>
+
+<div class="container mx-auto px-4 my-8" style="max-width: 1000px;">
+    <!-- 1. COMPACT EDITORIAL PROFILE HEADER -->
+    <div class="bg-transparent mb-6">
+        <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+            <div class="profile-photo-container flex-shrink-0">
+                {% if user.profile.profile_photo %}
+                    <img src="{{ user.profile.profile_photo.url }}" class="rounded-full object-cover" style="width: 120px; height: 120px;" alt="{{ user.username }}">
+                {% else %}
+                    <div class="rounded-full flex items-center justify-center text-white font-serif-headline" style="width: 120px; height: 120px; background-color: #2a4835; font-size: 2.5rem; border: 3px solid #ffffff; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                        {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
                     </div>
-                    
-                    <a href="{% url 'accounts:profile_edit' %}" class="btn btn-orange btn-sm w-100 mt-3 py-2"><i class="bi bi-pencil-square me-1"></i>Edit Profile</a>
+                {% endif %}
+            </div>
+            
+            <div class="flex-grow text-center md:text-left">
+                <div class="flex flex-col md:flex-row items-center gap-3 mb-2">
+                    <h1 class="font-serif-headline text-[#1a2b25] mb-0 font-bold text-3xl">{{ user.get_full_name|default:user.username }}</h1>
+                    <span class="badge text-xs tracking-wider px-3 py-1 font-semibold uppercase rounded-full" style="background-color: rgba(42, 72, 53, 0.08); color: #2a4835;">Traveler</span>
+                </div>
+                
+                <p class="font-serif-headline italic mb-4 text-[#44474d] text-lg">
+                    "{{ user.profile.bio|default:"Enthusiastic explorer and food lover looking for authentic experiences." }}"
+                </p>
+                
+                <!-- Contact Details -->
+                <div class="flex flex-wrap gap-4 justify-center md:justify-start text-gray-600 mb-4 text-sm">
+                    <span class="flex items-center gap-1.5"><i class="bi bi-envelope text-[#2a4835]"></i> {{ masked_email }}</span>
+                    {% if user.profile.phone_number %}
+                        <span class="flex items-center gap-1.5"><i class="bi bi-telephone text-[#2a4835]"></i> {{ masked_phone }}</span>
+                    {% endif %}
+                    {% if user.profile.address %}
+                        <span class="flex items-center gap-1.5"><i class="bi bi-geo-alt text-[#2a4835]"></i> {{ user.profile.address }}</span>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <a href="{% url 'accounts:profile_edit' %}" class="btn-localnest-secondary"><i class="bi bi-pencil-square mr-1"></i> Edit Profile</a>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Main Column: Bookings and Wishlist -->
-        <div class="col-lg-8">
-            <!-- Notifications Panel -->
-            {% if user.notifications.all %}
-                <div class="card card-custom glass-card p-3 mb-4 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="fw-bold mb-0 text-success-emphasis"><i class="bi bi-bell-fill me-1"></i>Recent Notifications</h6>
-                        <form action="{% url 'notifications:mark_all_read' %}" method="post" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-link btn-sm text-decoration-none text-muted small p-0">Mark all as read</button>
-                        </form>
+    <!-- 2. PROFILE SUMMARY STATS ROW -->
+    <div class="grid grid-cols-2 md:grid-cols-4 text-center my-8 py-6 border-t border-b border-[#eae6df]">
+        <div class="flex flex-col items-center">
+            <div class="text-3xl font-bold text-[#2a4835] font-serif-headline">{{ bookings.count|default:0 }}</div>
+            <div class="text-xs tracking-wider text-gray-500 font-sans uppercase font-semibold mt-1">Journeys</div>
+        </div>
+        <div class="flex flex-col items-center border-l-0 md:border-l border-gray-200">
+            <div class="text-3xl font-bold text-[#2a4835] font-serif-headline">{{ wishlist.count|default:0 }}</div>
+            <div class="text-xs tracking-wider text-gray-500 font-sans uppercase font-semibold mt-1">Saved Families</div>
+        </div>
+        <div class="flex flex-col items-center border-l-0 md:border-l border-gray-200">
+            <div class="text-3xl font-bold text-[#2a4835] font-serif-headline">{{ stories_count|default:0 }}</div>
+            <div class="text-xs tracking-wider text-gray-500 font-sans uppercase font-semibold mt-1">Stories</div>
+        </div>
+        <div class="flex flex-col items-center border-l-0 md:border-l border-gray-200">
+            <div class="text-3xl font-bold text-[#2a4835] font-serif-headline">{{ experiences_count|default:0 }}</div>
+            <div class="text-xs tracking-wider text-gray-500 font-sans uppercase font-semibold mt-1">Experiences</div>
+        </div>
+    </div>
+
+    <!-- 3. QUICK NAVIGATION CARDS GRID -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="touristTabs" role="tablist">
+        <!-- Card 1: Bookings -->
+        <button class="w-full text-left focus:outline-none nav-tab-btn" 
+                id="bookings-tab" 
+                data-bs-toggle="pill" 
+                data-bs-target="#bookings-panel" 
+                type="button"
+                role="tab"
+                aria-controls="bookings-panel"
+                aria-selected="true">
+            <div class="nav-card-inner p-4 rounded-xl border border-[#eae6df] bg-[#ffffff] hover:border-[#c96a3d] hover:shadow-md transition-all duration-300 active-card"
+                 style="border-color: rgba(42, 72, 53, 0.12) !important;">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center justify-center text-white rounded-full w-10 h-10 bg-[#2a4835]">
+                        <i class="bi bi-airplane-fill" style="font-size: 1.1rem;"></i>
                     </div>
-                    <div class="d-flex flex-column gap-2" style="max-height: 180px; overflow-y: auto;">
-                        {% for notif in user.notifications.all|slice:":5" %}
-                            <div class="p-2 border rounded d-flex justify-content-between align-items-center bg-body {% if not notif.is_read %}border-success-subtle bg-success-subtle bg-opacity-10{% endif %}" style="font-size: 0.8rem;">
-                                <div>
-                                    <strong class="text-dark">{{ notif.title }}</strong>: {{ notif.message }}
-                                    <span class="d-block text-muted" style="font-size: 0.7rem;">{{ notif.created_at|timesince }} ago</span>
-                                </div>
-                                {% if not notif.is_read %}
-                                    <form action="{% url 'notifications:mark_read' notif.id %}" method="post" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-link btn-sm text-success p-0" aria-label="Mark Read"><i class="bi bi-check-circle"></i></button>
-                                    </form>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
+                    {% if bookings.count %}
+                        <span class="badge rounded-full bg-[#f4f0e8] text-[#2a4835] px-2.5 py-0.5 text-xs font-bold">{{ bookings.count }}</span>
+                    {% endif %}
                 </div>
-            {% endif %}
+                <h6 class="text-uppercase tracking-wider text-[#1a2b25] font-bold mb-1 font-sans text-xs uppercase font-semibold">My Bookings</h6>
+                <p class="text-gray-500 mb-0 font-sans text-xs">View and manage stays →</p>
+            </div>
+        </button>
 
-            <!-- Nav Tabs -->
-            <ul class="nav nav-pills mb-4 gap-2" id="touristTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="btn btn-charcoal-outline active" id="bookings-tab" data-bs-toggle="pill" data-bs-target="#bookings-panel" type="button" role="tab" aria-controls="bookings-panel" aria-selected="true"><i class="bi bi-airplane me-1"></i>My Bookings</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="btn btn-charcoal-outline" id="wishlist-tab" data-bs-toggle="pill" data-bs-target="#wishlist-panel" type="button" role="tab" aria-controls="wishlist-panel" aria-selected="false"><i class="bi bi-heart me-1"></i>Wishlist</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="btn btn-charcoal-outline" id="passport-tab" data-bs-toggle="pill" data-bs-target="#passport-panel" type="button" role="tab" aria-controls="passport-panel" aria-selected="false"><i class="bi bi-award me-1"></i>Travel Passport</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="btn btn-charcoal-outline" id="memories-tab" data-bs-toggle="pill" data-bs-target="#memories-panel" type="button" role="tab" aria-controls="memories-panel" aria-selected="false"><i class="bi bi-journal-album me-1"></i>My Journey</button>
-                </li>
-            </ul>
+        <!-- Card 2: Wishlist -->
+        <button class="w-full text-left focus:outline-none nav-tab-btn" 
+                id="wishlist-tab" 
+                data-bs-toggle="pill" 
+                data-bs-target="#wishlist-panel" 
+                type="button"
+                role="tab"
+                aria-controls="wishlist-panel"
+                aria-selected="false">
+            <div class="nav-card-inner p-4 rounded-xl border border-[#eae6df] bg-[#ffffff] hover:border-[#c96a3d] hover:shadow-md transition-all duration-300"
+                 style="border-color: rgba(42, 72, 53, 0.12) !important;">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center justify-center text-white rounded-full w-10 h-10 bg-[#2a4835]">
+                        <i class="bi bi-heart-fill" style="font-size: 1.1rem;"></i>
+                    </div>
+                    {% if wishlist.count %}
+                        <span class="badge rounded-full bg-[#f4f0e8] text-[#2a4835] px-2.5 py-0.5 text-xs font-bold">{{ wishlist.count }}</span>
+                    {% endif %}
+                </div>
+                <h6 class="text-uppercase tracking-wider text-[#1a2b25] font-bold mb-1 font-sans text-xs uppercase font-semibold">Wishlist</h6>
+                <p class="text-gray-500 mb-0 font-sans text-xs">Homes you've saved →</p>
+            </div>
+        </button>
 
-            <!-- Tab Panels -->
-            <div class="tab-content" id="touristTabsContent">
-                <!-- Bookings Panel -->
-                <div class="tab-pane fade show active" id="bookings-panel" role="tabpanel" aria-labelledby="bookings-tab">
-                    <div class="card card-custom p-4 shadow-sm border-0 bg-body">
-                        <h4 class="fw-bold text-success-emphasis mb-3">Booking History</h4>
-                        
-                        {% if bookings %}
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead>
-                                        <tr class="text-muted small">
-                                            <th>Ref</th>
-                                            <th>Homestay</th>
-                                            <th>Dates</th>
-                                            <th>Price</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for booking in bookings %}
-                                            <tr>
-                                                <td class="font-monospace small">#{{ booking.id|stringformat:"s"|slice:":8" }}</td>
-                                                <td>
-                                                    <span class="fw-semibold text-success">{{ booking.property.name }}</span>
-                                                    <span class="d-block small text-muted">{{ booking.property.city }}, {{ booking.property.state }}</span>
-                                                </td>
-                                                <td class="small">
-                                                    {{ booking.start_date }}<br>to {{ booking.end_date }}
-                                                </td>
-                                                <td class="fw-bold text-success-emphasis">INR {{ booking.total_price }}</td>
-                                                <td>
-                                                    <span class="badge 
-                                                        {% if booking.status == 'PENDING' %}bg-warning text-dark
-                                                        {% elif booking.status == 'APPROVED' %}bg-success
-                                                        {% elif booking.status == 'REJECTED' %}bg-danger
-                                                        {% else %}bg-secondary{% endif %}">
-                                                        {{ booking.get_status_display }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn btn-sm btn-orange"><i class="bi bi-eye"></i> View</a>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        {% else %}
-                            <div class="text-center py-5">
-                                <i class="bi bi-airplane-fill text-muted" style="font-size: 3rem;"></i>
-                                <h5 class="mt-3">No Bookings Yet</h5>
-                                <p class="text-muted small">You haven't made any booking requests. Start exploring local homestays today!</p>
-                                <a href="{% url 'properties:search' %}" class="btn btn-orange btn-sm px-4 py-2 mt-2">Explore Homestays</a>
-                            </div>
+        <!-- Card 3: Passport -->
+        <button class="w-full text-left focus:outline-none nav-tab-btn" 
+                id="passport-tab" 
+                data-bs-toggle="pill" 
+                data-bs-target="#passport-panel" 
+                type="button"
+                role="tab"
+                aria-controls="passport-panel"
+                aria-selected="false">
+            <div class="nav-card-inner p-4 rounded-xl border border-[#eae6df] bg-[#ffffff] hover:border-[#c96a3d] hover:shadow-md transition-all duration-300"
+                 style="border-color: rgba(42, 72, 53, 0.12) !important;">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center justify-center text-white rounded-full w-10 h-10 bg-[#2a4835]">
+                        <i class="bi bi-award-fill" style="font-size: 1.1rem;"></i>
+                    </div>
+                    {% if passport_badges.count %}
+                        <span class="badge rounded-full bg-[#f4f0e8] text-[#2a4835] px-2.5 py-0.5 text-xs font-bold">{{ passport_badges.count }}</span>
+                    {% endif %}
+                </div>
+                <h6 class="text-uppercase tracking-wider text-[#1a2b25] font-bold mb-1 font-sans text-xs uppercase font-semibold">Travel Passport</h6>
+                <p class="text-gray-500 mb-0 font-sans text-xs">Your achievements →</p>
+            </div>
+        </button>
+
+        <!-- Card 4: Memories -->
+        <button class="w-full text-left focus:outline-none nav-tab-btn" 
+                id="memories-tab" 
+                data-bs-toggle="pill" 
+                data-bs-target="#memories-panel" 
+                type="button"
+                role="tab"
+                aria-controls="memories-panel"
+                aria-selected="false">
+            <div class="nav-card-inner p-4 rounded-xl border border-[#eae6df] bg-[#ffffff] hover:border-[#c96a3d] hover:shadow-md transition-all duration-300"
+                 style="border-color: rgba(42, 72, 53, 0.12) !important;">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center justify-center text-white rounded-full w-10 h-10 bg-[#2a4835]">
+                        <i class="bi bi-journal-album" style="font-size: 1.1rem;"></i>
+                    </div>
+                    {% if memories.count %}
+                        <span class="badge rounded-full bg-[#f4f0e8] text-[#2a4835] px-2.5 py-0.5 text-xs font-bold">{{ memories.count }}</span>
+                    {% endif %}
+                </div>
+                <h6 class="text-uppercase tracking-wider text-[#1a2b25] font-bold mb-1 font-sans text-xs uppercase font-semibold">My Journey</h6>
+                <p class="text-gray-500 mb-0 font-sans text-xs">Journals and memories →</p>
+            </div>
+        </button>
+    </div>
+
+    <!-- Notifications Panel (cleanly integrated) -->
+    {% if user.notifications.all %}
+        <div class="card p-4 mb-6 border bg-white" style="border-radius: 12px; border-color: rgba(42, 72, 53, 0.12) !important; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+            <div class="flex justify-between items-center mb-3">
+                <h6 class="font-bold mb-0 text-[#2a4835] font-sans" style="font-size: 0.85rem;"><i class="bi bi-bell-fill mr-1.5"></i>Recent Notifications</h6>
+                <form action="{% url 'notifications:mark_all_read' %}" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link btn-sm text-decoration-none text-gray-500 small p-0 font-sans" style="font-size: 0.75rem;">Mark all as read</button>
+                </form>
+            </div>
+            <div class="flex flex-col gap-2" style="max-height: 180px; overflow-y: auto;">
+                {% for notif in user.notifications.all|slice:":5" %}
+                    <div class="p-2.5 border rounded flex justify-content-between items-center bg-body {% if not notif.is_read %}border-success-subtle bg-success-subtle bg-opacity-10{% endif %}" style="font-size: 0.8rem; border-radius: 8px !important;">
+                        <div>
+                            <strong class="text-dark">{{ notif.title }}</strong>: {{ notif.message }}
+                            <span class="block text-gray-400 mt-0.5" style="font-size: 0.7rem;">{{ notif.created_at|timesince }} ago</span>
+                        </div>
+                        {% if not notif.is_read %}
+                            <form action="{% url 'notifications:mark_read' notif.id %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-[#2a4835] p-0" aria-label="Mark Read"><i class="bi bi-check-circle"></i></button>
+                            </form>
                         {% endif %}
                     </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- 4. TAB PANELS -->
+    <div class="tab-content" id="touristTabsContent">
+        <!-- Bookings Panel (JOURNEYS) -->
+        <div class="tab-pane fade show active" id="bookings-panel" role="tabpanel" aria-labelledby="bookings-tab">
+            <div class="mb-6">
+                <h2 class="font-serif-headline text-[#1a2b25] font-bold mb-1" style="font-size: 1.8rem;">Your Journeys</h2>
+                <p class="font-serif-headline italic text-gray-500" style="font-size: 0.95rem;">"Places you've stayed. People you've met. Stories you've collected."</p>
+            </div>
+            
+            {% if bookings %}
+                <!-- UPCOMING JOURNEYS -->
+                <div class="mb-8">
+                    <h5 class="text-uppercase tracking-widest text-terracotta font-bold mb-4 font-sans" style="font-size: 0.75rem; letter-spacing: 0.12em;">Upcoming Journeys</h5>
+                    {% if upcoming_bookings %}
+                        <div class="flex flex-col gap-4">
+                            {% for booking in upcoming_bookings %}
+                                <div class="journey-card">
+                                    <div class="flex flex-col md:flex-row g-0">
+                                        <div class="md:w-1/3" style="min-height: 200px; max-height: 240px;">
+                                            {% if booking.property.images.all %}
+                                                <img src="{{ booking.property.images.first.image.url }}" class="w-full h-full object-cover" alt="{{ booking.property.name }}">
+                                            {% else %}
+                                                <img src="/static/img/localnest_hero_hillside.jpg" class="w-full h-full object-cover" alt="LocalNest Stay">
+                                            {% endif %}
+                                        </div>
+                                        <div class="md:w-2/3 flex flex-col justify-between p-6">
+                                            <div>
+                                                <div class="flex justify-between items-start mb-2">
+                                                    <span class="text-xs uppercase font-bold tracking-wider text-gray-500">
+                                                        {{ booking.property.city|upper }}, {{ booking.property.state|upper }}
+                                                    </span>
+                                                    {% if booking.status == 'PENDING' %}
+                                                        <span class="badge-status" style="background-color: #fef3c7; color: #d97706;"><span style="display:inline-block; width:6px; height:6px; background-color:#d97706; border-radius:50%;"></span> Awaiting Host</span>
+                                                    {% elif booking.status == 'APPROVED' %}
+                                                        <span class="badge-status" style="background-color: #d1fae5; color: #065f46;"><span style="display:inline-block; width:6px; height:6px; background-color:#065f46; border-radius:50%;"></span> Confirmed</span>
+                                                    {% elif booking.status == 'REJECTED' %}
+                                                        <span class="badge-status" style="background-color: #fee2e2; color: #991b1b;"><span style="display:inline-block; width:6px; height:6px; background-color:#991b1b; border-radius:50%;"></span> Rejected</span>
+                                                    {% else %}
+                                                        <span class="badge-status" style="background-color: #f3f4f6; color: #6b7280;"><span style="display:inline-block; width:6px; height:6px; background-color:#6b7280; border-radius:50%;"></span> Cancelled</span>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <h4 class="font-serif-headline text-[#1a2b25] mb-1 font-bold text-xl">{{ booking.property.name }}</h4>
+                                                <div class="text-sm text-gray-600 font-sans mb-3">
+                                                    Hosted by: <strong class="text-[#2a4835] font-semibold">{{ booking.property.host.host_families.first.name|default:booking.property.host.get_full_name }}</strong>
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+                                                    <div>
+                                                        <span class="block text-xs text-gray-500 uppercase tracking-wider font-semibold">CHECK-IN</span>
+                                                        <strong class="text-gray-900">{{ booking.start_date|date:"N j, Y" }}</strong>
+                                                    </div>
+                                                    <div>
+                                                        <span class="block text-xs text-gray-500 uppercase tracking-wider font-semibold">CHECK-OUT</span>
+                                                        <strong class="text-gray-900">{{ booking.end_date|date:"N j, Y" }}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex justify-between items-center pt-4 border-t border-[#eae6df]">
+                                                <div>
+                                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-semibold">TOTAL AMOUNT</span>
+                                                    <span class="text-lg font-bold text-[#2a4835] font-serif-headline">INR {{ booking.total_price }}</span>
+                                                </div>
+                                                <div class="flex gap-3">
+                                                    <a href="{% url 'chat:chat_thread' booking.property.host.id %}" class="btn-localnest-secondary py-1.5 px-3 btn-sm"><i class="bi bi-chat-text mr-1"></i> Message Host</a>
+                                                    <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn-localnest-primary py-1.5 px-3 btn-sm">View Journey</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-6 border rounded" style="border-radius: 12px; border-color: rgba(42, 72, 53, 0.12) !important; background-color: #fcfbfa;">
+                            <p class="text-gray-500 italic font-serif-headline text-lg mb-3">"Your next LocalNest story is waiting."</p>
+                            <a href="{% url 'properties:search' %}" class="btn-localnest-primary py-1.5 px-4"><i class="bi bi-compass mr-1.5"></i> Discover Stays</a>
+                        </div>
+                    {% endif %}
                 </div>
+
+                <!-- PAST JOURNEYS -->
+                <div>
+                    <h5 class="text-uppercase tracking-widest text-gray-400 font-bold mb-4 font-sans" style="font-size: 0.75rem; letter-spacing: 0.12em;">Past Journeys</h5>
+                    {% if past_bookings %}
+                        <div class="flex flex-col gap-4">
+                            {% for booking in past_bookings %}
+                                <div class="journey-card">
+                                    <div class="flex flex-col md:flex-row g-0">
+                                        <div class="md:w-1/3" style="min-height: 200px; max-height: 240px;">
+                                            {% if booking.property.images.all %}
+                                                <img src="{{ booking.property.images.first.image.url }}" class="w-full h-full object-cover" alt="{{ booking.property.name }}">
+                                            {% else %}
+                                                <img src="/static/img/localnest_hero_hillside.jpg" class="w-full h-full object-cover" alt="LocalNest Stay">
+                                            {% endif %}
+                                        </div>
+                                        <div class="md:w-2/3 flex flex-col justify-between p-6">
+                                            <div>
+                                                <div class="flex justify-between items-start mb-2">
+                                                    <span class="text-xs uppercase font-bold tracking-wider text-gray-500">
+                                                        {{ booking.property.city|upper }}, {{ booking.property.state|upper }}
+                                                    </span>
+                                                    <span class="badge-status" style="background-color: #f3f4f6; color: #4b5563;"><span style="display:inline-block; width:6px; height:6px; background-color:#4b5563; border-radius:50%;"></span> Completed</span>
+                                                </div>
+                                                
+                                                <h4 class="font-serif-headline text-[#1a2b25] mb-1 font-bold text-xl">{{ booking.property.name }}</h4>
+                                                <div class="text-sm text-gray-600 font-sans mb-3">
+                                                    Hosted by: <strong class="text-[#2a4835] font-semibold">{{ booking.property.host.host_families.first.name|default:booking.property.host.get_full_name }}</strong>
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+                                                    <div>
+                                                        <span class="block text-xs text-gray-500 uppercase tracking-wider font-semibold">STAYED FROM</span>
+                                                        <strong class="text-gray-900">{{ booking.start_date|date:"N j, Y" }}</strong>
+                                                    </div>
+                                                    <div>
+                                                        <span class="block text-xs text-gray-500 uppercase tracking-wider font-semibold">STAYED TO</span>
+                                                        <strong class="text-gray-900">{{ booking.end_date|date:"N j, Y" }}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex justify-between items-center pt-4 border-t border-[#eae6df]">
+                                                <div>
+                                                    <span class="block text-xs text-gray-500 uppercase tracking-wider font-semibold">TOTAL PAID</span>
+                                                    <span class="text-lg font-bold text-[#2a4835] font-serif-headline">INR {{ booking.total_price }}</span>
+                                                </div>
+                                                <div class="flex gap-3">
+                                                    {% if not booking.review %}
+                                                        <a href="{% url 'reviews:submit_review' booking.id %}" class="btn-localnest-primary py-1.5 px-3 btn-sm"><i class="bi bi-star-fill mr-1.5" style="font-size: 0.85rem;"></i> Write Review</a>
+                                                    {% endif %}
+                                                    <a href="{% url 'bookings:booking_detail' booking.id %}" class="btn-localnest-secondary py-1.5 px-3 btn-sm">View Journey</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <!-- EMPTY STATE (NO BOOKINGS AT ALL) -->
+                <div class="text-center py-10 border rounded bg-[#fcfbfa]" style="border-radius: 12px; border-color: rgba(42, 72, 53, 0.12) !important;">
+                    <div class="mb-4 text-terracotta">
+                        <i class="bi bi-compass" style="font-size: 3.5rem;"></i>
+                    </div>
+                    <h3 class="font-serif-headline text-[#1a2b25] font-bold mb-2 text-xl">Your First Journey is Waiting</h3>
+                    <p class="text-gray-500 font-sans mb-6 px-4 text-sm max-w-md mx-auto">
+                        "Discover a home, meet a family, and experience India differently."
+                    </p>
+                    <a href="{% url 'properties:search' %}" class="btn-localnest-primary py-2 px-5"><i class="bi bi-search mr-1.5"></i> Explore Stays</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabButtons = document.querySelectorAll('.nav-tab-btn');
+            const tabPanels = document.querySelectorAll('.tab-pane');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => {
+                        const card = btn.querySelector('.nav-card-inner');
+                        if (card) {
+                            card.classList.remove('active-card');
+                        }
+                    });
+
+                    // Add active class to clicked button
+                    const card = this.querySelector('.nav-card-inner');
+                    if (card) {
+                        card.classList.add('active-card');
+                    }
+
+                    // Hide all tab panels
+                    tabPanels.forEach(panel => {
+                        panel.classList.remove('show', 'active');
+                        panel.style.display = 'none';
+                    });
+
+                    // Show target panel
+                    const targetSelector = this.getAttribute('data-bs-target');
+                    const targetPanel = document.querySelector(targetSelector);
+                    if (targetPanel) {
+                        targetPanel.classList.add('show', 'active');
+                        targetPanel.style.display = 'block';
+                    }
+                });
+            });
+
+            // Initialize state
+            tabPanels.forEach(panel => {
+                if (panel.classList.contains('active')) {
+                    panel.style.display = 'block';
+                } else {
+                    panel.style.display = 'none';
+                }
+            });
+        });
+        </script>  </div>
 
                 <!-- Passport Panel -->
                 <div class="tab-pane fade" id="passport-panel" role="tabpanel" aria-labelledby="passport-tab">
