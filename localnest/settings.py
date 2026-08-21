@@ -171,16 +171,19 @@ LOGIN_REDIRECT_URL = 'dashboard:dispatcher'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Simulated Email Backend Configuration (Console backend for dev, SMTP ready for production)
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
+# Email Backend Configuration (Uses SMTP only if credentials are present, else ConsoleBackend for instant performance)
+_email_user = env('EMAIL_HOST_USER', default='')
+_email_pass = env('EMAIL_HOST_PASSWORD', default='')
+
+if _email_user and _email_pass:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
     EMAIL_PORT = env('EMAIL_PORT', default=587)
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+    EMAIL_HOST_USER = _email_user
+    EMAIL_HOST_PASSWORD = _email_pass
     EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=True)
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = env('EMAIL_FROM', default='LocalNest <noreply@localnest.com>')
 

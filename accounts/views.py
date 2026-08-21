@@ -20,22 +20,25 @@ User = get_user_model()
 
 def send_verification_email(request, user):
     """Generates token and sends a verification link via email"""
-    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-    token = default_token_generator.make_token(user)
-    verify_url = request.build_absolute_uri(
-        reverse('accounts:verify_email', kwargs={'uidb64': uidb64, 'token': token})
-    )
-    
-    subject = "Verify your LocalNest Account"
-    message = f"Hi {user.username},\n\nWelcome to LocalNest! Please click the link below to verify your email address:\n{verify_url}\n\nLive Like a Local!\nLocalNest Team"
-    
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-        fail_silently=True
-    )
+    try:
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        verify_url = request.build_absolute_uri(
+            reverse('accounts:verify_email', kwargs={'uidb64': uidb64, 'token': token})
+        )
+        
+        subject = "Verify your LocalNest Account"
+        message = f"Hi {user.username},\n\nWelcome to LocalNest! Please click the link below to verify your email address:\n{verify_url}\n\nLive Like a Local!\nLocalNest Team"
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=True
+        )
+    except Exception as e:
+        print(f"Non-fatal error in send_verification_email: {e}")
 
 
 class TouristRegisterView(CreateView):
