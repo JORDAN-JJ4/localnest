@@ -28,6 +28,12 @@ def create_fallback_image(width, height, color, filename):
     img.save(buf, format='JPEG')
     return ContentFile(buf.getvalue(), name=filename)
 
+def safe_save_image(field, filename, file_content, save=True):
+    try:
+        field.save(filename, file_content, save=save)
+    except Exception as e:
+        print(f"Warning: Failed to save image {filename} to storage backend: {e}")
+
 _LOCAL_IMAGE_INDEX = {}
 
 def _init_image_index():
@@ -192,7 +198,7 @@ def seed():
         )
         img_name = d.get('local_filename', f"dest_{d['slug']}.jpg")
         img_file = download_image(d['image_url'], img_name, d['color'])
-        dest.image.save(img_name, img_file, save=True)
+        safe_save_image(dest.image, img_name, img_file, save=True)
         destinations[d['name']] = dest
     print("Destinations created.")    # 4. Create Hosts
     hosts_data = [
@@ -296,7 +302,7 @@ def seed():
         
         src_profile = h.get('src_profile_filename', h['profile_filename'])
         profile_img = download_image(h['img_url'], src_profile, h['color'])
-        hp.profile_photo.save(h['profile_filename'], profile_img, save=False)
+        safe_save_image(hp.profile_photo, h['profile_filename'], profile_img, save=False)
         hp.save()
 
     # 5. Create Experiences for Hosts
@@ -367,7 +373,7 @@ def seed():
         )
         img_name = exp_info.get('local_filename', f"exp_{exp.title.lower().replace(' ', '_')}.jpg")
         img_file = download_image(exp_info['image_url'], img_name, exp_info['color'])
-        exp.image.save(img_name, img_file, save=True)
+        safe_save_image(exp.image, img_name, img_file, save=True)
     print("Experiences created.")
 
     # 6. Create Tourists
@@ -420,7 +426,7 @@ def seed():
         
         profile_filename = f"tourist_{t['username']}.jpg"
         profile_img = download_image(t['img_url'], profile_filename, t['color'])
-        tp.profile_photo.save(profile_filename, profile_img, save=False)
+        safe_save_image(tp.profile_photo, profile_filename, profile_img, save=False)
         tp.save()
         
         tourists.append(user)
@@ -661,7 +667,7 @@ def seed():
                 src_filename = target_filename
             img_file = download_image(url, src_filename, p['color'])
             p_img = PropertyImage(property=prop)
-            p_img.image.save(target_filename, img_file, save=True)
+            safe_save_image(p_img.image, target_filename, img_file, save=True)
                 
         # 8. Create Booking & Review
         from datetime import date, timedelta
@@ -879,9 +885,9 @@ def seed():
         )
         src_photo = fd.get('src_photo_file', fd['photo_file'])
         photo_file = download_image(fd['photo_url'], src_photo, (201, 106, 61))
-        fam.photo.save(fd['photo_file'], photo_file, save=False)
+        safe_save_image(fam.photo, fd['photo_file'], photo_file, save=False)
         home_photo_file = download_image(fd['home_photo_url'], fd['home_photo_file'], (201, 106, 61))
-        fam.home_photo.save(fd['home_photo_file'], home_photo_file, save=False)
+        safe_save_image(fam.home_photo, fd['home_photo_file'], home_photo_file, save=False)
         fam.save()
         families[fam.slug] = fam
         
@@ -942,7 +948,7 @@ def seed():
             experience=rel_exp
         )
         img_file = download_image(rd['image_url'], rd['image_file'], (201, 106, 61))
-        rec.image.save(rd['image_file'], img_file, save=True)
+        safe_save_image(rec.image, rd['image_file'], img_file, save=True)
         recipes[rec.slug] = rec
         
     # 12. Seed Traditions
@@ -990,7 +996,7 @@ def seed():
             family=td['family']
         )
         img_file = download_image(td['image_url'], td['image_file'], (201, 106, 61))
-        trad.image.save(td['image_file'], img_file, save=True)
+        safe_save_image(trad.image, td['image_file'], img_file, save=True)
         traditions[trad.slug] = trad
 
     # 13. Seed Voice Recordings
@@ -1054,7 +1060,7 @@ def seed():
             visibility='PUBLIC'
         )
         img_file = download_image(sd['image_url'], sd['local_filename'], (180, 83, 9))
-        story.featured_image.save(sd['local_filename'], img_file, save=True)
+        safe_save_image(story.featured_image, sd['local_filename'], img_file, save=True)
 
     # 15. Seed Local Secrets & Recommendations
     secrets_data = [
@@ -1117,7 +1123,7 @@ def seed():
             location_name=sd['location_name']
         )
         img_file = download_image(sd['image_url'], sd['local_filename'], (180, 83, 9))
-        secret.image.save(sd['local_filename'], img_file, save=True)
+        safe_save_image(secret.image, sd['local_filename'], img_file, save=True)
         
         SecretRecommendation.objects.create(
             local_secret=secret,
