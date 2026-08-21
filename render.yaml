@@ -9,10 +9,11 @@ services:
     plan: free           # upgrade to starter ($7/mo) for production sleep-free
     buildCommand: >
       pip install -r requirements.txt &&
-      python manage.py collectstatic --noinput &&
+      python manage.py collectstatic --noinput
+    startCommand: >
       python manage.py migrate &&
-      python seed_data.py
-    startCommand: gunicorn localnest.wsgi --log-file - --workers 2 --timeout 120
+      python seed_data.py &&
+      gunicorn localnest.wsgi --log-file - --workers 2 --timeout 120
     healthCheckPath: /health/
     envVars:
       - key: DEBUG
