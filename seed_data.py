@@ -76,6 +76,9 @@ def seed():
     StoryContributor.objects.all().delete()
     LocalSecret.objects.all().delete()
     SecretRecommendation.objects.all().delete()
+    User.objects.filter(username__in=[
+        'admin', 'host_ramesh', 'host_harish', 'host_tsering', 'host_vikram', 'host_anil', 'tourist_jenish', 'tourist_sneha'
+    ]).delete()
     
     # 1. Create Admin
     admin_user, created = User.objects.get_or_create(
@@ -277,11 +280,12 @@ def seed():
                 'email_verified': True
             }
         )
-        if u_created:
-            user.set_password('host123')
-            user.save()
+        user.user_type = User.Types.HOST
+        user.email_verified = True
+        user.set_password('host123')
+        user.save()
         
-        hp = user.host_profile
+        hp, _ = HostProfile.objects.get_or_create(user=user)
         hp.phone_number = h['phone']
         hp.bio = h['bio']
         hp.address = h['address']
@@ -404,11 +408,12 @@ def seed():
                 'email_verified': True
             }
         )
-        if u_created:
-            user.set_password('tourist123')
-            user.save()
+        user.user_type = User.Types.TOURIST
+        user.email_verified = True
+        user.set_password('tourist123')
+        user.save()
             
-        tp = user.profile
+        tp, _ = Profile.objects.get_or_create(user=user)
         tp.phone_number = t['phone']
         tp.bio = t['bio']
         tp.address = t['address']
