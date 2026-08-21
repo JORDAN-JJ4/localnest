@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Initialize environment variables
 env = environ.Env(
     DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1', '.onrender.com']),
 )
 
 # Read environment variables from .env file if it exists
@@ -22,7 +22,7 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-localnest-development-ke
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=True)
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.onrender.com'])
 if isinstance(ALLOWED_HOSTS, str):
     ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS.split(',') if host.strip()]
 
@@ -192,6 +192,8 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # Redirect all HTTP → HTTPS
     SECURE_SSL_REDIRECT = True
+    # Exempt health check route from SSL redirect so internal Render health checks succeed (HTTP -> 200 OK)
+    SECURE_REDIRECT_EXEMPT = [r'^health/$']
     # HSTS: tell browsers to always use HTTPS for 1 year
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
