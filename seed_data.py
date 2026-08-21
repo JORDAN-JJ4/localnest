@@ -28,23 +28,25 @@ def create_fallback_image(width, height, color, filename):
     img.save(buf, format='JPEG')
     return ContentFile(buf.getvalue(), name=filename)
 
-def download_image(url, filename, fallback_color=(201, 106, 61)):
-    # Check in media subfolders first to see if it exists
-    for sub in ['families', 'host_profiles', 'recipes', 'destinations', 'experiences', 'blog', 'stories', 'traditions']:
-        media_path = os.path.join('media', sub, filename)
-        if os.path.exists(media_path):
-            print(f"Using existing media image from {media_path}")
-            try:
-                with open(media_path, 'rb') as f:
-                    content = f.read()
-                    return ContentFile(content, name=filename)
-            except Exception as e:
-                print(f"Error reading media image {media_path}: {e}")
+_LOCAL_IMAGE_INDEX = {}
 
-    # Check if a file with the same name exists in static/img
-    local_path = os.path.join('static', 'img', filename)
-    if os.path.exists(local_path):
-        print(f"Using local image from {local_path} instead of downloading.")
+def _init_image_index():
+    global _LOCAL_IMAGE_INDEX
+    if _LOCAL_IMAGE_INDEX:
+        return
+    for search_dir in ['media', os.path.join('static', 'img')]:
+        if os.path.exists(search_dir):
+            for root, _, files in os.walk(search_dir):
+                for f in files:
+                    _LOCAL_IMAGE_INDEX[f.lower()] = os.path.join(root, f)
+
+def download_image(url, filename, fallback_color=(201, 106, 61)):
+    _init_image_index()
+    
+    # 1. Check local file index (case-insensitive for Linux/Render compatibility)
+    lower_fn = filename.lower()
+    if lower_fn in _LOCAL_IMAGE_INDEX:
+        local_path = _LOCAL_IMAGE_INDEX[lower_fn]
         try:
             with open(local_path, 'rb') as f:
                 content = f.read()
@@ -52,24 +54,7 @@ def download_image(url, filename, fallback_color=(201, 106, 61)):
         except Exception as e:
             print(f"Error reading local image {local_path}: {e}")
 
-    print(f"Downloading image from {url}...")
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
-    req = urllib.request.Request(url, headers=headers)
-    for retry in range(3):
-        try:
-            with urllib.request.urlopen(req, timeout=15) as response:
-                content = response.read()
-                img_io = BytesIO(content)
-                img = Image.open(img_io)
-                img.verify()
-                print(f"Successfully downloaded and verified {filename}.")
-                return ContentFile(content, name=filename)
-        except Exception as e:
-            print(f"Error downloading {filename} (attempt {retry+1}/3): {e}")
-            time.sleep(1)
-            
+    # 2. Return instant fallback image (prevents slow network timeouts during Render container startup)
     return create_fallback_image(800, 500, fallback_color, filename)
 
 
