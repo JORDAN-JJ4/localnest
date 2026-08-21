@@ -1,0 +1,53 @@
+﻿# render.yaml — LocalNest deployment configuration for Render.com
+# Docs: https://render.com/docs/infrastructure-as-code
+
+services:
+  - type: web
+    name: localnest
+    env: python
+    region: singapore   # closest to India; change to oregon / frankfurt as needed
+    plan: free           # upgrade to starter ($7/mo) for production sleep-free
+    buildCommand: >
+      pip install -r requirements.txt &&
+      python manage.py collectstatic --noinput &&
+      python manage.py migrate
+    startCommand: gunicorn localnest.wsgi --log-file - --workers 2 --timeout 120
+    healthCheckPath: /health/
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true       # Render auto-generates a secure key
+      - key: ALLOWED_HOSTS
+        value: "localnest.onrender.com"   # update after first deploy
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://localnest.onrender.com"  # update after first deploy
+      - key: DATABASE_URL
+        fromDatabase:
+          name: localnest-db
+          property: connectionString
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false   # Set manually in Render dashboard
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: EMAIL_HOST_USER
+        sync: false   # Set manually in Render dashboard
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        value: "LocalNest <noreply@localnest.com>"
+
+databases:
+  - name: localnest-db
+    databaseName: localnest
+    user: localnest
+    plan: free   # Free PostgreSQL (90-day limit on Render free tier; upgrade for production)
+    region: singapore

@@ -183,3 +183,25 @@ else:
     EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=True)
 
 DEFAULT_FROM_EMAIL = env('EMAIL_FROM', default='LocalNest <noreply@localnest.com>')
+
+# ── Production Security Settings ──────────────────────────────────────────────
+# These are only meaningful in production (DEBUG=False).
+# Render terminates SSL at the load balancer, so we trust the X-Forwarded-Proto header.
+if not DEBUG:
+    # Tell Django to trust Render's HTTPS forwarding header
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Redirect all HTTP → HTTPS
+    SECURE_SSL_REDIRECT = True
+    # HSTS: tell browsers to always use HTTPS for 1 year
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    # Secure cookies (only sent over HTTPS)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+# CSRF trusted origins (required for Render + any custom domain)
+_csrf_origins = env('CSRF_TRUSTED_ORIGINS', default='')
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
+

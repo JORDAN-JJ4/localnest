@@ -167,15 +167,127 @@ localnest/
 
 ---
 
-## Deployment Guide (Railway)
+## 🚀 Deployment Guide (Render)
 
-1. **Sign up / Sign in** to [Railway.app](https://railway.app/).
-2. Click **New Project** -> **Deploy from GitHub repo**.
-3. Choose the repository containing this project.
-4. Add a **PostgreSQL Database** resource on Railway. Railway automatically injects the `DATABASE_URL` environment variable.
-5. In the service settings, add the following configuration variables:
-   - `SECRET_KEY` (a secure random string)
-   - `DEBUG` = `False`
-   - `ALLOWED_HOSTS` = `your-railway-app-domain.railway.app`
-   - `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET`
-6. Click **Deploy**. Railway will build the app using the configuration in `runtime.txt`, `requirements.txt`, and start Gunicorn via the `Procfile`.
+LocalNest is configured for [Render.com](https://render.com) using the included `render.yaml`.
+
+### Prerequisites
+- A **Render** account (free tier works)
+- A **Cloudinary** account (free tier — for media/photo uploads)
+- Your project pushed to **GitHub**
+
+---
+
+### Step 1: Generate a Production SECRET_KEY
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+Copy this value — you'll need it in Render.
+
+### Step 2: Deploy on Render
+
+**Option A — Auto (render.yaml)**
+1. Push this repo to GitHub
+2. Go to [dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint**
+3. Connect your GitHub repo — Render will read `render.yaml` and create both the Web Service and PostgreSQL database automatically
+
+**Option B — Manual**
+1. Go to Render → **New Web Service** → connect your GitHub repo
+2. Configure:
+   - **Build Command:** `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
+   - **Start Command:** `gunicorn localnest.wsgi --log-file - --workers 2 --timeout 120`
+3. Create a **PostgreSQL** service on Render and link it
+
+### Step 3: Set Environment Variables in Render Dashboard
+
+| Variable | Value |
+|---|---|
+| `SECRET_KEY` | Your generated secret key |
+| `DEBUG` | `False` |
+| `ALLOWED_HOSTS` | `your-app.onrender.com` |
+| `CSRF_TRUSTED_ORIGINS` | `https://your-app.onrender.com` |
+| `DATABASE_URL` | Auto-set by Render PostgreSQL |
+| `CLOUDINARY_CLOUD_NAME` | From Cloudinary dashboard |
+| `CLOUDINARY_API_KEY` | From Cloudinary dashboard |
+| `CLOUDINARY_API_SECRET` | From Cloudinary dashboard |
+| `EMAIL_HOST_USER` | Your Gmail address |
+| `EMAIL_HOST_PASSWORD` | Your Gmail App Password |
+
+### Step 4: Create Admin User
+After first deploy, open Render Shell and run:
+```bash
+python manage.py createsuperuser
+```
+Use strong credentials — **never use development passwords in production**.
+
+### Step 5: Verify
+- Visit `https://your-app.onrender.com/health/` → should return `{"status": "ok"}`
+- Visit `https://your-app.onrender.com/` → homepage should load styled
+- Visit `https://your-app.onrender.com/admin/` → Django admin should work
+
+---
+
+## 📁 Media / User Uploads
+
+LocalNest uses **Cloudinary** for all user-uploaded media in production:
+- Property photos
+- Profile photos
+- Story photos
+- Recipe photos
+
+When `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are set, Django automatically routes all media uploads to Cloudinary.
+
+**Without Cloudinary** (local dev): uploads go to the `media/` folder on disk.
+
+---
+
+## 🗄️ Database
+
+- **Development:** SQLite (`db.sqlite3`) — used when `DATABASE_URL` is not set
+- **Production:** PostgreSQL — set `DATABASE_URL` env var
+
+Migrations run automatically as part of the build command.
+
+To run manually:
+```bash
+python manage.py showmigrations  # check status
+python manage.py migrate         # apply
+```
+
+---
+
+## 🔁 Rollback
+
+Each Render deploy creates a snapshot. To rollback:
+1. Go to Render Dashboard → your Web Service → **Deploys**
+2. Click any previous deploy → **Rollback to this deploy**
+
+Git checkpoint before current deployment: `97fb59d`
+
+---
+
+## 🐛 Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| Unstyled page | Run `collectstatic` — check `STATIC_ROOT` and WhiteNoise config |
+| 500 on migrations | Check `DATABASE_URL` is set correctly in Render |
+| Images not loading | Set Cloudinary credentials in Render env vars |
+| CSRF errors | Add your domain to `CSRF_TRUSTED_ORIGINS` |
+| `DisallowedHost` | Add your domain to `ALLOWED_HOSTS` |
+| Static 404 | Ensure `WhiteNoiseMiddleware` is second in `MIDDLEWARE` |
+
+---
+
+## 🏥 Health Check
+
+`GET /health/` returns `{"status": "ok", "service": "LocalNest"}` — used by Render for uptime monitoring.
+
+---
+
+## ⚠️ Payments
+
+The **online (Razorpay) payment flow is currently simulated** for development purposes.
+- **Cash on Arrival** is the recommended production payment method — it works fully end-to-end.
+- Real Razorpay integration requires a Razorpay account and API keys (separate implementation task).
+

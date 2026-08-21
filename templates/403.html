@@ -1,0 +1,29 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Access Denied — LocalNest{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] bg-[#FAF8F5] flex items-center justify-center px-6">
+  <div class="text-center max-w-lg">
+    <p class="font-['Playfair_Display'] text-[#9f4026] text-8xl font-bold mb-4 leading-none">403</p>
+    <h1 class="font-['Playfair_Display'] text-[#04162e] text-3xl md:text-4xl font-bold mb-4">
+      Access denied
+    </h1>
+    <p class="text-[#44474d] font-['Inter'] text-base leading-relaxed mb-8">
+      You do not have permission to view this page.<br>
+      Please log in with the correct account or return home.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <a href="/"
+         class="bg-[#9f4026] text-white text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 hover:bg-[#7f3320] transition-colors inline-flex items-center gap-2 font-['Inter']">
+        Return Home
+      </a>
+      <a href="/accounts/login/"
+         class="border border-[#04162e]/20 text-[#04162e] text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 hover:border-[#9f4026] hover:text-[#9f4026] transition-colors inline-flex items-center gap-2 font-['Inter']">
+        Log In
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

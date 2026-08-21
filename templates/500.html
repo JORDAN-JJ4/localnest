@@ -1,0 +1,23 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Server Error — LocalNest{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] bg-[#FAF8F5] flex items-center justify-center px-6">
+  <div class="text-center max-w-lg">
+    <p class="font-['Playfair_Display'] text-[#9f4026] text-8xl font-bold mb-4 leading-none">500</p>
+    <h1 class="font-['Playfair_Display'] text-[#04162e] text-3xl md:text-4xl font-bold mb-4">
+      Something went wrong
+    </h1>
+    <p class="text-[#44474d] font-['Inter'] text-base leading-relaxed mb-8">
+      We're sorry — something unexpected happened on our end.<br>
+      Our team has been notified. Please try again in a moment.
+    </p>
+    <a href="/"
+       class="bg-[#9f4026] text-white text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 hover:bg-[#7f3320] transition-colors inline-flex items-center gap-2 font-['Inter']">
+      Return Home
+    </a>
+  </div>
+</div>
+{% endblock %}

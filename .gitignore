@@ -1,0 +1,53 @@
+﻿# === Environment & Secrets ===
+.env
+.env.local
+.env.production
+*.env
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+*.so
+.eggs/
+*.egg-info/
+*.egg
+dist/
+build/
+
+# === Virtual Environment ===
+venv/
+env/
+.venv/
+ENV/
+
+# === Django ===
+db.sqlite3
+*.sqlite3
+staticfiles/
+media/
+
+# === Testing ===
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+*.log
+
+# === IDEs & Editors ===
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# === Render / Heroku ===
+*.pid
+
+# === Node (if any build tools) ===
+node_modules/
+npm-debug.log*

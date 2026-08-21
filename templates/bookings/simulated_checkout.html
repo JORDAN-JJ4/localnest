@@ -1,69 +1,75 @@
-{% extends 'base.html' %}
+﻿{% extends "base.html" %}
 {% load static %}
 
-{% block title %}Simulated Gateway Checkout | LocalNest{% endblock %}
+{% block title %}Complete Your Booking | LocalNest{% endblock %}
 
 {% block content %}
-<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-background py-12">
-    <div class="w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-        <div class="max-w-md w-full mx-auto bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-lg overflow-hidden">
-            
-            <!-- Simulated Gateway Header -->
-            <div class="bg-indigo-950 text-white p-6 flex items-center justify-between">
+<div class="min-h-[calc(100vh-160px)] flex flex-col justify-center bg-[#FAF8F5] py-12">
+    <div class="w-full max-w-md mx-auto px-6">
+        <div class="bg-white border border-[#e5e0d8] rounded-sm shadow-sm overflow-hidden">
+
+            <!-- Header -->
+            <div class="bg-[#04162e] text-white p-6 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-xl text-secondary font-bold">shield_with_heart</span>
-                    <h3 class="font-serif text-base font-bold tracking-tight">Razorpay Gateway Simulator</h3>
+                    <span class="material-symbols-outlined text-xl text-[#e8a080]">payments</span>
+                    <h3 class="font-['Playfair_Display'] text-base font-bold">Online Payment</h3>
                 </div>
-                <span class="bg-white/10 text-white/90 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-sm">Test Mode</span>
+                <span class="bg-[#9f4026]/80 text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1">Test Mode</span>
             </div>
-            
+
             <div class="p-6 md:p-8 space-y-6">
-                <!-- Merchant info and Price -->
-                <div class="text-center space-y-1.5">
-                    <span class="text-[9px] font-label-caps text-on-surface-variant uppercase tracking-widest">Merchant: mid_localnest_test_901</span>
-                    <h4 class="font-serif text-lg font-bold text-primary">{{ booking.property.name }}</h4>
-                    <div class="font-serif text-3xl font-bold text-secondary">INR {{ booking.total_price }}</div>
-                </div>
-                
-                <!-- Gateway Alert banner -->
-                <div class="bg-secondary/5 border border-outline-variant/20 rounded p-4 text-[10px] leading-relaxed flex items-start gap-2.5">
-                    <span class="material-symbols-outlined text-lg text-secondary font-bold">info</span>
-                    <span class="text-on-surface-variant font-medium">This is a simulated secure check-out screen. Clicking "Authorize Payment" will register a successful transaction in the database.</span>
+                <!-- Booking summary -->
+                <div class="text-center space-y-1">
+                    <p class="text-[10px] font-['Inter'] text-[#7E786E] uppercase tracking-widest">Booking Total</p>
+                    <h4 class="font-['Playfair_Display'] text-lg font-bold text-[#04162e]">{{ booking.property.name }}</h4>
+                    <div class="font-['Playfair_Display'] text-3xl font-bold text-[#9f4026]">&#8377;{{ booking.total_price }}</div>
                 </div>
 
-                <!-- Form -->
-                <form method="post" class="space-y-5" novalidate>
+                <!-- Important notice -->
+                <div class="bg-amber-50 border border-amber-200 rounded p-4 text-[11px] leading-relaxed font-['Inter'] flex items-start gap-2.5">
+                    <span class="material-symbols-outlined text-lg text-amber-600 flex-shrink-0 mt-0.5">info</span>
+                    <span class="text-amber-800">
+                        <strong>Development mode:</strong> This is a payment simulator for testing purposes.
+                        No real money will be charged. Use <strong>Cash on Arrival</strong> for a real booking flow.
+                    </span>
+                </div>
+
+                <!-- Simulated card fields -->
+                <form method="post" class="space-y-4" novalidate>
                     {% csrf_token %}
-                    
-                    <div class="space-y-1.5">
-                        <label class="ln-label">Card Number (Simulated)</label>
-                        <input type="text" class="ln-input text-center tracking-widest bg-surface-container-low/40 border-outline-variant/20 font-mono text-sm" value="4111 2222 3333 4444" disabled>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold tracking-[0.12em] uppercase text-[#44474d] font-['Inter']">Card Number (Simulated)</label>
+                        <input type="text" class="w-full border border-[#e5e0d8] px-4 py-3 text-center tracking-widest font-mono text-sm bg-[#f9f7f5] text-[#44474d]" value="4111 2222 3333 4444" disabled>
                     </div>
-                    
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="ln-label">Expiry Date</label>
-                            <input type="text" class="ln-input text-center bg-surface-container-low/40 border-outline-variant/20 font-mono text-sm" value="12 / 29" disabled>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold tracking-[0.12em] uppercase text-[#44474d] font-['Inter']">Expiry</label>
+                            <input type="text" class="w-full border border-[#e5e0d8] px-4 py-3 text-center font-mono text-sm bg-[#f9f7f5] text-[#44474d]" value="12 / 29" disabled>
                         </div>
-                        <div class="space-y-1.5">
-                            <label class="ln-label">CVV</label>
-                            <input type="text" class="ln-input text-center bg-surface-container-low/40 border-outline-variant/20 font-mono text-sm" value="***" disabled>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold tracking-[0.12em] uppercase text-[#44474d] font-['Inter']">CVV</label>
+                            <input type="text" class="w-full border border-[#e5e0d8] px-4 py-3 text-center font-mono text-sm bg-[#f9f7f5] text-[#44474d]" value="***" disabled>
                         </div>
                     </div>
-
                     <!-- Actions -->
-                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-outline-variant/10">
-                        <a href="{% url 'bookings:select_payment' booking.id %}" class="ln-btn-secondary py-2.5 text-[10px] text-center hover:no-underline">Cancel</a>
-                        <button type="submit" class="ln-btn-primary py-2.5 text-[10px] text-center bg-indigo-900 hover:bg-indigo-950 shadow-none">Authorize Payment</button>
+                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-[#e5e0d8]">
+                        <a href="{% url "bookings:select_payment" booking.id %}"
+                           class="border border-[#04162e]/20 text-[#04162e] text-[10px] font-bold tracking-[0.12em] uppercase px-4 py-3 text-center hover:border-[#9f4026] hover:text-[#9f4026] transition-colors font-['Inter']">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                class="bg-[#04162e] text-white text-[10px] font-bold tracking-[0.12em] uppercase px-4 py-3 hover:bg-[#9f4026] transition-colors font-['Inter']">
+                            Simulate Payment
+                        </button>
                     </div>
                 </form>
             </div>
-            
+
             <!-- Footer -->
-            <div class="bg-surface-container-low/30 border-t border-outline-variant/10 py-3 text-center text-[10px] text-on-surface-variant/80 font-medium flex items-center justify-center gap-1.5">
-                <span class="material-symbols-outlined text-sm text-secondary font-bold">lock</span> Secured 256-bit SSL encrypted connection
+            <div class="bg-[#f5f3f0] border-t border-[#e5e0d8] py-3 text-center text-[10px] text-[#7E786E] font-['Inter'] flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-[#9f4026]">lock</span>
+                Simulated environment — not a real payment gateway
             </div>
-            
         </div>
     </div>
 </div>

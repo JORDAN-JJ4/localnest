@@ -1,0 +1,29 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Page Not Found — LocalNest{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] bg-[#FAF8F5] flex items-center justify-center px-6">
+  <div class="text-center max-w-lg">
+    <p class="font-['Playfair_Display'] text-[#9f4026] text-8xl font-bold mb-4 leading-none">404</p>
+    <h1 class="font-['Playfair_Display'] text-[#04162e] text-3xl md:text-4xl font-bold mb-4">
+      This path doesn't exist
+    </h1>
+    <p class="text-[#44474d] font-['Inter'] text-base leading-relaxed mb-8">
+      The page you're looking for has moved, been removed, or never existed.<br>
+      But there are thousands of real homes and stories waiting for you.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <a href="/"
+         class="bg-[#9f4026] text-white text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 hover:bg-[#7f3320] transition-colors inline-flex items-center gap-2 font-['Inter']">
+        Back to Home
+      </a>
+      <a href="/properties/search/"
+         class="border border-[#04162e]/20 text-[#04162e] text-[11px] font-bold tracking-[0.12em] uppercase px-8 py-4 hover:border-[#9f4026] hover:text-[#9f4026] transition-colors inline-flex items-center gap-2 font-['Inter']">
+        Explore Stays
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
