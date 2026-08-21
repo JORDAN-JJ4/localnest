@@ -37,6 +37,15 @@ class PropertySearchView(ListView):
     paginate_by = 9
 
     def get_queryset(self):
+        # Auto-seed database if empty
+        if not Property.objects.filter(is_approved=True).exists():
+            try:
+                import seed_data
+                print("Seeding production database on PropertySearchView request...")
+                seed_data.seed()
+            except Exception as e:
+                print(f"Error seeding database: {e}")
+
         search_type = self.request.GET.get('type', 'homes')
         
         if search_type == 'hosts':

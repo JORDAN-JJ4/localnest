@@ -13,6 +13,16 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Auto-seed database if empty
+        if not Property.objects.filter(is_approved=True).exists():
+            try:
+                import seed_data
+                print("Seeding production database on HomeView request...")
+                seed_data.seed()
+            except Exception as e:
+                print(f"Error seeding database: {e}")
+
         # Fetch up to 3 featured properties with ratings and image count
         context['featured_homestays'] = Property.objects.filter(
             is_approved=True
