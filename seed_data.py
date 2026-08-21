@@ -130,7 +130,8 @@ def seed():
             'lat': 10.0889,
             'lon': 77.0595,
             'image_url': 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80',
-            'color': (201, 106, 61)
+            'color': (201, 106, 61),
+            'local_filename': 'localnest_hero_hillside.jpg'
         },
         {
             'name': 'Varanasi',
@@ -155,7 +156,8 @@ def seed():
             'lat': 32.2596,
             'lon': 77.1887,
             'image_url': 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80',
-            'color': (140, 154, 91)
+            'color': (140, 154, 91),
+            'local_filename': 'hero_slideshow_2.jpg'
         },
         {
             'name': 'Jaipur',
@@ -167,7 +169,8 @@ def seed():
             'lat': 26.9855,
             'lon': 75.8513,
             'image_url': 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80',
-            'color': (217, 119, 6)
+            'color': (217, 119, 6),
+            'local_filename': 'localnest_hero_full_haveli.jpg'
         },
         {
             'name': 'Mumbai',
@@ -180,7 +183,7 @@ def seed():
             'lon': 72.8230,
             'image_url': 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=1200&q=80',
             'color': (74, 20, 140),
-            'local_filename': 'v2_cstm_station.jpg'
+            'local_filename': 'custom_marine_drive.jpg'
         }
     ]
 
@@ -315,7 +318,8 @@ def seed():
             'duration': '2 Hours',
             'description': 'Walk through our private spice plantation and learn how to harvest tea leaves and cardamom pods by hand.',
             'image_url': 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=600&q=80',
-            'color': (201, 106, 61)
+            'color': (201, 106, 61),
+            'local_filename': 'v2_boat_villagers.jpg'
         },
         {
             'host': 'host_harish',
@@ -336,7 +340,8 @@ def seed():
             'duration': '1.5 Hours',
             'description': 'Gather fresh wild apricots from our backyard orchard and cook traditional Himalayan jam with old family recipes.',
             'image_url': 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=600&q=80',
-            'color': (140, 154, 91)
+            'color': (140, 154, 91),
+            'local_filename': 'v3_flute_sunset.jpg'
         },
         {
             'host': 'host_vikram',
@@ -346,7 +351,8 @@ def seed():
             'duration': '2.5 Hours',
             'description': 'Learn the intricate hand-painting techniques of Jaipur’s famous blue pottery from local master artisans.',
             'image_url': 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=600&q=80',
-            'color': (217, 119, 6)
+            'color': (217, 119, 6),
+            'local_filename': 'v3_local_market.jpg'
         },
         {
             'host': 'host_anil',
